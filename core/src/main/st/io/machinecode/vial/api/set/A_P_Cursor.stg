@@ -1,0 +1,16 @@
+delimiters "$", "$"
+
+PCursor(I, P, p, X) ::= <<
+package io.machinecode.vial.api.set;
+
+import java.util.Iterator;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public interface $I$Cursor extends Iterable<$I$Cursor>, Iterator<$I$Cursor> {
+
+    $p$ value();
+}
+>>

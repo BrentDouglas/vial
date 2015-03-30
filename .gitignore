@@ -19,3 +19,6 @@ idea
 .metadata
 .project
 .settings
+
+# Generated
+gen

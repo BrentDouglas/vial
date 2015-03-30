@@ -1,0 +1,37 @@
+delimiters "$", "$"
+
+PSetGenerator(I, P, p, X) ::= <<
+package io.machinecode.vial.core.set;
+
+import com.google.common.collect.testing.SampleElements;
+import com.google.common.collect.testing.TestSetGenerator;
+
+import java.util.List;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public abstract class $I$SetGenerator implements TestSetGenerator<$P$> {
+    @Override
+    public SampleElements<$P$> samples() {
+        return new SampleElements<>(
+                ($p$)0,
+                ($p$)1,
+                ($p$)2,
+                ($p$)3,
+                ($p$)4
+        );
+    }
+
+    @Override
+    public $P$[] createArray(final int length) {
+        return new $P$[length];
+    }
+
+    @Override
+    public List<$P$> order(final List<$P$> insertionOrder) {
+        return insertionOrder;
+    }
+}
+>>

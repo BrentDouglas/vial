@@ -1,0 +1,66 @@
+delimiters "$", "$"
+
+OPMapGenerator(I, P, p, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import com.google.common.collect.testing.Helpers;
+import com.google.common.collect.testing.SampleElements;
+import com.google.common.collect.testing.TestMapGenerator;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+* @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+* @since 1.0
+*/
+public abstract class O$I$MapGenerator implements TestMapGenerator<String, $P$> {
+
+    @Override
+    public SampleElements<Map.Entry<String, $P$$X$ samples() {
+        return new SampleElements<>(
+                Helpers.mapEntry("January", ($p$)0),
+                Helpers.mapEntry("February", ($p$)1),
+                Helpers.mapEntry("March", ($p$)2),
+                Helpers.mapEntry("April", ($p$)3),
+                Helpers.mapEntry("May", ($p$)4)
+        );
+    }
+
+    @Override
+    public Map<String, $P$> create(final Object... entries) {
+        @SuppressWarnings("unchecked")
+        Map.Entry<String, $P$>[] array = new Map.Entry[entries.length];
+        int i = 0;
+        for (Object o : entries) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, $P$> e = (Map.Entry<String, $P$>) o;
+            array[i++] = e;
+        }
+        return create(array);
+    }
+
+    protected abstract Map<String, $P$> create(final Map.Entry<String, $P$>[] entries);
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public final Map.Entry<String, $P$>[] createArray(final int length) {
+        return new Map.Entry[length];
+    }
+
+    @Override
+    public final String[] createKeyArray(final int length) {
+        return new String[length];
+    }
+
+    @Override
+    public final $P$[] createValueArray(final int length) {
+        return new $P$[length];
+    }
+
+    @Override
+    public Iterable<Map.Entry<String, $P$$X$ order(final List<Map.Entry<String, $P$$X$ insertionOrder) {
+        return insertionOrder;
+    }
+}
+>>

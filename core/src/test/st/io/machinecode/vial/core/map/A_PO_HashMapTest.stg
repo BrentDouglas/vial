@@ -1,0 +1,68 @@
+delimiters "$", "$"
+
+POHashMapTest(I, P, p, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
+import io.machinecode.vial.core.TestUtil;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import java.util.Map;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class $I$OHashMapTest {
+
+    public static Test suite() {
+        final TestSuite suite = new TestSuite($I$OHashMap.class.getName());
+        suite.addTest(longTestsFor$I$OHashMap());
+        suite.addTest(stringTestsFor$I$OHashMap());
+        return suite;
+    }
+
+    private static Test longTestsFor$I$OHashMap() {
+        return MapTestSuiteBuilder
+                .using(new $I$LMapGenerator() {
+                    @Override
+                    protected Map<$P$, Long> create(final Map.Entry<$P$, Long>[] entries) {
+                        return TestUtil.populate(new $I$OHashMap<Long>(), entries);
+                    }
+                })
+                .named("$I$OHashMap<Long>")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_VALUES,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    private static Test stringTestsFor$I$OHashMap() {
+        return MapTestSuiteBuilder
+                .using(new $I$OMapGenerator() {
+                    @Override
+                    protected Map<$P$, String> create(final Map.Entry<$P$, String>[] entries) {
+                        return TestUtil.populate(new $I$OHashMap<String>(), entries);
+                    }
+                })
+                .named("$I$OHashMap<String>")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_VALUES,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+}
+
+>>

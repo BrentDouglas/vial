@@ -1,0 +1,66 @@
+delimiters "$", "$"
+
+PPMapGenerator(Ik, Pk, pk, Iv, Pv, pv, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import com.google.common.collect.testing.Helpers;
+import com.google.common.collect.testing.SampleElements;
+import com.google.common.collect.testing.TestMapGenerator;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+* @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+* @since 1.0
+*/
+public abstract class $Ik$$Iv$MapGenerator implements TestMapGenerator<$Pk$, $Pv$> {
+
+    @Override
+    public SampleElements<Map.Entry<$Pk$, $Pv$$X$ samples() {
+        return new SampleElements<>(
+                Helpers.mapEntry(($pk$)0, ($pv$)65),
+                Helpers.mapEntry(($pk$)1, ($pv$)124),
+                Helpers.mapEntry(($pk$)2, ($pv$)0),
+                Helpers.mapEntry(($pk$)3, ($pv$)3344),
+                Helpers.mapEntry(($pk$)4, ($pv$)-123)
+        );
+    }
+
+    @Override
+    public Map<$Pk$, $Pv$> create(final Object... entries) {
+        @SuppressWarnings("unchecked")
+        Map.Entry<$Pk$, $Pv$>[] array = new Map.Entry[entries.length];
+        int i = 0;
+        for (Object o : entries) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<$Pk$, $Pv$> e = (Map.Entry<$Pk$, $Pv$>) o;
+            array[i++] = e;
+        }
+        return create(array);
+    }
+
+    protected abstract Map<$Pk$, $Pv$> create(final Map.Entry<$Pk$, $Pv$>[] entries);
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public final Map.Entry<$Pk$, $Pv$>[] createArray(final int length) {
+        return new Map.Entry[length];
+    }
+
+    @Override
+    public final $Pk$[] createKeyArray(final int length) {
+        return new $Pk$[length];
+    }
+
+    @Override
+    public final $Pv$[] createValueArray(final int length) {
+        return new $Pv$[length];
+    }
+
+    @Override
+    public Iterable<Map.Entry<$Pk$, $Pv$$X$ order(final List<Map.Entry<$Pk$, $Pv$$X$ insertionOrder) {
+        return insertionOrder;
+    }
+}
+>>

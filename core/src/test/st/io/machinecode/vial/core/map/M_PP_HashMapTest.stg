@@ -1,0 +1,46 @@
+delimiters "$", "$"
+
+PPHashMapTest(I, P, p, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
+import io.machinecode.vial.core.TestUtil;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import java.util.Map;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class $I$$I$HashMapTest {
+
+    public static Test suite() {
+        final TestSuite suite = new TestSuite($I$$I$HashMap.class.getName());
+        suite.addTest(testsFor$I$$I$HashMap());
+        return suite;
+    }
+
+    private static Test testsFor$I$$I$HashMap() {
+        return MapTestSuiteBuilder
+                .using(new $I$$I$MapGenerator() {
+                    @Override
+                    protected Map<$P$, $P$> create(final Map.Entry<$P$, $P$>[] entries) {
+                        return TestUtil.populate(new $I$$I$HashMap(), entries);
+                    }
+                })
+                .named("$I$$I$HashMap")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+}
+>>

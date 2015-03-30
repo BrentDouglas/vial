@@ -1,0 +1,1126 @@
+delimiters "$", "$"
+
+PPHashMap(I, P, p, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import io.machinecode.vial.api.map.$I$$I$Cursor;
+import io.machinecode.vial.api.map.$I$$I$Map;
+import io.machinecode.vial.core.Util;
+
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class $I$$I$HashMap implements $I$$I$Map, Serializable {
+    private static final long serialVersionUID = 0L;
+
+    private static final int MAX_CAPACITY = 1 << 29;
+    private static final int DEFAULT_CAPACITY = 4;
+    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    private static final $p$ NO_KEY = 0;
+    private static final $p$ NO_VALUE = 0;
+
+    private $p$[] _data;
+    private boolean _haveFreeValue;
+    private $p$ _freeValue;
+
+    private final float _factor;
+    private int _threshold;
+    private int _size;
+
+    private int _initialMask;
+    private int _nextMask;
+
+    public $I$$I$HashMap() {
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+    }
+
+    public $I$$I$HashMap(final int capacity) {
+        this(capacity, DEFAULT_LOAD_FACTOR);
+    }
+
+    public $I$$I$HashMap(final float factor) {
+        this(DEFAULT_CAPACITY, factor);
+    }
+
+    public $I$$I$HashMap(final $I$$I$HashMap m) {
+        this._factor = m._factor;
+        this._size = m._size;
+        this._threshold = m._threshold;
+        this._initialMask = m._initialMask;
+        this._nextMask = m._nextMask;
+        this._data = new $p$[m._data.length];
+        System.arraycopy(m._data, 0, this._data, 0, m._data.length);
+    }
+
+    public $I$$I$HashMap(final Map<? extends $P$, ? extends $P$> m) {
+        this(m.size(), DEFAULT_LOAD_FACTOR);
+        putAll(m);
+    }
+
+    public $I$$I$HashMap(final int _capacity, final float factor) {
+        assert factor > 0 && factor <= 1;
+        assert _capacity >= 0;
+        final int capacity = Math.max((int) (_capacity / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY);
+        this._factor = factor;
+        this._size = 0;
+        final int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
+        final int length = cap * 2;
+        this._threshold = (int)(cap * factor);
+        this._initialMask = cap - 1;
+        this._nextMask = length - 1;
+        this._data = new $p$[length];
+    }
+
+    @Override
+    public int size() {
+        return _size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return _size == 0;
+    }
+
+    @Override
+    public boolean containsKey(final Object key) {
+        return key instanceof $P$ && containsKey(($p$)key);
+    }
+
+    @Override
+    public boolean containsKey(final $p$ key) {
+        if (key == NO_KEY) {
+            return this._haveFreeValue;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return false;
+            } else if (k == key) {
+                return true;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+    @Override
+    public boolean containsValue(final Object value) {
+        return value instanceof $P$ && containsValue(($p$)value);
+    }
+
+    @Override
+    public boolean containsValue(final $p$ value) {
+        if (_haveFreeValue && _freeValue == value) {
+            return true;
+        }
+        for (int i = 0; i < this._data.length; i+=2) {
+            final $p$ k = this._data[i];
+            if (k != NO_KEY && this._data[i+1] == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public $P$ get(final Object _key) {
+        if (!(_key instanceof $P$)) {
+            return null;
+        }
+        final $p$ key = ($p$)_key;
+        if (key == NO_KEY) {
+            return this._haveFreeValue
+                    ? this._freeValue
+                    : null;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return null;
+            } else if (k == key) {
+                return this._data[index + 1];
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $p$ get(final $p$ key) {
+        if (key == NO_KEY) {
+            return this._haveFreeValue
+                    ? this._freeValue
+                    : NO_VALUE;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return NO_VALUE;
+            } else if (k == key) {
+                return this._data[index + 1];
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $P$ getOrDefault(final Object key, final $P$ defaultValue) {
+        if (key instanceof $P$) {
+            return getOrDefault(($p$) key, ($p$)defaultValue);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    @Override
+    public $p$ getOrDefault(final $p$ key, final $p$ defaultValue) {
+        if (key == NO_KEY) {
+            return this._haveFreeValue
+                    ? this._freeValue
+                    : defaultValue;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return defaultValue;
+            } else if (k == key) {
+                return this._data[index + 1];
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $P$ put(final $P$ _key, final $P$ _value) {
+        final $p$ key = _key;
+        final $p$ value = _value;
+        if (key == NO_KEY) {
+            if (!this._haveFreeValue) {
+                this._size++;
+            }
+            final $p$ old = this._freeValue;
+            this._freeValue = value;
+            this._haveFreeValue = true;
+            return old;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                this._data[index] = key;
+                this._data[index + 1] = value;
+                this._size++;
+                if (this._size >= this._threshold) {
+                    _rehash();
+                }
+                return null;
+            } else if (k == key) {
+                final $p$ old = this._data[index + 1];
+                this._data[index + 1] = value;
+                return old;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $p$ put(final $p$ key, final $p$ value) {
+        if (key == NO_KEY) {
+            if (!this._haveFreeValue) {
+                this._size++;
+            }
+            final $p$ old = this._freeValue;
+            this._freeValue = value;
+            this._haveFreeValue = true;
+            return old;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                this._data[index] = key;
+                this._data[index + 1] = value;
+                this._size++;
+                if (this._size >= this._threshold) {
+                    _rehash();
+                }
+                return NO_VALUE;
+            } else if (k == key) {
+                final $p$ old = this._data[index + 1];
+                this._data[index + 1] = value;
+                return old;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $P$ putIfAbsent(final $P$ _key, final $P$ _value) {
+        final $p$ key = _key;
+        final $p$ value = _value;
+        if (key == NO_KEY) {
+            if (this._haveFreeValue) {
+                return this._freeValue;
+            }
+            this._size++;
+            this._freeValue = value;
+            this._haveFreeValue = true;
+            return null;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                this._data[index] = key;
+                this._data[index + 1] = value;
+                this._size++;
+                if (this._size >= this._threshold) {
+                    _rehash();
+                }
+                return null;
+            } else if (k == key) {
+                return this._data[index + 1];
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $p$ putIfAbsent(final $p$ key, final $p$ value) {
+        if (key == NO_KEY) {
+            if (this._haveFreeValue) {
+                return this._freeValue;
+            }
+            this._size++;
+            this._freeValue = value;
+            this._haveFreeValue = true;
+            return NO_VALUE;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                this._data[index] = key;
+                this._data[index + 1] = value;
+                this._size++;
+                if (this._size >= this._threshold) {
+                    _rehash();
+                }
+                return NO_VALUE;
+            } else if (k == key) {
+                return this._data[index + 1];
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public void putAll(final $I$$I$Map m) {
+        for (final $I$$I$Cursor entry : m) {
+            put(entry.key(), entry.value());
+        }
+    }
+
+    @Override
+    public void putAll(final Map<? extends $P$, ? extends $P$> m) {
+        for (final Entry<? extends $P$, ? extends $P$> entry : m.entrySet()) {
+            put(entry.getKey().$p$Value(), entry.getValue().$p$Value());
+        }
+    }
+
+    @Override
+    public $P$ remove(final Object _key) {
+        if (!(_key instanceof $P$)) {
+            return null;
+        }
+        final $p$ key = ($p$)_key;
+        if (key == NO_KEY) {
+            if (this._haveFreeValue) {
+                this._size--;
+                this._haveFreeValue = false;
+                return this._freeValue;
+            } else {
+                return null;
+            }
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return null;
+            } else if (k == key) {
+                final $p$ old = this._data[index + 1];
+                _remove(index);
+                return old;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $p$ remove(final $p$ key) {
+        if (key == NO_KEY) {
+            if (this._haveFreeValue) {
+                this._size--;
+                this._haveFreeValue = false;
+                return this._freeValue;
+            } else {
+                return NO_VALUE;
+            }
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return NO_VALUE;
+            } else if (k == key) {
+                final $p$ old = this._data[index + 1];
+                _remove(index);
+                return old;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public boolean remove(final Object key, final Object value) {
+        return key instanceof $P$ && value instanceof $P$ && remove(($p$) key, ($p$) value);
+    }
+
+    @Override
+    public boolean remove(final $p$ key, final $p$ value) {
+        if (key == NO_KEY) {
+            if (this._haveFreeValue && value == this._freeValue) {
+                this._size--;
+                this._haveFreeValue = false;
+                return true;
+            } else {
+                return false;
+            }
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return false;
+            } else if (k == key) {
+                if (value != this._data[index + 1]) {
+                    return false;
+                }
+                _remove(index);
+                return true;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    private boolean _removeKey(final $p$ key) {
+        if (key == NO_KEY) {
+            if (this._haveFreeValue) {
+                this._size--;
+                this._haveFreeValue = false;
+                return true;
+            } else {
+                return false;
+            }
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return false;
+            } else if (k == key) {
+                _remove(index);
+                return true;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    private void _remove(int index) {
+        this._size--;
+        int next = (index + 2) & this._nextMask;
+        for (;;) {
+            $p$ key;
+            for (;;) {
+                key = this._data[next];
+                if (key == NO_KEY) {
+                    this._data[index] = NO_KEY;
+                    return;
+                }
+                final int hash = Util.hashAndScramble(key);
+                int slot = (hash & this._initialMask) << 1;
+                if (index <= next
+                        ? index >= slot || slot > next
+                        : index >= slot && slot > next) {
+                    break;
+                }
+                next = (next + 2) & this._nextMask;
+            }
+            this._data[index] = key;
+            this._data[index+1] = this._data[next+1];
+            index = next;
+            next = (next + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public boolean removeValue(final $p$ value) {
+        if (_haveFreeValue && (value == NO_VALUE ? _freeValue == NO_VALUE : value == _freeValue)) {
+            _haveFreeValue = false;
+            --_size;
+            return true;
+        }
+        for (int i = 0; i < this._data.length; i+=2) {
+            final $p$ k = this._data[i];
+            final $p$ v = this._data[i+1];
+            if (k != NO_KEY && (value == NO_VALUE ? v == NO_VALUE : value == v)) {
+                _remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean replace(final $P$ key, final $P$ oldValue, final $P$ newValue) {
+        return replace(($p$)key, ($p$)oldValue, ($p$)newValue);
+    }
+
+    @Override
+    public boolean replace(final $p$ key, final $p$ oldValue, final $p$ newValue) {
+        if (key == NO_KEY) {
+            if (!this._haveFreeValue || this._freeValue != oldValue) {
+                return false;
+            }
+            this._freeValue = newValue;
+            this._haveFreeValue = true;
+            return true;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return false;
+            } else if (k == key) {
+                if (this._data[index + 1] != oldValue) {
+                    return false;
+                }
+                this._data[index + 1] = newValue;
+                return true;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $P$ replace(final $P$ _key, final $P$ _value) {
+        final $p$ key = _key;
+        final $p$ value = _value;
+        if (key == NO_KEY) {
+            if (!this._haveFreeValue) {
+                return null;
+            }
+            final $p$ old = this._freeValue;
+            this._freeValue = value;
+            this._haveFreeValue = true;
+            return old;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return null;
+            } else if (k == key) {
+                final $p$ old = this._data[index + 1];
+                this._data[index + 1] = value;
+                return old;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public $p$ replace(final $p$ key, final $p$ value) {
+        if (key == NO_KEY) {
+            if (!this._haveFreeValue) {
+                return NO_VALUE;
+            }
+            final $p$ old = this._freeValue;
+            this._freeValue = value;
+            this._haveFreeValue = true;
+            return old;
+        }
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                return NO_VALUE;
+            } else if (k == key) {
+                final $p$ old = this._data[index + 1];
+                this._data[index + 1] = value;
+                return old;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    @Override
+    public void clear() {
+        this._haveFreeValue = false;
+        this._size = 0;
+        for (int i = 0; i < this._data.length; i+=2) {
+            this._data[i] = NO_KEY;
+        }
+    }
+
+    @Override
+    public Set<$P$> keySet() {
+        return new KeySet(this);
+    }
+
+    @Override
+    public $p$[] keyArray() {
+        final $p$[] ret = new $p$[_size];
+        int ri = 0;
+        if (this._haveFreeValue) {
+            ret[ri++] = NO_KEY;
+        }
+        for (int di = 0; di < this._data.length; di+=2,++ri) {
+            if (this._data[di] == NO_KEY) {
+                continue;
+            }
+            ret[ri] = this._data[di];
+        }
+        assert ri == ret.length - 1;
+        return ret;
+    }
+
+    @Override
+    public Collection<$P$> values() {
+        return new ValueCol(this);
+    }
+
+    @Override
+    public $p$[] valueArray() {
+        final $p$[] ret = new $p$[_size];
+        int ri = 0;
+        if (this._haveFreeValue) {
+            ret[ri++] = this._freeValue;
+        }
+        for (int di = 0; di < this._data.length; di+=2,++ri) {
+            if (this._data[di] == NO_KEY) {
+                continue;
+            }
+            ret[ri] = this._data[di+1];
+        }
+        assert ri == ret.length - 1;
+        return ret;
+    }
+
+    @Override
+    public Set<Entry<$P$, $P$$X$ entrySet() {
+        return new EntrySet(this);
+    }
+
+    @Override
+    public $I$$I$Cursor iterator() {
+        return new CursorIt(this);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (o instanceof $I$$I$HashMap) {
+            final $I$$I$HashMap m = ($I$$I$HashMap) o;
+            if (_size != m.size()) return false;
+            for (final $I$$I$Cursor e : this) {
+                if (e.value() != m.get(e.key())) return false;
+            }
+            return true;
+        } else if (o instanceof Map) {
+            final Map<?,?> m = (Map<?,?>) o;
+            if (_size != m.size()) return false;
+            for (final $I$$I$Cursor e : this) {
+                final Object value = m.get(e.key());
+                if (value == null || !value.equals(e.value())) return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int ret = 0;
+        for (final $I$$I$Cursor e : this) {
+            ret += e.hashCode();
+        }
+        return ret;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("{");
+        boolean add = false;
+        for (final $I$$I$Cursor e : this) {
+            if (add) {
+                sb.append(", ");
+            }
+            sb.append(e.key()).append("=").append(e.value());
+            add = true;
+        }
+        return sb.append('}').toString();
+    }
+
+    private void _rehash() {
+        final int capacity = this._data.length / 2;
+        final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
+        final $p$[] data = this._data;
+        final int length = cap * 2;
+        this._threshold = (int)(cap * this._factor);
+        this._initialMask = cap - 1;
+        this._nextMask = length - 1;
+        this._data = new $p$[length];
+        for (int i = 0; i < capacity; i+=2) {
+            final $p$ k = data[i];
+            if (k != NO_KEY) {
+                _putNoResize(k, data[i+1]);
+            }
+        }
+    }
+
+    private void _putNoResize(final $p$ key, final $p$ value) {
+        assert key != NO_KEY;
+        final int hash = Util.hashAndScramble(key);
+        int index = (hash & this._initialMask) << 1;
+        for (;;) {
+            final $p$ k = this._data[index];
+            if (k == NO_KEY) {
+                this._data[index] = key;
+                this._data[index + 1] = value;
+                return;
+            } else if (k == key) {
+                this._data[index + 1] = value;
+                return;
+            }
+            index = (index + 2) & this._nextMask;
+        }
+    }
+
+    private static final $p$ ILLEGAL = ($p$)-1;
+
+    private abstract static class _It<T> implements Iterator<T> {
+        final $I$$I$HashMap map;
+        private final int[] keyIndices;
+        private int index = 0;
+        $p$ key = ILLEGAL;
+        int keyIndex = -1;
+
+        private _It(final $I$$I$HashMap map) {
+            this.map = map;
+            this.keyIndices = new int[map._size];
+            int ei = 0;
+            for (int i = 0; i < map._data.length; i+=2) {
+                if (map._data[i] == NO_KEY) {
+                    continue;
+                }
+                keyIndices[ei++] = i;
+            }
+            if (map._haveFreeValue) {
+                keyIndices[ei++] = -1;
+            }
+            assert ei == map._size;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < keyIndices.length;
+        }
+
+        @Override
+        public T next() {
+            if (index >= keyIndices.length) {
+                throw new NoSuchElementException(); //TODO Message
+            }
+            keyIndex = keyIndices[index++];
+            key = keyIndex == -1 ? NO_KEY : map._data[keyIndex];
+            return _get();
+        }
+
+        @Override
+        public void remove() {
+            if (key == ILLEGAL) {
+                throw new IllegalStateException(); //TODO Message
+            }
+            map._removeKey(key);
+            key = ILLEGAL;
+        }
+
+        abstract T _get();
+    }
+
+    private static class CursorIt extends _It<$I$$I$Cursor> implements $I$$I$Cursor {
+        private CursorIt(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        $I$$I$Cursor _get() {
+            return Util.cast(this);
+        }
+
+        @Override
+        public $p$ key() {
+            return Util.cast(key);
+        }
+
+        @Override
+        public $p$ value() {
+            return key == NO_KEY ? map._freeValue : map._data[keyIndex+1];
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof $I$$I$Cursor)) return false;
+            final $I$$I$Cursor c = ($I$$I$Cursor) o;
+
+            final $p$ key = key();
+            final $p$ value = value();
+            final $p$ ckey = c.key();
+            final $p$ cvalue = c.value();
+            return (key == ckey) && (value == cvalue);
+        }
+
+        @Override
+        public int hashCode() {
+            final $p$ key = key();
+            final $p$ value = value();
+            return $P$.hashCode(key) ^ $P$.hashCode(value);
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            sb.append(key()).append("=").append(value());
+            return sb.toString();
+        }
+
+        @Override
+        public $I$$I$Cursor iterator() {
+            return this;
+        }
+    }
+
+    private static class EntryIt extends _It<Entry<$P$,$P$$X$ {
+
+        private EntryIt(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        Entry<$P$,$P$> _get() {
+            return new En<>(map, key, key == NO_KEY ? map._freeValue : map._data[keyIndex+1]);
+        }
+    }
+
+    private static class KeyIt extends _It<$P$> {
+        private KeyIt(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        $P$ _get() {
+            return key;
+        }
+    }
+
+    private static class ValueIt extends _It<$P$> {
+        private ValueIt(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        $P$ _get() {
+            return key == NO_KEY ? map._freeValue : map._data[keyIndex+1];
+        }
+    }
+
+    private abstract static class _Col<X> implements Collection<X> {
+        final $I$$I$HashMap map;
+
+        private _Col(final $I$$I$HashMap map) {
+            this.map = map;
+        }
+
+        @Override
+        public int size() {
+            return map._size;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return map._size == 0;
+        }
+
+        @Override
+        public boolean add(final X e) {
+            throw new UnsupportedOperationException(); //TODO Message
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends X> c) {
+            throw new UnsupportedOperationException(); //TODO Message
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            for (final Object o : c) {
+                if (!contains(o)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            boolean ret = false;
+            for (final Object o : c) {
+                ret |= remove(o);
+            }
+            return ret;
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            if (c == null) throw new NullPointerException(); //TODO Message
+            final Iterator<X> it = _Col.this.iterator();
+            boolean ret = false;
+            while (it.hasNext()) {
+                if (!c.contains(it.next())) {
+                    it.remove();
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        @Override
+        public Object[] toArray() {
+            final Object[] ret = new Object[map._size];
+            int ri = 0;
+            if (map._haveFreeValue) {
+                ret[ri++] = _get(NO_KEY);
+            }
+            for (int i = 0; i < map._data.length; i+=2) {
+                final $p$ key = map._data[i];
+                if (key == NO_KEY) {
+                    continue;
+                }
+                ret[ri++] = _get(key);
+            }
+            return ret;
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            final T[] ret;
+            if (a.length == map._size) {
+                ret = a;
+            } else if (a.length > map._size) {
+                ret = a;
+                a[map._size] = null;
+            } else {
+                ret = Util.cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+            }
+            int ri = 0;
+            if (map._haveFreeValue) {
+                ret[ri++] = Util.cast(_get(NO_KEY));
+            }
+            for (int i = 0; i < map._data.length; i+=2) {
+                final $p$ key = map._data[i];
+                if (key == NO_KEY) {
+                    continue;
+                }
+                ret[ri++] = Util.cast(_get(key));
+            }
+            return ret;
+        }
+
+        abstract X _get(final $p$ key);
+
+        @Override
+        public void clear() {
+            map.clear();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof Collection)) return false;
+            final Collection<?> c = (Collection<?>) o;
+            return c.size() == size() && containsAll(c);
+        }
+
+        @Override
+        public int hashCode() {
+            int h = 0;
+            for (final X x : _Col.this) {
+                h += x == null ? 0 : x.hashCode();
+            }
+            return h;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("[");
+            boolean add = false;
+            for (final X e : this) {
+                if (add) {
+                    sb.append(',');
+                }
+                sb.append(e);
+                add = true;
+            }
+            return sb.append(']').toString();
+        }
+    }
+
+    private static class KeySet extends _Col<$P$> implements Set<$P$> {
+
+        private KeySet(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            return map.containsKey(o);
+        }
+
+        @Override
+        public Iterator<$P$> iterator() {
+            return new KeyIt(map);
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            return o instanceof $P$ && map._removeKey(($p$)o);
+        }
+
+        @Override
+        $P$ _get(final $p$ key) {
+            return key;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            return o instanceof Set && super.equals(o);
+        }
+    }
+
+    private static class ValueCol extends _Col<$P$> {
+        private ValueCol(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        $P$ _get(final $p$ key) {
+            if (!map.containsKey(key)) {
+                return null;
+            }
+            return map.get(key);
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            return map.containsValue(o);
+        }
+
+        @Override
+        public Iterator<$P$> iterator() {
+            return new ValueIt(map);
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            return o instanceof $P$ && map.removeValue(($p$)o);
+        }
+    }
+
+    private static class EntrySet extends _Col<Entry<$P$,$P$$X$ implements Set<Entry<$P$,$P$$X$ {
+
+        private EntrySet(final $I$$I$HashMap map) {
+            super(map);
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            if (!(o instanceof Entry)) {
+                return false;
+            }
+            final Entry<?,?> e = (Entry<?,?>)o;
+            final Object key = e.getKey();
+            if (!map.containsKey(key)) return false;
+            final $p$ value = map.get(key);
+            final Object evalue = e.getValue();
+            return evalue != null && evalue.equals(value);
+        }
+
+        @Override
+        public Iterator<Entry<$P$,$P$$X$ iterator() {
+            return new EntryIt(map);
+        }
+
+        @Override
+        Entry<$P$,$P$> _get(final $p$ key) {
+            if (!map.containsKey(key)) {
+                return null;
+            }
+            return new En<>(map, key, map.get(key));
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            if (!(o instanceof Entry)) {
+                return false;
+            }
+            final Entry<?,?> e = (Entry<?,?>)o;
+            return map.remove(e.getKey(), e.getValue());
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            return o instanceof Set && super.equals(o);
+        }
+    }
+}
+>>

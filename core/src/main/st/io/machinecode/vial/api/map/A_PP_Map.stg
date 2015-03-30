@@ -1,0 +1,44 @@
+delimiters "$", "$"
+
+PPMap(Ik, Pk, pk, Iv, Pv, pv, X) ::= <<
+package io.machinecode.vial.api.map;
+
+import java.util.Map;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
+
+    boolean containsKey(final $pk$ key);
+
+    boolean containsValue(final $pv$ value);
+
+    $pv$ get(final $pk$ key);
+
+    $pv$ getOrDefault(final $pk$ key, final $pv$ defaultValue);
+
+    $pv$ put(final $pk$ key, final $pv$ value);
+
+    $pv$ putIfAbsent(final $pk$ key, final $pv$ value);
+
+    void putAll(final $Ik$$Iv$Map m);
+
+    $pv$ remove(final $pk$ key);
+
+    boolean remove(final $pk$ key, final $pv$ value);
+
+    boolean removeValue(final $pv$ value);
+
+    boolean replace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue);
+
+    $pv$ replace(final $pk$ key, final $pv$ value);
+
+    $pk$[] keyArray();
+
+    $pv$[] valueArray();
+
+    $Ik$$Iv$Cursor iterator();
+}
+>>

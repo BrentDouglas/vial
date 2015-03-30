@@ -1,0 +1,42 @@
+delimiters "$", "$"
+
+POMap(I, P, p, X) ::= <<
+package io.machinecode.vial.api.map;
+
+import java.util.Map;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public interface $I$OMap<V> extends Map<$P$,V>, Iterable<$I$OCursor<V$X$ {
+
+    boolean containsKey(final $p$ key);
+
+    V get(final $p$ key);
+
+    V getOrDefault(final $p$ key, final V defaultValue);
+
+    V put(final $p$ key, final V value);
+
+    V putIfAbsent(final $p$ key, final V value);
+
+    void putAll(final $I$OMap<? extends V> m);
+
+    V remove(final $p$ key);
+
+    boolean remove(final $p$ key, final V value);
+
+    boolean removeValue(final V value);
+
+    boolean replace(final $p$ key, final V oldValue, final V newValue);
+
+    V replace(final $p$ key, final V value);
+
+    $p$[] keyArray();
+
+    V[] valueArray();
+
+    $I$OCursor<V> iterator();
+}
+>>

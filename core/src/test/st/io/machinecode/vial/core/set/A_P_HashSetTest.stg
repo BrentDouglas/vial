@@ -1,0 +1,45 @@
+delimiters "$", "$"
+
+PHashSetTest(I, P, p, X) ::= <<
+package io.machinecode.vial.core.set;
+
+import com.google.common.collect.testing.SetTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.SetFeature;
+import io.machinecode.vial.core.TestUtil;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import java.util.Set;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class $I$HashSetTest {
+
+    public static Test suite() {
+        final TestSuite suite = new TestSuite($I$HashSet.class.getName());
+        suite.addTest(testsForHashSet());
+        return suite;
+    }
+
+    private static Test testsForHashSet() {
+        return SetTestSuiteBuilder
+                .using(new $I$SetGenerator() {
+                    @Override
+                    public Set<$P$> create(final Object[] elements) {
+                        return TestUtil.populate(new $I$HashSet(elements.length), elements);
+                    }
+                })
+                .named("$I$HashSet")
+                .withFeatures(
+                        SetFeature.GENERAL_PURPOSE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+}
+
+>>

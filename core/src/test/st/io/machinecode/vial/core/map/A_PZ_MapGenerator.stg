@@ -1,0 +1,66 @@
+delimiters "$", "$"
+
+PZMapGenerator(I, P, p, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import com.google.common.collect.testing.Helpers;
+import com.google.common.collect.testing.SampleElements;
+import com.google.common.collect.testing.TestMapGenerator;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+* @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+* @since 1.0
+*/
+public abstract class $I$ZMapGenerator implements TestMapGenerator<$P$, Boolean> {
+
+    @Override
+    public SampleElements<Map.Entry<$P$, Boolean$X$ samples() {
+        return new SampleElements<>(
+                Helpers.mapEntry(($p$)0, true),
+                Helpers.mapEntry(($p$)1, false),
+                Helpers.mapEntry(($p$)2, true),
+                Helpers.mapEntry(($p$)3, false),
+                Helpers.mapEntry(($p$)4, true)
+        );
+    }
+
+    @Override
+    public Map<$P$, Boolean> create(final Object... entries) {
+        @SuppressWarnings("unchecked")
+        Map.Entry<$P$, Boolean>[] array = new Map.Entry[entries.length];
+        int i = 0;
+        for (Object o : entries) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<$P$, Boolean> e = (Map.Entry<$P$, Boolean>) o;
+            array[i++] = e;
+        }
+        return create(array);
+    }
+
+    protected abstract Map<$P$, Boolean> create(final Map.Entry<$P$, Boolean>[] entries);
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public final Map.Entry<$P$, Boolean>[] createArray(final int length) {
+        return new Map.Entry[length];
+    }
+
+    @Override
+    public final $P$[] createKeyArray(final int length) {
+        return new $P$[length];
+    }
+
+    @Override
+    public final Boolean[] createValueArray(final int length) {
+        return new Boolean[length];
+    }
+
+    @Override
+    public Iterable<Map.Entry<$P$, Boolean$X$ order(final List<Map.Entry<$P$, Boolean$X$ insertionOrder) {
+        return insertionOrder;
+    }
+}
+>>
