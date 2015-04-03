@@ -18,11 +18,13 @@
     <modules>
         <module>build</module>
         <module>core</module>
+        <module>bench</module>
     </modules>
 
     <properties>
         <root.dir>${user.dir}</root.dir>
 
+        <version.com.google.caliper.caliper>1.0-beta-1</version.com.google.caliper.caliper>
         <version.com.google.guava.guava-testlib>17.0</version.com.google.guava.guava-testlib>
         <version.junit.junit>4.10</version.junit.junit>
 
@@ -44,6 +46,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava-testlib</artifactId>
                 <version>${version.com.google.guava.guava-testlib}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.caliper</groupId>
+                <artifactId>caliper</artifactId>
+                <version>${version.com.google.caliper.caliper}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>

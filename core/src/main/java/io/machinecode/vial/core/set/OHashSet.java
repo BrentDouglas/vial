@@ -223,8 +223,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         this._threshold = (int)(cap * this._factor);
         this._mask = cap - 1;
         this._values = new Object[cap];
-        for (int i = 0; i < this._values.length; ++i) {
-            final Object v = values[i];
+        for (final Object v : values) {
             if (v != null) {
                 _addNoResize(v);
             }

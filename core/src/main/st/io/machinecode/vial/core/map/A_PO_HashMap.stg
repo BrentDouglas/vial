@@ -583,7 +583,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         this._mask = cap - 1;
         this._keys = new $p$[cap];
         this._values = new Object[cap];
-        for (int i = 0; i < this._keys.length; ++i) {
+        for (int i = 0; i < keys.length; ++i) {
             final $p$ k = keys[i];
             if (k != NO_KEY) {
                 _putNoResize(k, values[i]);

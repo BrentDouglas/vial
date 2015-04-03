@@ -243,8 +243,7 @@ public class $I$HashSet implements $I$Set, Serializable {
         this._threshold = (int)(cap * this._factor);
         this._mask = cap - 1;
         this._values = new $p$[cap];
-        for (int i = 0; i < this._values.length; ++i) {
-            final $p$ v = values[i];
+        for (final $p$ v : values) {
             if (v != NO_VALUE) {
                 _addNoResize(v);
             }

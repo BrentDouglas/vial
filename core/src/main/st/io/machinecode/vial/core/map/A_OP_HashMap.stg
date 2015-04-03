@@ -691,7 +691,7 @@ public class O$I$HashMap<K> implements O$I$Map<K>, Serializable {
         this._mask = cap - 1;
         this._keys = new Object[cap];
         this._values = new $p$[cap];
-        for (int i = 0; i < this._keys.length; ++i) {
+        for (int i = 0; i < keys.length; ++i) {
             final Object k = keys[i];
             if (k != null) {
                 _putNoResize(k, values[i]);
