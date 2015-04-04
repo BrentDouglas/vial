@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPCursor(Ik, Pk, pk, Iv, Pv, pv, X) ::= <<
+PPCursor(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import java.util.Iterator;
@@ -14,5 +14,7 @@ public interface $Ik$$Iv$Cursor extends Iterable<$Ik$$Iv$Cursor>, Iterator<$Ik$$
     $pk$ key();
 
     $pv$ value();
+
+    void reset();
 }
 >>

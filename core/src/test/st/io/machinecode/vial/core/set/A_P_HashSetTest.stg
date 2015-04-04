@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PHashSetTest(I, P, p, X) ::= <<
+PHashSetTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.set;
 
 import com.google.common.collect.testing.SetTestSuiteBuilder;

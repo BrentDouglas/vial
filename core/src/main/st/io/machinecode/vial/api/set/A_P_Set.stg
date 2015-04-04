@@ -1,7 +1,9 @@
 delimiters "$", "$"
 
-PSet(I, P, p, X) ::= <<
+PSet(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.api.set;
+
+import io.machinecode.vial.api.$I$Collection;
 
 import java.util.Set;
 
@@ -9,22 +11,6 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public interface $I$Set extends Set<$P$> {
-
-    boolean contains(final $p$ v);
-
-    boolean add(final $p$ v);
-
-    boolean remove(final $p$ v);
-
-    boolean containsAll(final $p$... c);
-
-    boolean addAll(final $p$... c);
-
-    boolean removeAll(final $p$... c);
-
-    //boolean retainAll(final $p$... c);
-
-    $I$Cursor cursor();
+public interface $I$Set extends $I$Collection, Set<$P$> {
 }
 >>

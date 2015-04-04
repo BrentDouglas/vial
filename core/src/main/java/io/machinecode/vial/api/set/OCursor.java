@@ -9,4 +9,6 @@ import java.util.Iterator;
 public interface OCursor<V> extends Iterable<OCursor<V>>, Iterator<OCursor<V>> {
 
     V value();
+
+    void reset();
 }

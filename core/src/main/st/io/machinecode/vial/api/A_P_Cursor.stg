@@ -1,7 +1,7 @@
 delimiters "$", "$"
 
-PCursor(I, P, p, X) ::= <<
-package io.machinecode.vial.api.set;
+PCursor(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.api;
 
 import java.util.Iterator;
 
@@ -12,5 +12,7 @@ import java.util.Iterator;
 public interface $I$Cursor extends Iterable<$I$Cursor>, Iterator<$I$Cursor> {
 
     $p$ value();
+
+    void reset();
 }
 >>

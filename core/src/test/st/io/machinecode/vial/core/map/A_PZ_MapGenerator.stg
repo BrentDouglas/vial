@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PZMapGenerator(I, P, p, X) ::= <<
+PZMapGenerator(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import com.google.common.collect.testing.Helpers;

@@ -11,4 +11,6 @@ public interface OOCursor<K,V> extends Iterable<OOCursor<K,V>>, Iterator<OOCurso
     K key();
 
     V value();
+
+    void reset();
 }

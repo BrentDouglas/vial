@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-POMap(I, P, p, X) ::= <<
+POMap(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import java.util.Map;

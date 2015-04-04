@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPMap(Ik, Pk, pk, Iv, Pv, pv, X) ::= <<
+PPMap(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import java.util.Map;

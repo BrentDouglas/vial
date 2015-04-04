@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PSetGenerator(I, P, p, X) ::= <<
+PSetGenerator(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.set;
 
 import com.google.common.collect.testing.SampleElements;

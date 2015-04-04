@@ -1,11 +1,12 @@
 delimiters "$", "$"
 
-PPHashMap(I, P, p, X) ::= <<
+PPHashMap(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
+import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.map.$I$$I$Cursor;
 import io.machinecode.vial.api.map.$I$$I$Map;
-import io.machinecode.vial.core.Util;
+import io.machinecode.vial.core.Hash;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -19,7 +20,7 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $I$$I$HashMap implements $I$$I$Map, Serializable {
+public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 29;
@@ -30,8 +31,8 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     private static final $p$ NO_VALUE = 0;
 
     private $p$[] _data;
-    private boolean _haveFreeValue;
-    private $p$ _freeValue;
+    private boolean _haveNoValue;
+    private $p$ _noValue;
 
     private final float _factor;
     private int _threshold;
@@ -41,18 +42,19 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     private int _nextMask;
 
     public $I$$I$HashMap() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spread.QUICK);
     }
 
     public $I$$I$HashMap(final int capacity) {
-        this(capacity, DEFAULT_LOAD_FACTOR);
+        this(capacity, DEFAULT_LOAD_FACTOR, Spread.QUICK);
     }
 
     public $I$$I$HashMap(final float factor) {
-        this(DEFAULT_CAPACITY, factor);
+        this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
     public $I$$I$HashMap(final $I$$I$HashMap m) {
+        super(m);
         this._factor = m._factor;
         this._size = m._size;
         this._threshold = m._threshold;
@@ -63,17 +65,21 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     }
 
     public $I$$I$HashMap(final Map<? extends $P$, ? extends $P$> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR);
+        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
         putAll(m);
     }
 
-    public $I$$I$HashMap(final int _capacity, final float factor) {
-        assert factor > 0 && factor <= 1;
+    public $I$$I$HashMap(final int capacity, final float factor) {
+        this(capacity, factor, Spread.QUICK);
+    }
+
+    public $I$$I$HashMap(final int _capacity, final float factor, final Spread spread) {
+        super(factor, spread);
         assert _capacity >= 0;
-        final int capacity = Math.max((int) (_capacity / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY);
+        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._factor = factor;
         this._size = 0;
-        final int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
+        final int cap = capacity(capacity, factor, MAX_CAPACITY);
         final int length = cap * 2;
         this._threshold = (int)(cap * factor);
         this._initialMask = cap - 1;
@@ -99,9 +105,9 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public boolean containsKey(final $p$ key) {
         if (key == NO_KEY) {
-            return this._haveFreeValue;
+            return this._haveNoValue;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -120,7 +126,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
     @Override
     public boolean containsValue(final $p$ value) {
-        if (_haveFreeValue && _freeValue == value) {
+        if (_haveNoValue && _noValue == value) {
             return true;
         }
         for (int i = 0; i < this._data.length; i+=2) {
@@ -139,11 +145,11 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$ key = ($p$)_key;
         if (key == NO_KEY) {
-            return this._haveFreeValue
-                    ? this._freeValue
+            return this._haveNoValue
+                    ? this._noValue
                     : null;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -159,11 +165,11 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public $p$ get(final $p$ key) {
         if (key == NO_KEY) {
-            return this._haveFreeValue
-                    ? this._freeValue
+            return this._haveNoValue
+                    ? this._noValue
                     : NO_VALUE;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -188,11 +194,11 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public $p$ getOrDefault(final $p$ key, final $p$ defaultValue) {
         if (key == NO_KEY) {
-            return this._haveFreeValue
-                    ? this._freeValue
+            return this._haveNoValue
+                    ? this._noValue
                     : defaultValue;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -210,15 +216,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         final $p$ key = _key;
         final $p$ value = _value;
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 this._size++;
             }
-            final $p$ old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final $p$ old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -242,15 +248,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public $p$ put(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 this._size++;
             }
-            final $p$ old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final $p$ old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -276,15 +282,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         final $p$ key = _key;
         final $p$ value = _value;
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
-                return this._freeValue;
+            if (this._haveNoValue) {
+                return this._noValue;
             }
             this._size++;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            this._noValue = value;
+            this._haveNoValue = true;
             return null;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -306,15 +312,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public $p$ putIfAbsent(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
-                return this._freeValue;
+            if (this._haveNoValue) {
+                return this._noValue;
             }
             this._size++;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            this._noValue = value;
+            this._haveNoValue = true;
             return NO_VALUE;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -354,15 +360,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$ key = ($p$)_key;
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveFreeValue = false;
-                return this._freeValue;
+                this._haveNoValue = false;
+                return this._noValue;
             } else {
                 return null;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -380,15 +386,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public $p$ remove(final $p$ key) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveFreeValue = false;
-                return this._freeValue;
+                this._haveNoValue = false;
+                return this._noValue;
             } else {
                 return NO_VALUE;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -411,15 +417,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public boolean remove(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue && value == this._freeValue) {
+            if (this._haveNoValue && value == this._noValue) {
                 this._size--;
-                this._haveFreeValue = false;
+                this._haveNoValue = false;
                 return true;
             } else {
                 return false;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -438,15 +444,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
     private boolean _removeKey(final $p$ key) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveFreeValue = false;
+                this._haveNoValue = false;
                 return true;
             } else {
                 return false;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -464,33 +470,28 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         this._size--;
         int next = (index + 2) & this._nextMask;
         for (;;) {
-            $p$ key;
-            for (;;) {
-                key = this._data[next];
-                if (key == NO_KEY) {
-                    this._data[index] = NO_KEY;
-                    return;
-                }
-                final int hash = Util.hashAndScramble(key);
-                int slot = (hash & this._initialMask) << 1;
-                if (index <= next
-                        ? index >= slot || slot > next
-                        : index >= slot && slot > next) {
-                    break;
-                }
-                next = (next + 2) & this._nextMask;
+            final $p$ key = this._data[next];
+            if (key == NO_KEY) {
+                this._data[index] = NO_KEY;
+                return;
             }
-            this._data[index] = key;
-            this._data[index+1] = this._data[next+1];
-            index = next;
+            final int hash = _spread.spread($hc$);
+            int slot = (hash & this._initialMask) << 1;
+            if (index <= next
+                    ? index >= slot || slot > next
+                    : index >= slot && slot > next) {
+                this._data[index] = key;
+                this._data[index+1] = this._data[next+1];
+                index = next;
+            }
             next = (next + 2) & this._nextMask;
         }
     }
 
     @Override
     public boolean removeValue(final $p$ value) {
-        if (_haveFreeValue && (value == NO_VALUE ? _freeValue == NO_VALUE : value == _freeValue)) {
-            _haveFreeValue = false;
+        if (_haveNoValue && (value == NO_VALUE ? _noValue == NO_VALUE : value == _noValue)) {
+            _haveNoValue = false;
             --_size;
             return true;
         }
@@ -513,14 +514,14 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public boolean replace(final $p$ key, final $p$ oldValue, final $p$ newValue) {
         if (key == NO_KEY) {
-            if (!this._haveFreeValue || this._freeValue != oldValue) {
+            if (!this._haveNoValue || this._noValue != oldValue) {
                 return false;
             }
-            this._freeValue = newValue;
-            this._haveFreeValue = true;
+            this._noValue = newValue;
+            this._haveNoValue = true;
             return true;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -542,15 +543,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         final $p$ key = _key;
         final $p$ value = _value;
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 return null;
             }
-            final $p$ old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final $p$ old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -568,15 +569,15 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     @Override
     public $p$ replace(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 return NO_VALUE;
             }
-            final $p$ old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final $p$ old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -593,7 +594,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
     @Override
     public void clear() {
-        this._haveFreeValue = false;
+        this._haveNoValue = false;
         this._size = 0;
         for (int i = 0; i < this._data.length; i+=2) {
             this._data[i] = NO_KEY;
@@ -609,7 +610,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     public $p$[] keyArray() {
         final $p$[] ret = new $p$[_size];
         int ri = 0;
-        if (this._haveFreeValue) {
+        if (this._haveNoValue) {
             ret[ri++] = NO_KEY;
         }
         for (int di = 0; di < this._data.length; di+=2,++ri) {
@@ -631,8 +632,8 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
     public $p$[] valueArray() {
         final $p$[] ret = new $p$[_size];
         int ri = 0;
-        if (this._haveFreeValue) {
-            ret[ri++] = this._freeValue;
+        if (this._haveNoValue) {
+            ret[ri++] = this._noValue;
         }
         for (int di = 0; di < this._data.length; di+=2,++ri) {
             if (this._data[di] == NO_KEY) {
@@ -702,7 +703,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
     private void _rehash() {
         final int capacity = this._data.length / 2;
-        final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
+        final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
         final $p$[] data = this._data;
         final int length = cap * 2;
         this._threshold = (int)(cap * this._factor);
@@ -719,7 +720,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
     private void _putNoResize(final $p$ key, final $p$ value) {
         assert key != NO_KEY;
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = this._data[index];
@@ -735,43 +736,87 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
     }
 
-    private static final $p$ ILLEGAL = ($p$)-1;
-
     private abstract static class _It<T> implements Iterator<T> {
+        private static final $p$ ILLEGAL = ($p$)-1;
+        private static final int INDEX_BEFORE = -1;
+        private static final int INDEX_NO_VALUE = -2;
+        private static final int INDEX_FINISHED = -3;
+
         final $I$$I$HashMap map;
-        private final int[] keyIndices;
-        private int index = 0;
+        private $p$[] data;
+        private int index = INDEX_BEFORE;
         $p$ key = ILLEGAL;
         int keyIndex = -1;
+        private boolean found = false;
 
         private _It(final $I$$I$HashMap map) {
             this.map = map;
-            this.keyIndices = new int[map._size];
-            int ei = 0;
-            for (int i = 0; i < map._data.length; i+=2) {
-                if (map._data[i] == NO_KEY) {
+            this.data = map._data;
+        }
+
+        private void _advance() {
+            assert !found;
+            final int inc = data == map._data ? 2 : 1;
+            switch (index) {
+                case INDEX_FINISHED:
+                    found = true;
+                    return;
+                case INDEX_NO_VALUE:
+                    index = INDEX_FINISHED;
+                    found = true;
+                    return;
+                case INDEX_BEFORE:
+                    index = 0;
+                    break;
+                default:
+                    index+=inc;
+                    break;
+            }
+            for (; index < data.length; index+=inc) {
+                if (index >= data.length || data[index] == NO_KEY) {
                     continue;
                 }
-                keyIndices[ei++] = i;
+                found = true;
+                return;
             }
-            if (map._haveFreeValue) {
-                keyIndices[ei++] = -1;
+            if (map._haveNoValue) {
+                index = INDEX_NO_VALUE;
+            } else {
+                index = INDEX_FINISHED;
             }
-            assert ei == map._size;
+            found = true;
         }
 
         @Override
         public boolean hasNext() {
-            return index < keyIndices.length;
+            if (!found) _advance();
+            assert index != INDEX_BEFORE;
+            switch (index) {
+                case INDEX_FINISHED:
+                    return false;
+                case INDEX_NO_VALUE:
+                    return true;
+                default:
+                    return index < data.length && map._size != 0;
+            }
         }
 
         @Override
         public T next() {
-            if (index >= keyIndices.length) {
-                throw new NoSuchElementException(); //TODO Message
+            if (!found) _advance();
+            assert index != INDEX_BEFORE;
+            switch (index) {
+                case INDEX_FINISHED:
+                    throw new NoSuchElementException(); //TODO Message
+                case INDEX_NO_VALUE:
+                    assert map._haveNoValue;
+                    key = NO_KEY;
+                    break;
+                default:
+                    assert index > INDEX_BEFORE && index < data.length;
+                    key = data[keyIndex = index];
             }
-            keyIndex = keyIndices[index++];
-            key = keyIndex == -1 ? NO_KEY : map._data[keyIndex];
+            found = false;
             return _get();
         }
 
@@ -780,8 +825,56 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
             if (key == ILLEGAL) {
                 throw new IllegalStateException(); //TODO Message
             }
-            map._removeKey(key);
+            if (key == NO_KEY) {
+                assert map._haveNoValue;
+                --map._size;
+                map._haveNoValue = false;
+            } else {
+                assert keyIndex >= 0;
+                assert map._data[keyIndex] != NO_KEY;
+                if (this.data == map._data) {
+                    _removeAndCopy(keyIndex);
+                } else {
+                    map._removeKey(key);
+                }
+            }
             key = ILLEGAL;
+        }
+
+        private void _removeAndCopy(final int delete) {
+            map._size--;
+            int index = delete;
+            int next = (index + 2) & map._nextMask;
+            for (;;) {
+                final $p$ key = map._data[next];
+                if (key == NO_KEY) {
+                    map._data[index] = NO_KEY;
+                    return;
+                }
+                final int hash = map._spread.spread($hc$);
+                int slot = (hash & map._initialMask) << 1;
+                if (index <= next
+                        ? index >= slot || slot > next
+                        : index >= slot && slot > next) {
+                    if (this.data == map._data && next < delete && index >= delete) {
+                        this.data = new $p$[map._data.length - delete];
+                        System.arraycopy(map._data, delete, this.data, 0, this.data.length);
+                        this.index = 0;
+                    }
+                    map._data[index] = key;
+                    map._data[index+1] = map._data[next+1];
+                    this.index = delete;
+                    this.found = true;
+                    index = next;
+                }
+                next = (next + 2) & map._nextMask;
+            }
+        }
+
+        public void reset() {
+            index = INDEX_BEFORE;
+            key = ILLEGAL;
+            data = map._data;
         }
 
         abstract T _get();
@@ -794,17 +887,17 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
         @Override
         $I$$I$Cursor _get() {
-            return Util.cast(this);
+            return cast(this);
         }
 
         @Override
         public $p$ key() {
-            return Util.cast(key);
+            return cast(key);
         }
 
         @Override
         public $p$ value() {
-            return key == NO_KEY ? map._freeValue : map._data[keyIndex+1];
+            return key == NO_KEY ? map._noValue : map._data[keyIndex+1];
         }
 
         @Override
@@ -848,7 +941,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
         @Override
         Entry<$P$,$P$> _get() {
-            return new En<>(map, key, key == NO_KEY ? map._freeValue : map._data[keyIndex+1]);
+            return new En<>(map, key, key == NO_KEY ? map._noValue : map._data[keyIndex+1]);
         }
     }
 
@@ -870,7 +963,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
         @Override
         $P$ _get() {
-            return key == NO_KEY ? map._freeValue : map._data[keyIndex+1];
+            return key == NO_KEY ? map._noValue : map._data[keyIndex+1];
         }
     }
 
@@ -938,7 +1031,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         public Object[] toArray() {
             final Object[] ret = new Object[map._size];
             int ri = 0;
-            if (map._haveFreeValue) {
+            if (map._haveNoValue) {
                 ret[ri++] = _get(NO_KEY);
             }
             for (int i = 0; i < map._data.length; i+=2) {
@@ -960,18 +1053,18 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = Util.cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
             }
             int ri = 0;
-            if (map._haveFreeValue) {
-                ret[ri++] = Util.cast(_get(NO_KEY));
+            if (map._haveNoValue) {
+                ret[ri++] = cast(_get(NO_KEY));
             }
             for (int i = 0; i < map._data.length; i+=2) {
                 final $p$ key = map._data[i];
                 if (key == NO_KEY) {
                     continue;
                 }
-                ret[ri++] = Util.cast(_get(key));
+                ret[ri++] = cast(_get(key));
             }
             return ret;
         }

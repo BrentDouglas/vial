@@ -1,10 +1,10 @@
 package io.machinecode.vial.core.set;
 
+import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.set.OCursor;
 import io.machinecode.vial.api.set.OSet;
-import io.machinecode.vial.core.Util;
+import io.machinecode.vial.core.Hash;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -15,63 +15,64 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OHashSet<V> implements OSet<V>, Serializable {
+public class OHashSet<V> extends Hash implements OSet<V> {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 30;
     private static final int DEFAULT_CAPACITY = 4;
-    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
-    private Object[] _values;
-    private boolean _haveNullValue;
+    private Object[] _keys;
+    private boolean _haveNoValue;
 
-    private final float _factor;
     private int _threshold;
     private int _size;
 
     private int _mask;
 
     public OHashSet() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spread.QUICK);
     }
 
     public OHashSet(final int capacity) {
-        this(capacity, DEFAULT_LOAD_FACTOR);
+        this(capacity, DEFAULT_LOAD_FACTOR, Spread.QUICK);
     }
 
     public OHashSet(final float factor) {
-        this(DEFAULT_CAPACITY, factor);
+        this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
     public OHashSet(final OHashSet<?> c) {
-        this._factor = c._factor;
+        super(c);
         this._size = c._size;
         this._threshold = c._threshold;
         this._mask = c._mask;
-        this._values = new Object[c._values.length];
-        System.arraycopy(c._values, 0, this._values, 0, c._values.length);
+        this._keys = new Object[c._keys.length];
+        System.arraycopy(c._keys, 0, this._keys, 0, c._keys.length);
     }
 
     public OHashSet(final Collection<? extends V> c) {
-        this(c.size(), DEFAULT_LOAD_FACTOR);
+        this(c.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
         addAll(c);
     }
 
     public OHashSet(final V... c) {
-        this(c.length, DEFAULT_LOAD_FACTOR);
+        this(c.length, DEFAULT_LOAD_FACTOR, Spread.QUICK);
         addAll(c);
     }
 
-    public OHashSet(final int _capacity, final float factor) {
-        assert factor > 0 && factor <= 1;
+    public OHashSet(final int capacity, final float factor) {
+        this(capacity, factor, Spread.QUICK);
+    }
+
+    public OHashSet(final int _capacity, final float factor, final Spread spread) {
+        super(factor, spread);
         assert _capacity >= 0;
-        final int capacity = Math.max((int) (_capacity / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY);
-        this._factor = factor;
+        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._size = 0;
-        final int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
+        final int cap = capacity(capacity, factor, MAX_CAPACITY);
         this._threshold = (int)(cap * factor);
         this._mask = cap - 1;
-        this._values = new Object[cap];
+        this._keys = new Object[cap];
     }
 
     @Override
@@ -85,17 +86,17 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean contains(final Object value) {
-        if (value == null) {
-            return this._haveNullValue;
+    public boolean contains(final Object key) {
+        if (key == null) {
+            return this._haveNoValue;
         }
-        final int hash = Util.scramble(value.hashCode());
+        final int hash = _spread.spread(key.hashCode());
         int index = hash & this._mask;
         for (;;) {
-            final Object v = this._values[index];
-            if (v == null) {
+            final Object k = this._keys[index];
+            if (k == null) {
                 return false;
-            } else if (v.equals(value)) {
+            } else if (k.equals(key)) {
                 return true;
             }
             index = (index + 1) & this._mask;
@@ -103,26 +104,26 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean add(final V value) {
-        if (value == null) {
-            if (this._haveNullValue) {
+    public boolean add(final V key) {
+        if (key == null) {
+            if (this._haveNoValue) {
                 return false;
             }
             this._size++;
-            return this._haveNullValue = true;
+            return this._haveNoValue = true;
         }
-        final int hash = Util.scramble(value.hashCode());
+        final int hash = _spread.spread(key.hashCode());
         int index = hash & this._mask;
         for (;;) {
-            final Object v = this._values[index];
-            if (v == null) {
-                this._values[index] = value;
+            final Object k = this._keys[index];
+            if (k == null) {
+                this._keys[index] = key;
                 this._size++;
                 if (this._size >= this._threshold) {
                     _rehash();
                 }
                 return true;
-            } else if (v.equals(value)) {
+            } else if (k.equals(key)) {
                 return false;
             }
             index = (index + 1) & this._mask;
@@ -132,8 +133,8 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     @Override
     public boolean addAll(final Collection<? extends V> c) {
         boolean ret = false;
-        for (final V value : c) {
-            ret |= add(value);
+        for (final V key : c) {
+            ret |= add(key);
         }
         return ret;
     }
@@ -141,8 +142,8 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     @Override
     public boolean addAll(final V... c) {
         boolean ret = false;
-        for (final V value : c) {
-            ret |= add(value);
+        for (final V key : c) {
+            ret |= add(key);
         }
         return ret;
     }
@@ -153,23 +154,23 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean remove(final Object value) {
-        if (value == null) {
-            if (this._haveNullValue) {
+    public boolean remove(final Object key) {
+        if (key == null) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveNullValue = false;
+                this._haveNoValue = false;
                 return true;
             } else {
                 return false;
             }
         }
-        final int hash = Util.scramble(value.hashCode());
+        final int hash = _spread.spread(key.hashCode());
         int index = hash & this._mask;
         for (;;) {
-            final Object v = this._values[index];
-            if (v == null) {
+            final Object k = this._keys[index];
+            if (k == null) {
                 return false;
-            } else if (v.equals(value)) {
+            } else if (k.equals(key)) {
                 _remove(index);
                 return true;
             }
@@ -181,34 +182,29 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         this._size--;
         int next = (index + 1) & this._mask;
         for (;;) {
-            Object value;
-            for (;;) {
-                value = this._values[next];
-                if (value == null) {
-                    this._values[index] = null;
-                    return;
-                }
-                final int hash = Util.scramble(value.hashCode());
-                int slot = hash & this._mask;
-                if (index <= next
-                        ? index >= slot || slot > next
-                        : index >= slot && slot > next) {
-                    break;
-                }
-                next = (next + 1) & this._mask;
+            final Object key = this._keys[next];
+            if (key == null) {
+                this._keys[index] = null;
+                return;
             }
-            this._values[index] = value;
-            index = next;
+            final int hash = _spread.spread(key.hashCode());
+            int slot = hash & this._mask;
+            if (index <= next
+                    ? index >= slot || slot > next
+                    : index >= slot && slot > next) {
+                this._keys[index] = key;
+                index = next;
+            }
             next = (next + 1) & this._mask;
         }
     }
 
     @Override
     public void clear() {
-        this._haveNullValue = false;
+        this._haveNoValue = false;
         this._size = 0;
-        for (int i = 0; i < this._values.length; ++i) {
-            this._values[i] = null;
+        for (int i = 0; i < this._keys.length; ++i) {
+            this._keys[i] = null;
         }
     }
 
@@ -218,28 +214,28 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     private void _rehash() {
-        final int cap = Util.capacity(this._values.length, this._factor, MAX_CAPACITY);
-        final Object[] values = this._values;
+        final int cap = capacity(this._keys.length, this._factor, MAX_CAPACITY);
+        final Object[] keys = this._keys;
         this._threshold = (int)(cap * this._factor);
         this._mask = cap - 1;
-        this._values = new Object[cap];
-        for (final Object v : values) {
-            if (v != null) {
-                _addNoResize(v);
+        this._keys = new Object[cap];
+        for (final Object k : keys) {
+            if (k != null) {
+                _addNoResize(k);
             }
         }
     }
 
-    private void _addNoResize(final Object value) {
-        assert value != null;
-        final int hash = Util.scramble(value.hashCode());
+    private void _addNoResize(final Object key) {
+        assert key != null;
+        final int hash = _spread.spread(key.hashCode());
         int index = hash & this._mask;
         for (;;) {
-            final Object v = this._values[index];
-            if (v == null) {
-                this._values[index] = value;
+            final Object k = this._keys[index];
+            if (k == null) {
+                this._keys[index] = key;
                 return;
-            } else if (v.equals(value)) {
+            } else if (k.equals(key)) {
                 return;
             }
             index = (index + 1) & this._mask;
@@ -247,8 +243,8 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean containsAll(final V... c) {
-        for (final V o : c) {
+    public boolean containsAll(final Object... c) {
+        for (final Object o : c) {
             if (!contains(o)) {
                 return false;
             }
@@ -267,9 +263,9 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean removeAll(final V... c) {
+    public boolean removeAll(final Object... c) {
         boolean ret = false;
-        for (final V o : c) {
+        for (final Object o : c) {
             ret |= remove(o);
         }
         return ret;
@@ -299,17 +295,35 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
+    public boolean retainAll(final Object... c) {
+        if (c == null) throw new NullPointerException(); //TODO Message
+        final Iterator<V> it = iterator();
+        boolean ret = false;
+        while (it.hasNext()) {
+            final V k = it.next();
+            for (final Object o : c) {
+                if (k == null ? o == null : k.equals(o)) {
+                    it.remove();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public Object[] toArray() {
         final Object[] ret = new Object[_size];
         int ri = 0;
-        if (_haveNullValue) {
+        if (_haveNoValue) {
             ret[ri++] = null;
         }
-        for (final Object value : _values) {
-            if (value == null) {
+        for (final Object key : _keys) {
+            if (key == null) {
                 continue;
             }
-            ret[ri++] = value;
+            ret[ri++] = key;
         }
         return ret;
     }
@@ -323,17 +337,17 @@ public class OHashSet<V> implements OSet<V>, Serializable {
             ret = a;
             a[_size] = null;
         } else {
-            ret = Util.cast(Array.newInstance(a.getClass().getComponentType(), _size));
+            ret = cast(Array.newInstance(a.getClass().getComponentType(), _size));
         }
         int ri = 0;
-        if (_haveNullValue) {
+        if (_haveNoValue) {
             ret[ri++] = null;
         }
-        for (final Object value : _values) {
-            if (value == null) {
+        for (final Object key : _keys) {
+            if (key == null) {
                 continue;
             }
-            ret[ri++] = Util.cast(value);
+            ret[ri++] = cast(key);
         }
         return ret;
     }
@@ -369,51 +383,141 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         return sb.append(']').toString();
     }
 
-    private static Object ILLEGAL = new Object();
-
     private abstract static class _It<T,V> implements Iterator<T> {
+        private static final int INDEX_BEFORE = -1;
+        private static final int INDEX_NO_VALUE = -2;
+        private static final int INDEX_FINISHED = -3;
+
         final OHashSet<V> set;
-        private final Object[] values;
-        private int index = 0;
-        Object value = ILLEGAL;
+        private Object[] keys;
+        private int index = INDEX_BEFORE;
+        private int keyIndex = -1;
+        Object key = ILLEGAL;
+        boolean found = false;
 
         private _It(final OHashSet<V> set) {
             this.set = set;
-            this.values = new Object[set._size];
-            int ei = 0;
-            for (int i = 0; i < set._values.length; ++i) {
-                if (set._values[i] == null) {
+            this.keys = set._keys;
+        }
+
+        private void _advance() {
+            assert !found;
+            switch (index) {
+                case INDEX_FINISHED:
+                    found = true;
+                    return;
+                case INDEX_NO_VALUE:
+                    index = INDEX_FINISHED;
+                    found = true;
+                    return;
+                case INDEX_BEFORE:
+                    index = 0;
+                    break;
+                default:
+                    ++index;
+                    break;
+            }
+            for (; index < keys.length; ++index) {
+                if (index >= keys.length || keys[index] == null) {
                     continue;
                 }
-                values[ei++] = set._values[i];
+                found = true;
+                return;
             }
-            if (set._haveNullValue) {
-                values[ei++] = null;
+            if (set._haveNoValue) {
+                index = INDEX_NO_VALUE;
+            } else {
+                index = INDEX_FINISHED;
             }
-            assert ei == set._size;
+            found = true;
         }
 
         @Override
         public boolean hasNext() {
-            return index < values.length;
+            if (!found) _advance();
+            assert index != INDEX_BEFORE;
+            switch (index) {
+                case INDEX_FINISHED:
+                    return false;
+                case INDEX_NO_VALUE:
+                    return true;
+                default:
+                    return index < keys.length && set._size != 0;
+            }
         }
 
         @Override
         public T next() {
-            if (index >= values.length) {
-                throw new NoSuchElementException(); //TODO Message
+            if (!found) _advance();
+            assert index != INDEX_BEFORE;
+            switch (index) {
+                case INDEX_FINISHED:
+                    throw new NoSuchElementException(); //TODO Message
+                case INDEX_NO_VALUE:
+                    assert set._haveNoValue;
+                    key = null;
+                    break;
+                default:
+                    assert index > INDEX_BEFORE && index < keys.length;
+                    key = keys[keyIndex = index];
             }
-            value = values[index++];
+            found = false;
             return _get();
         }
 
         @Override
         public void remove() {
-            if (value == ILLEGAL) {
+            if (key == ILLEGAL) {
                 throw new IllegalStateException(); //TODO Message
             }
-            set.remove(value);
-            value = ILLEGAL;
+            if (key == null) {
+                assert set._haveNoValue;
+                --set._size;
+                set._haveNoValue = false;
+            } else {
+                assert keyIndex >= 0;
+                if (this.keys == set._keys) {
+                    _removeAndCopy(keyIndex);
+                } else {
+                    set.remove(key);
+                }
+            }
+            key = ILLEGAL;
+        }
+
+        private void _removeAndCopy(final int delete) {
+            set._size--;
+            int index = delete;
+            int next = (index + 1) & set._mask;
+            for (;;) {
+                final Object key = set._keys[next];
+                if (key == null) {
+                    set._keys[index] = null;
+                    return;
+                }
+                final int hash = set._spread.spread(key.hashCode());
+                int slot = hash & set._mask;
+                if (index <= next
+                        ? index >= slot || slot > next
+                        : index >= slot && slot > next) {
+                    if (this.keys == set._keys && next < delete && index >= delete) {
+                        this.keys = new Object[set._keys.length - delete];
+                        System.arraycopy(set._keys, delete, this.keys, 0, this.keys.length);
+                        this.index = 0;
+                    }
+                    set._keys[index] = key;
+                    this.index = delete;
+                    this.found = true;
+                    index = next;
+                }
+                next = (next + 1) & set._mask;
+            }
+        }
+
+        public void reset() {
+            index = INDEX_BEFORE;
+            key = ILLEGAL;
+            keys = set._keys;
         }
 
         abstract T _get();
@@ -432,7 +536,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
 
         @Override
         public V value() {
-            return Util.cast(value);
+            return cast(key);
         }
 
         @Override
@@ -449,7 +553,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
 
         @Override
         V _get() {
-            return Util.cast(value);
+            return cast(key);
         }
     }
 }

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PZMap(I, P, p, X) ::= <<
+PZMap(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import java.util.Map;

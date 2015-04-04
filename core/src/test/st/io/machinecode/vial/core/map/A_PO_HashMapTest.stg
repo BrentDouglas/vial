@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-POHashMapTest(I, P, p, X) ::= <<
+POHashMapTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import com.google.common.collect.testing.MapTestSuiteBuilder;

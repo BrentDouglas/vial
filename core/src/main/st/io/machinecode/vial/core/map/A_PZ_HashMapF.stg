@@ -1,11 +1,12 @@
 delimiters "$", "$"
 
-PZHashMapF(I, P, p, X) ::= <<
+PZHashMapF(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
+import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.map.$I$ZCursor;
 import io.machinecode.vial.api.map.$I$ZMap;
-import io.machinecode.vial.core.Util;
+import io.machinecode.vial.core.Hash;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -19,7 +20,7 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $I$ZHashMapF implements $I$ZMap, Serializable {
+public class $I$ZHashMapF extends Hash implements $I$ZMap {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 30;
@@ -31,8 +32,8 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
     private $p$[] _keys;
     private boolean[] _values;
-    private boolean _haveFreeValue;
-    private boolean _freeValue;
+    private boolean _haveNoValue;
+    private boolean _noValue;
 
     private final float _factor;
     private int _threshold;
@@ -41,18 +42,19 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     private int _mask;
 
     public $I$ZHashMapF() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spread.QUICK);
     }
 
     public $I$ZHashMapF(final int capacity) {
-        this(capacity, DEFAULT_LOAD_FACTOR);
+        this(capacity, DEFAULT_LOAD_FACTOR, Spread.QUICK);
     }
 
     public $I$ZHashMapF(final float factor) {
-        this(DEFAULT_CAPACITY, factor);
+        this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
     public $I$ZHashMapF(final $I$ZHashMapF m) {
+        super(m);
         this._factor = m._factor;
         this._size = m._size;
         this._threshold = m._threshold;
@@ -64,17 +66,21 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     }
 
     public $I$ZHashMapF(final Map<? extends $P$, ? extends Boolean> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR);
+        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
         putAll(m);
     }
 
-    public $I$ZHashMapF(final int _capacity, final float factor) {
-        assert factor > 0 && factor <= 1;
+    public $I$ZHashMapF(final int capacity, final float factor) {
+        this(capacity, factor, Spread.QUICK);
+    }
+
+    public $I$ZHashMapF(final int _capacity, final float factor, final Spread spread) {
+        super(factor, spread);
         assert _capacity >= 0;
-        final int capacity = Math.max((int) (_capacity / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY);
+        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._factor = factor;
         this._size = 0;
-        final  int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
+        final  int cap = capacity(capacity, factor, MAX_CAPACITY);
         this._threshold = (int)(cap * factor);
         this._mask = cap - 1;
         this._keys = new $p$[cap];
@@ -99,9 +105,9 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean containsKey(final $p$ key) {
         if (key == NO_KEY) {
-            return this._haveFreeValue;
+            return this._haveNoValue;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -120,7 +126,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
     @Override
     public boolean containsValue(final boolean value) {
-        if (_haveFreeValue && _freeValue == value) {
+        if (_haveNoValue && _noValue == value) {
             return true;
         }
         for (int i = 0; i < this._keys.length; i++) {
@@ -139,11 +145,11 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         }
         final $p$ key = ($p$)_key;
         if (key == NO_KEY) {
-            return this._haveFreeValue
-                    ? this._freeValue
+            return this._haveNoValue
+                    ? this._noValue
                     : null;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -159,11 +165,11 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean get(final $p$ key) {
         if (key == NO_KEY) {
-            return this._haveFreeValue
-                    ? this._freeValue
+            return this._haveNoValue
+                    ? this._noValue
                     : NO_VALUE;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -188,11 +194,11 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean getOrDefault(final $p$ key, final boolean defaultValue) {
         if (key == NO_KEY) {
-            return this._haveFreeValue
-                    ? this._freeValue
+            return this._haveNoValue
+                    ? this._noValue
                     : defaultValue;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -210,15 +216,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         final $p$ key = _key;
         final boolean value = _value;
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 this._size++;
             }
-            final boolean old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final boolean old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -242,15 +248,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean put(final $p$ key, final boolean value) {
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 this._size++;
             }
-            final boolean old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final boolean old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -276,15 +282,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         final $p$ key = _key;
         final boolean value = _value;
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
-                return this._freeValue;
+            if (this._haveNoValue) {
+                return this._noValue;
             }
             this._size++;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            this._noValue = value;
+            this._haveNoValue = true;
             return null;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -306,15 +312,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean putIfAbsent(final $p$ key, final boolean value) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
-                return this._freeValue;
+            if (this._haveNoValue) {
+                return this._noValue;
             }
             this._size++;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            this._noValue = value;
+            this._haveNoValue = true;
             return NO_VALUE;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -354,15 +360,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         }
         final $p$ key = ($p$)_key;
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveFreeValue = false;
-                return this._freeValue;
+                this._haveNoValue = false;
+                return this._noValue;
             } else {
                 return null;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -380,15 +386,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean remove(final $p$ key) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveFreeValue = false;
-                return this._freeValue;
+                this._haveNoValue = false;
+                return this._noValue;
             } else {
                 return NO_VALUE;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -411,15 +417,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean remove(final $p$ key, final boolean value) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue && value == this._freeValue) {
+            if (this._haveNoValue && value == this._noValue) {
                 this._size--;
-                this._haveFreeValue = false;
+                this._haveNoValue = false;
                 return true;
             } else {
                 return false;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -438,15 +444,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
     private boolean _removeKey(final $p$ key) {
         if (key == NO_KEY) {
-            if (this._haveFreeValue) {
+            if (this._haveNoValue) {
                 this._size--;
-                this._haveFreeValue = false;
+                this._haveNoValue = false;
                 return true;
             } else {
                 return false;
             }
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -464,33 +470,28 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         this._size--;
         int next = (index + 1) & this._mask;
         for (;;) {
-            $p$ key;
-            for (;;) {
-                key = this._keys[next];
-                if (key == NO_KEY) {
-                    this._keys[index] = NO_KEY;
-                    return;
-                }
-                final int hash = Util.hashAndScramble(key);
-                int slot = hash & this._mask;
-                if (index <= next
-                        ? index >= slot || slot > next
-                        : index >= slot && slot > next) {
-                    break;
-                }
-                next = (next + 1) & this._mask;
+            final $p$ key = this._keys[next];
+            if (key == NO_KEY) {
+                this._keys[index] = NO_KEY;
+                return;
             }
-            this._keys[index] = key;
-            this._values[index] = this._values[next];
-            index = next;
+            final int hash = _spread.spread($hc$);
+            int slot = hash & this._mask;
+            if (index <= next
+                    ? index >= slot || slot > next
+                    : index >= slot && slot > next) {
+                this._keys[index] = key;
+                this._values[index] = this._values[next];
+                index = next;
+            }
             next = (next + 1) & this._mask;
         }
     }
 
     @Override
     public boolean removeValue(final boolean value) {
-        if (_haveFreeValue && (value == NO_VALUE ? _freeValue == NO_VALUE : value == _freeValue)) {
-            _haveFreeValue = false;
+        if (_haveNoValue && (value == NO_VALUE ? _noValue == NO_VALUE : value == _noValue)) {
+            _haveNoValue = false;
             --_size;
             return true;
         }
@@ -513,14 +514,14 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean replace(final $p$ key, final boolean oldValue, final boolean newValue) {
         if (key == NO_KEY) {
-            if (!this._haveFreeValue || this._freeValue != oldValue) {
+            if (!this._haveNoValue || this._noValue != oldValue) {
                 return false;
             }
-            this._freeValue = newValue;
-            this._haveFreeValue = true;
+            this._noValue = newValue;
+            this._haveNoValue = true;
             return true;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -542,15 +543,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         final $p$ key = _key;
         final boolean value = _value;
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 return null;
             }
-            final boolean old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final boolean old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -568,15 +569,15 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     @Override
     public boolean replace(final $p$ key, final boolean value) {
         if (key == NO_KEY) {
-            if (!this._haveFreeValue) {
+            if (!this._haveNoValue) {
                 return NO_VALUE;
             }
-            final boolean old = this._freeValue;
-            this._freeValue = value;
-            this._haveFreeValue = true;
+            final boolean old = this._noValue;
+            this._noValue = value;
+            this._haveNoValue = true;
             return old;
         }
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -593,7 +594,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
     @Override
     public void clear() {
-        this._haveFreeValue = false;
+        this._haveNoValue = false;
         this._size = 0;
         for (int i = 0; i < this._keys.length; i++) {
             this._keys[i] = NO_KEY;
@@ -609,7 +610,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     public $p$[] keyArray() {
         final $p$[] ret = new $p$[_size];
         int ri = 0;
-        if (this._haveFreeValue) {
+        if (this._haveNoValue) {
             ret[ri++] = NO_KEY;
         }
         for (int di = 0; di < this._keys.length; di++,++ri) {
@@ -631,8 +632,8 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     public boolean[] valueArray() {
         final boolean[] ret = new boolean[_size];
         int ri = 0;
-        if (this._haveFreeValue) {
-            ret[ri++] = this._freeValue;
+        if (this._haveNoValue) {
+            ret[ri++] = this._noValue;
         }
         for (int di = 0; di < this._keys.length; di++,++ri) {
             if (this._keys[di] == NO_KEY) {
@@ -701,7 +702,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
     }
 
     private void _rehash() {
-        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
+        final int cap = capacity(this._keys.length, this._factor, MAX_CAPACITY);
         final $p$[] keys = this._keys;
         final boolean[] values = this._values;
         this._threshold = (int)(cap * this._factor);
@@ -718,7 +719,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
     private void _putNoResize(final $p$ key, final boolean value) {
         assert key != NO_KEY;
-        final int hash = Util.hashAndScramble(key);
+        final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = this._keys[index];
@@ -734,44 +735,86 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         }
     }
 
-    private static final $p$ ILLEGAL = ($p$)-1;
-
     private abstract static class _It<T> implements Iterator<T> {
-        final $I$ZHashMapF map;
+        private static final $p$ ILLEGAL = ($p$)-1;
+        private static final int INDEX_BEFORE = -1;
+        private static final int INDEX_NO_VALUE = -2;
+        private static final int INDEX_FINISHED = -3;
 
-        private final int[] keyIndices;
-        private int index = 0;
+        final $I$ZHashMapF map;
+        private $p$[] keys;
+        private int index = INDEX_BEFORE;
         $p$ key = ILLEGAL;
         int keyIndex = -1;
+        private boolean found = false;
 
         private _It(final $I$ZHashMapF map) {
             this.map = map;
-            this.keyIndices = new int[map._size];
-            int ei = 0;
-            for (int i = 0; i < map._keys.length; i++) {
-                if (map._keys[i] == NO_KEY) {
+            this.keys = map._keys;
+        }
+
+        private void _advance() {
+            assert !found;
+            switch (index) {
+                case INDEX_FINISHED:
+                    found = true;
+                    return;
+                case INDEX_NO_VALUE:
+                    index = INDEX_FINISHED;
+                    found = true;
+                    return;
+                case INDEX_BEFORE:
+                    index = 0;
+                    break;
+                default:
+                    ++index;
+                    break;
+            }
+            for (; index < keys.length; ++index) {
+                if (index >= keys.length || keys[index] == NO_KEY) {
                     continue;
                 }
-                keyIndices[ei++] = i;
+                found = true;
+                return;
             }
-            if (map._haveFreeValue) {
-                keyIndices[ei++] = -1;
+            if (map._haveNoValue) {
+                index = INDEX_NO_VALUE;
+            } else {
+                index = INDEX_FINISHED;
             }
-            assert ei == map._size;
+            found = true;
         }
 
         @Override
         public boolean hasNext() {
-            return index < keyIndices.length;
+            if (!found) _advance();
+            assert index != INDEX_BEFORE;
+            switch (index) {
+                case INDEX_FINISHED:
+                    return false;
+                case INDEX_NO_VALUE:
+                    return true;
+                default:
+                    return index < keys.length && map._size != 0;
+            }
         }
 
         @Override
         public T next() {
-            if (index >= keyIndices.length) {
-                throw new NoSuchElementException(); //TODO Message
+            if (!found) _advance();
+            assert index != INDEX_BEFORE;
+            switch (index) {
+                case INDEX_FINISHED:
+                    throw new NoSuchElementException(); //TODO Message
+                case INDEX_NO_VALUE:
+                    assert map._haveNoValue;
+                    key = NO_KEY;
+                    break;
+                default:
+                    assert index > INDEX_BEFORE && index < keys.length;
+                    key = keys[keyIndex = index];
             }
-            keyIndex = keyIndices[index++];
-            key = keyIndex == -1 ? NO_KEY : map._keys[keyIndex];
+            found = false;
             return _get();
         }
 
@@ -780,8 +823,56 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
             if (key == ILLEGAL) {
                 throw new IllegalStateException(); //TODO Message
             }
-            map._removeKey(key);
+            if (key == NO_KEY) {
+                assert map._haveNoValue;
+                --map._size;
+                map._haveNoValue = false;
+            } else {
+                assert keyIndex >= 0;
+                assert map._keys[keyIndex] != NO_KEY;
+                if (this.keys == map._keys) {
+                    _removeAndCopy(keyIndex);
+                } else {
+                    map._removeKey(key);
+                }
+            }
             key = ILLEGAL;
+        }
+
+        private void _removeAndCopy(final int delete) {
+            map._size--;
+            int index = delete;
+            int next = (index + 1) & map._mask;
+            for (;;) {
+                final $p$ key = map._keys[next];
+                if (key == NO_KEY) {
+                    map._keys[index] = NO_KEY;
+                    return;
+                }
+                final int hash = map._spread.spread($hc$);
+                int slot = hash & map._mask;
+                if (index <= next
+                        ? index >= slot || slot > next
+                        : index >= slot && slot > next) {
+                    if (this.keys == map._keys && next < delete && index >= delete) {
+                        this.keys = new $p$[map._keys.length - delete];
+                        System.arraycopy(map._keys, delete, this.keys, 0, this.keys.length);
+                        this.index = 0;
+                    }
+                    map._keys[index] = key;
+                    map._values[index] = map._values[next];
+                    this.index = delete;
+                    this.found = true;
+                    index = next;
+                }
+                next = (next + 1) & map._mask;
+            }
+        }
+
+        public void reset() {
+            index = INDEX_BEFORE;
+            key = ILLEGAL;
+            keys = map._keys;
         }
 
         abstract T _get();
@@ -795,17 +886,17 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
         @Override
         $I$ZCursor _get() {
-            return Util.cast(this);
+            return cast(this);
         }
 
         @Override
         public $p$ key() {
-            return Util.cast(key);
+            return cast(key);
         }
 
         @Override
         public boolean value() {
-            return key == NO_KEY ? map._freeValue : map._values[keyIndex];
+            return key == NO_KEY ? map._noValue : map._values[keyIndex];
         }
 
         @Override
@@ -848,7 +939,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
         @Override
         Entry<$P$,Boolean> _get() {
-            return new En<>(map, key, key == NO_KEY ? map._freeValue : map._values[keyIndex]);
+            return new En<>(map, key, key == NO_KEY ? map._noValue : map._values[keyIndex]);
         }
     }
 
@@ -870,7 +961,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
 
         @Override
         Boolean _get() {
-            return key == NO_KEY ? map._freeValue : map._values[keyIndex];
+            return key == NO_KEY ? map._noValue : map._values[keyIndex];
         }
     }
 
@@ -938,7 +1029,7 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
         public Object[] toArray() {
             final Object[] ret = new Object[map._size];
             int ri = 0;
-            if (map._haveFreeValue) {
+            if (map._haveNoValue) {
                 ret[ri++] = _get(NO_KEY);
             }
             for (int i = 0; i < map._keys.length; i++) {
@@ -960,18 +1051,18 @@ public class $I$ZHashMapF implements $I$ZMap, Serializable {
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = Util.cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
             }
             int ri = 0;
-            if (map._haveFreeValue) {
-                ret[ri++] = Util.cast(_get(NO_KEY));
+            if (map._haveNoValue) {
+                ret[ri++] = cast(_get(NO_KEY));
             }
             for (int i = 0; i < map._keys.length; i++) {
                 final $p$ key = map._keys[i];
                 if (key == NO_KEY) {
                     continue;
                 }
-                ret[ri++] = Util.cast(_get(key));
+                ret[ri++] = cast(_get(key));
             }
             return ret;
         }

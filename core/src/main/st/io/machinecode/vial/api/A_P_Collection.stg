@@ -1,0 +1,30 @@
+delimiters "$", "$"
+
+PCollection(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.api;
+
+import java.util.Collection;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public interface $I$Collection extends Collection<$P$> {
+
+    boolean contains(final $p$ v);
+
+    boolean add(final $p$ v);
+
+    boolean remove(final $p$ v);
+
+    boolean containsAll(final $p$... c);
+
+    boolean addAll(final $p$... c);
+
+    boolean removeAll(final $p$... c);
+
+    boolean retainAll(final $p$... c);
+
+    $I$Cursor cursor();
+}
+>>
