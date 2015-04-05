@@ -580,9 +580,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        for (int i = 0; i < this._keys.length; ++i) {
-            this._keys[i] = null;
-        }
+        Util.fill(this._keys, 0, this._keys.length, null);
     }
 
     @Override

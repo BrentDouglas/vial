@@ -2,10 +2,9 @@ package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.map.OOCursor;
-import io.machinecode.vial.core.Hash;
 import io.machinecode.vial.core.Util;
+import io.machinecode.vial.core.Hash;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -411,9 +410,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        for (int i = 0; i < this._data.length; i+=2) {
-            this._data[i] = null;
-        }
+        Util.fill(this._data, 0, this._data.length, null);
     }
 
     @Override
@@ -741,7 +738,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
         @Override
         V _get() {
-            return map.get(Util.<K>cast(key));
+            return map.get(Hash.<K>cast(key));
         }
     }
 
@@ -814,7 +811,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                 if (key == null) {
                     continue;
                 }
-                ret[ri++] = _get(Util.<K>cast(key));
+                ret[ri++] = _get(Hash.<K>cast(key));
             }
             return ret;
         }
@@ -828,7 +825,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = cast(java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), map._size));
             }
             int ri = 0;
             if (map._haveNoValue) {

@@ -7,7 +7,6 @@ import gnu.trove.map.hash.THashMap;
 import io.machinecode.vial.bench.mem.Memory;
 import io.machinecode.vial.core.map.OOHashMap;
 import io.machinecode.vial.core.map.OOHashMapF;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.map.hash.HashObjObjMaps;
@@ -21,7 +20,7 @@ import java.util.Random;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OOHashMapTest {
+public class OOHashMapMemoryTest {
 
     private static final float FACTOR = 0.75f;
     private static final int CAPACITY = 1000000;

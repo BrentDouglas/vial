@@ -406,9 +406,7 @@ public class OOHashMapF<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        for (int i = 0; i < this._keys.length; ++i) {
-            this._keys[i] = null;
-        }
+        Util.fill(this._keys, 0, this._keys.length, null);
     }
 
     @Override
@@ -734,7 +732,7 @@ public class OOHashMapF<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor
 
         @Override
         V _get() {
-            return map.get(Util.<K>cast(key));
+            return map.get(Hash.<K>cast(key));
         }
     }
 
@@ -806,7 +804,7 @@ public class OOHashMapF<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor
                 if (key == null) {
                     continue;
                 }
-                ret[ri++] = _get(Util.<K>cast(key));
+                ret[ri++] = _get(Hash.<K>cast(key));
             }
             return ret;
         }

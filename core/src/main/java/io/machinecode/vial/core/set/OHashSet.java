@@ -4,6 +4,7 @@ import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.set.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.Hash;
+import io.machinecode.vial.core.Util;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -203,9 +204,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        for (int i = 0; i < this._keys.length; ++i) {
-            this._keys[i] = null;
-        }
+        Util.fill(this._keys, 0, this._keys.length, null);
     }
 
     @Override

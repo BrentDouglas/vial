@@ -17,7 +17,7 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OHashSetTest {
+public class OHashSetMemoryTest {
 
     private static final float FACTOR = 0.75f;
     private static final int CAPACITY = 1000000;
