@@ -8,7 +8,6 @@ import io.machinecode.vial.api.map.$I$$I$Cursor;
 import io.machinecode.vial.api.map.$I$$I$Map;
 import io.machinecode.vial.core.Hash;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -60,6 +59,8 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
         this._threshold = m._threshold;
         this._initialMask = m._initialMask;
         this._nextMask = m._nextMask;
+        this._haveNoValue = m._haveNoValue;
+        this._noValue = m._noValue;
         this._data = new $p$[m._data.length];
         System.arraycopy(m._data, 0, this._data, 0, m._data.length);
     }
@@ -711,7 +712,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
         this._initialMask = cap - 1;
         this._nextMask = length - 1;
         this._data = new $p$[length];
-        for (int i = 0; i < capacity; i+=2) {
+        for (int i = 0, len = data.length; i < len; i+=2) {
             final $p$ k = data[i];
             if (k != NO_KEY) {
                 _putNoResize(k, data[i+1]);
@@ -729,10 +730,8 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
                 this._data[index] = key;
                 this._data[index + 1] = value;
                 return;
-            } else if (k == key) {
-                this._data[index + 1] = value;
-                return;
             }
+            assert k != key;
             index = (index + 2) & this._nextMask;
         }
     }
@@ -757,11 +756,9 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
         private void _advance() {
             assert !found;
+            assert index != INDEX_FINISHED;
             final int inc = data == map._data ? 2 : 1;
             switch (index) {
-                case INDEX_FINISHED:
-                    found = true;
-                    return;
                 case INDEX_NO_VALUE:
                     index = INDEX_FINISHED;
                     found = true;
@@ -774,17 +771,13 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
                     break;
             }
             for (; index < data.length; index+=inc) {
-                if (index >= data.length || data[index] == NO_KEY) {
+                if (data[index] == NO_KEY) {
                     continue;
                 }
                 found = true;
                 return;
             }
-            if (map._haveNoValue) {
-                index = INDEX_NO_VALUE;
-            } else {
-                index = INDEX_FINISHED;
-            }
+            index = map._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
             found = true;
         }
 
@@ -792,14 +785,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
         public boolean hasNext() {
             if (!found) _advance();
             assert index != INDEX_BEFORE;
-            switch (index) {
-                case INDEX_FINISHED:
-                    return false;
-                case INDEX_NO_VALUE:
-                    return true;
-                default:
-                    return index < data.length && map._size != 0;
-            }
+            return index != INDEX_FINISHED;
         }
 
         @Override
@@ -832,7 +818,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
                 map._haveNoValue = false;
             } else {
                 assert keyIndex >= 0;
-                assert map._data[keyIndex] != NO_KEY;
+                assert this.data[keyIndex] != NO_KEY;
                 if (this.data == map._data) {
                     _removeAndCopy(keyIndex);
                 } else {
@@ -842,9 +828,10 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
             key = ILLEGAL;
         }
 
-        private void _removeAndCopy(final int delete) {
+        private void _removeAndCopy(final int remove) {
+            assert this.data == map._data;
             map._size--;
-            int index = delete;
+            int index = remove;
             int next = (index + 2) & map._nextMask;
             for (;;) {
                 final $p$ key = map._data[next];
@@ -857,14 +844,14 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (this.data == map._data && next < delete && index >= delete) {
-                        this.data = new $p$[map._data.length - delete];
-                        System.arraycopy(map._data, delete, this.data, 0, this.data.length);
-                        this.index = 0;
+                    if (next < remove && index >= remove && this.data == map._data) {
+                        map._data[index] = NO_KEY;
+                        this.data = new $p$[map._data.length - remove];
+                        System.arraycopy(map._data, remove, this.data, 0, this.data.length);
                     }
                     map._data[index] = key;
                     map._data[index+1] = map._data[next+1];
-                    this.index = delete;
+                    this.index = this.data == map._data ? remove : 0;
                     this.found = true;
                     index = next;
                 }
@@ -874,6 +861,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
         public void reset() {
             index = INDEX_BEFORE;
+            found = false;
             key = ILLEGAL;
             data = map._data;
         }

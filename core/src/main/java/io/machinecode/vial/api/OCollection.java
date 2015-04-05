@@ -12,7 +12,7 @@ public interface OCollection<V> extends Collection<V> {
 
     boolean containsAll(final Object... c);
 
-    boolean addAll(final V... c);
+    boolean addAll(final V[] c);
 
     boolean removeAll(final Object... c);
 

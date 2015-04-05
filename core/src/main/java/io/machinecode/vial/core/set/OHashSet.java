@@ -4,7 +4,6 @@ import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.set.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.Hash;
-import io.machinecode.vial.core.Util;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -42,21 +41,12 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
-    public OHashSet(final OHashSet<?> c) {
-        super(c);
-        this._size = c._size;
-        this._threshold = c._threshold;
-        this._mask = c._mask;
-        this._keys = new Object[c._keys.length];
-        System.arraycopy(c._keys, 0, this._keys, 0, c._keys.length);
-    }
-
     public OHashSet(final Collection<? extends V> c) {
         this(c.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
         addAll(c);
     }
 
-    public OHashSet(final V... c) {
+    public OHashSet(final V[] c) {
         this(c.length, DEFAULT_LOAD_FACTOR, Spread.QUICK);
         addAll(c);
     }
@@ -141,7 +131,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     @Override
-    public boolean addAll(final V... c) {
+    public boolean addAll(final V[] c) {
         boolean ret = false;
         for (final V key : c) {
             ret |= add(key);
@@ -204,7 +194,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        Util.fill(this._keys, 0, this._keys.length, null);
+        fill(this._keys, 0, this._keys.length, null);
     }
 
     @Override
@@ -234,9 +224,8 @@ public class OHashSet<V> extends Hash implements OSet<V> {
             if (k == null) {
                 this._keys[index] = key;
                 return;
-            } else if (k.equals(key)) {
-                return;
             }
+            assert !k.equals(key);
             index = (index + 1) & this._mask;
         }
     }
@@ -298,15 +287,15 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         if (c == null) throw new NullPointerException(); //TODO Message
         final Iterator<V> it = iterator();
         boolean ret = false;
-        while (it.hasNext()) {
+        outer: while (it.hasNext()) {
             final V k = it.next();
             for (final Object o : c) {
                 if (k == null ? o == null : k.equals(o)) {
-                    it.remove();
-                    ret = true;
-                    break;
+                    continue outer;
                 }
             }
+            it.remove();
+            ret = true;
         }
         return ret;
     }
@@ -401,10 +390,8 @@ public class OHashSet<V> extends Hash implements OSet<V> {
 
         private void _advance() {
             assert !found;
+            assert index != INDEX_FINISHED;
             switch (index) {
-                case INDEX_FINISHED:
-                    found = true;
-                    return;
                 case INDEX_NO_VALUE:
                     index = INDEX_FINISHED;
                     found = true;
@@ -417,17 +404,13 @@ public class OHashSet<V> extends Hash implements OSet<V> {
                     break;
             }
             for (; index < keys.length; ++index) {
-                if (index >= keys.length || keys[index] == null) {
+                if (keys[index] == null) {
                     continue;
                 }
                 found = true;
                 return;
             }
-            if (set._haveNoValue) {
-                index = INDEX_NO_VALUE;
-            } else {
-                index = INDEX_FINISHED;
-            }
+            index = set._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
             found = true;
         }
 
@@ -435,14 +418,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         public boolean hasNext() {
             if (!found) _advance();
             assert index != INDEX_BEFORE;
-            switch (index) {
-                case INDEX_FINISHED:
-                    return false;
-                case INDEX_NO_VALUE:
-                    return true;
-                default:
-                    return index < keys.length && set._size != 0;
-            }
+            return index != INDEX_FINISHED;
         }
 
         @Override
@@ -484,9 +460,9 @@ public class OHashSet<V> extends Hash implements OSet<V> {
             key = ILLEGAL;
         }
 
-        private void _removeAndCopy(final int delete) {
+        private void _removeAndCopy(final int remove) {
             set._size--;
-            int index = delete;
+            int index = remove;
             int next = (index + 1) & set._mask;
             for (;;) {
                 final Object key = set._keys[next];
@@ -499,13 +475,13 @@ public class OHashSet<V> extends Hash implements OSet<V> {
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (this.keys == set._keys && next < delete && index >= delete) {
-                        this.keys = new Object[set._keys.length - delete];
-                        System.arraycopy(set._keys, delete, this.keys, 0, this.keys.length);
-                        this.index = 0;
+                    if (next < remove && index >= remove && this.keys == set._keys) {
+                        set._keys[index] = null;
+                        this.keys = new Object[set._keys.length - remove];
+                        System.arraycopy(set._keys, remove, this.keys, 0, this.keys.length);
                     }
                     set._keys[index] = key;
-                    this.index = delete;
+                    this.index = this.keys == set._keys ? remove : 0;
                     this.found = true;
                     index = next;
                 }
@@ -515,6 +491,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
 
         public void reset() {
             index = INDEX_BEFORE;
+            found = false;
             key = ILLEGAL;
             keys = set._keys;
         }

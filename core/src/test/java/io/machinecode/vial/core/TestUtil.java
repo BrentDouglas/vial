@@ -23,4 +23,15 @@ public class TestUtil {
         }
         return set;
     }
+
+    public static boolean arrayContains(final Object[] a, final Object v) {
+        for (final Object x : a) {
+            if (v == null) {
+                if (x == null) return true;
+            } else {
+                if (v.equals(x)) return true;
+            }
+        }
+        return false;
+    }
 }

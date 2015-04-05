@@ -1,4 +1,4 @@
-package io.machinecode.vial.bench.perf.map;
+package io.machinecode.vial.bench.perf.map.put;
 
 import com.carrotsearch.hppc.ObjectObjectMap;
 import com.carrotsearch.hppc.ObjectObjectOpenHashMap;

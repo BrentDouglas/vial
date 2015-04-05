@@ -2,7 +2,7 @@ package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.api.map.OOCursor;
-import io.machinecode.vial.core.Util;
+import io.machinecode.vial.api.map.OOMap;
 import io.machinecode.vial.core.Hash;
 
 import java.util.Collection;
@@ -15,7 +15,7 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<K,V>> {
+public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 29;
@@ -41,18 +41,6 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
     public OOHashMap(final float factor) {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
-    }
-
-    public OOHashMap(final OOHashMap<?, ?> m) {
-        super(m);
-        this._size = m._size;
-        this._threshold = m._threshold;
-        final int capacity = m._data.length / 2;
-        final int length = m._data.length;
-        this._initialMask = capacity - 1;
-        this._nextMask = length - 1;
-        this._data = new Object[length];
-        System.arraycopy(m._data, 0, this._data, 0, length);
     }
 
     public OOHashMap(final Map<? extends K, ? extends V> m) {
@@ -240,7 +228,9 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             if (this._haveNoValue) {
                 this._size--;
                 this._haveNoValue = false;
-                return cast(this._noValue);
+                final V old = cast(this._noValue);
+                this._noValue = null;
+                return old;
             } else {
                 return null;
             }
@@ -260,9 +250,11 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
         }
     }
 
+    @Override
     public boolean removeValue(final Object value) {
         if (_haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
             _haveNoValue = false;
+            this._noValue = null;
             --_size;
             return true;
         }
@@ -283,6 +275,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             if (this._haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
                 this._size--;
                 this._haveNoValue = false;
+                this._noValue = null;
                 return true;
             } else {
                 return false;
@@ -310,6 +303,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             if (this._haveNoValue) {
                 this._size--;
                 this._haveNoValue = false;
+                this._noValue = null;
                 return true;
             } else {
                 return false;
@@ -336,6 +330,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             final Object key = this._data[next];
             if (key == null) {
                 this._data[index] = null;
+                this._data[index+1] = null;
                 return;
             }
             final int hash = _spread.spread(key.hashCode());
@@ -354,7 +349,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
     @Override
     public boolean replace(final K key, final V oldValue, final V newValue) {
         if (key == null) {
-            if (!this._haveNoValue || (oldValue == null ? _noValue != null : !_noValue.equals(oldValue))) {
+            if (!this._haveNoValue || (oldValue == null ? _noValue != null : !oldValue.equals(_noValue))) {
                 return false;
             }
             this._noValue = newValue;
@@ -369,7 +364,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                 return false;
             } else if (k.equals(key)) {
                 final int vi = index+1;
-                if (this._data[vi].equals(oldValue)) {
+                if (oldValue == null ? this._data[vi] != null : !oldValue.equals(this._data[vi])) {
                     return false;
                 }
                 this._data[vi] = newValue;
@@ -409,8 +404,9 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
     @Override
     public void clear() {
         this._haveNoValue = false;
+        this._noValue = null;
         this._size = 0;
-        Util.fill(this._data, 0, this._data.length, null);
+        fill(this._data, 0, this._data.length, null);
     }
 
     @Override
@@ -484,7 +480,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
         this._initialMask = cap - 1;
         this._nextMask = length - 1;
         this._data = new Object[length];
-        for (int i = 0; i < capacity; i+=2) {
+        for (int i = 0, len = data.length; i < len; i+=2) {
             final Object k = data[i];
             if (k != null) {
                 _putNoResize(k, data[i+1]);
@@ -502,10 +498,8 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                 this._data[index] = key;
                 this._data[index+1] = value;
                 return;
-            } else if (k.equals(key)) {
-                this._data[index+1] = value;
-                return;
             }
+            assert !k.equals(key);
             index = (index + 2) & this._nextMask;
         }
     }
@@ -529,11 +523,8 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
         private void _advance() {
             assert !found;
-            final int inc = data == map._data ? 2 : 1;
+            assert index != INDEX_FINISHED;
             switch (index) {
-                case INDEX_FINISHED:
-                    found = true;
-                    return;
                 case INDEX_NO_VALUE:
                     index = INDEX_FINISHED;
                     found = true;
@@ -542,21 +533,17 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                     index = 0;
                     break;
                 default:
-                    index+=inc;
+                    index+=2;
                     break;
             }
-            for (; index < data.length; index+=inc) {
-                if (index >= data.length || data[index] == null) {
+            for (; index < data.length; index+=2) {
+                if (data[index] == null) {
                     continue;
                 }
                 found = true;
                 return;
             }
-            if (map._haveNoValue) {
-                index = INDEX_NO_VALUE;
-            } else {
-                index = INDEX_FINISHED;
-            }
+            index = map._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
             found = true;
         }
 
@@ -564,14 +551,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
         public boolean hasNext() {
             if (!found) _advance();
             assert index != INDEX_BEFORE;
-            switch (index) {
-                case INDEX_FINISHED:
-                    return false;
-                case INDEX_NO_VALUE:
-                    return true;
-                default:
-                    return index < data.length && map._size != 0;
-            }
+            return index != INDEX_FINISHED;
         }
 
         @Override
@@ -602,9 +582,10 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                 assert map._haveNoValue;
                 --map._size;
                 map._haveNoValue = false;
+                map._noValue = null;
             } else {
                 assert keyIndex >= 0;
-                assert map._data[keyIndex] != null;
+                assert this.data[keyIndex] != null;
                 if (this.data == map._data) {
                     _removeAndCopy(keyIndex);
                 } else {
@@ -614,14 +595,16 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             key = ILLEGAL;
         }
 
-        private void _removeAndCopy(final int delete) {
+        private void _removeAndCopy(final int remove) {
+            assert this.data == map._data;
             map._size--;
-            int index = delete;
+            int index = remove;
             int next = (index + 2) & map._nextMask;
             for (;;) {
                 final Object key = map._data[next];
                 if (key == null) {
                     map._data[index] = null;
+                    map._data[index+1] = null;
                     return;
                 }
                 final int hash = map._spread.spread(key.hashCode());
@@ -629,14 +612,15 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (this.data == map._data && next < delete && index >= delete) {
-                        this.data = new Object[map._data.length - delete];
-                        System.arraycopy(map._data, delete, this.data, 0, this.data.length);
-                        this.index = 0;
+                    if (next < remove && index >= remove && this.data == map._data) {
+                        map._data[index] = null;
+                        map._data[index+1] = null;
+                        this.data = new Object[map._data.length - remove];
+                        System.arraycopy(map._data, remove, this.data, 0, this.data.length);
                     }
                     map._data[index] = key;
                     map._data[index+1] = map._data[next+1];
-                    this.index = delete;
+                    this.index = this.data == map._data ? remove : 0;
                     this.found = true;
                     index = next;
                 }
@@ -646,6 +630,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
         public void reset() {
             index = INDEX_BEFORE;
+            found = false;
             key = ILLEGAL;
             data = map._data;
         }
@@ -759,10 +744,12 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             return map._size == 0;
         }
 
+        @Override
         public boolean add(final X e) {
             throw new UnsupportedOperationException(); //TODO Message
         }
 
+        @Override
         public boolean addAll(final Collection<? extends X> c) {
             throw new UnsupportedOperationException(); //TODO Message
         }
@@ -777,6 +764,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
             return true;
         }
 
+        @Override
         public boolean removeAll(final Collection<?> c) {
             boolean ret = false;
             for (final Object o : c) {
@@ -843,6 +831,7 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
         abstract X _get(final K key);
 
+        @Override
         public void clear() {
             map.clear();
         }
@@ -918,9 +907,6 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
         @Override
         V _get(final K key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
             return map.get(key);
         }
 
@@ -965,9 +951,6 @@ public class OOHashMap<K,V> extends Hash implements Map<K,V>, Iterable<OOCursor<
 
         @Override
         Entry<K, V> _get(final K key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
             return new En<>(map, key, map.get(key));
         }
 

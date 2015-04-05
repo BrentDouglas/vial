@@ -1,0 +1,351 @@
+delimiters "$", "$"
+
+PHashSetExtTest(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.core.set;
+
+import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.api.$I$Cursor;
+import io.machinecode.vial.api.set.$I$Set;
+import io.machinecode.vial.core.TestUtil;
+import org.junit.Assert;
+import org.junit.Test;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class $I$HashSetExtTest extends Assert {
+
+    protected $I$Set create() {
+        return new $I$HashSet();
+    }
+
+    @Test
+    public void testConstructors() {
+        final $I$Set a = new $I$HashSet(4);
+        final $I$HashSet b = new $I$HashSet(0.5f);
+        final $I$HashSet c = new $I$HashSet(4, 0.5f);
+        final $I$HashSet d = new $I$HashSet(4, 0.5f, Spread.MURMUR3);
+        assertEquals(a, b);
+        assertEquals(a, c);
+        assertEquals(a, d);
+        assertEquals(b, c);
+        assertEquals(b, d);
+        assertEquals(c, d);
+        assertTrue(a.isEmpty());
+        assertTrue(b.isEmpty());
+        assertTrue(c.isEmpty());
+        assertTrue(d.isEmpty());
+        a.add(($p$)0);
+        a.add(($p$)1);
+        a.add(($p$)2);
+        assertEquals(3, a.size());
+        b.add(($p$)0);
+        b.add(($p$)1);
+        b.add(($p$)2);
+        assertEquals(3, a.size());
+
+        final $I$HashSet e = new $I$HashSet(a);
+        assertEquals(a, e);
+        assertEquals(3, e.size());
+        assertTrue(e.contains(($p$)0));
+        assertTrue(e.contains(($p$)1));
+        assertTrue(e.contains(($p$)2));
+
+        final $I$HashSet f = new $I$HashSet(new $p$[]{($p$)0, ($p$)2, ($p$)1});
+        assertEquals(a, f);
+        assertEquals(3, f.size());
+        assertTrue(f.contains(($p$)0));
+        assertTrue(f.contains(($p$)1));
+        assertTrue(f.contains(($p$)2));
+
+        final $I$HashSet g = new $I$HashSet(b);
+        assertEquals(b, g);
+        assertEquals(3, g.size());
+        assertTrue(g.contains(($p$)0));
+        assertTrue(g.contains(($p$)1));
+        assertTrue(g.contains(($p$)2));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testNull() {
+        final $I$Set set = create();
+        set.add(null);
+    }
+
+    @Test
+    public void testValue() {
+        final $I$Set set = create();
+        assertTrue(set.add(($p$)1));
+        assertEquals(1, set.size());
+        assertTrue(set.contains(($p$)1));
+
+        assertTrue(set.remove(($p$)1));
+        assertEquals(0, set.size());
+        assertFalse(set.contains(($p$)1));
+    }
+
+    @Test
+    public void testAddWithRehash() {
+        final $I$Set set = create();
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+        assertEquals(10, set.size());
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.contains(i));
+        }
+    }
+
+    @Test
+    public void testClear() {
+        final $I$Set set = create();
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+        assertEquals(10, set.size());
+        set.clear();
+        assertEquals(0, set.size());
+        for ($p$ i = 0; i < 10; ++i) {
+            assertFalse(set.contains(i));
+        }
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+    }
+
+    @Test
+    public void testRemoveValue() {
+        final $I$Set set = create();
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+        assertEquals(10, set.size());
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.contains(i));
+
+            assertTrue(set.remove(i));
+            assertFalse(set.remove(i));
+        }
+        assertEquals(0, set.size());
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+    }
+
+    /*
+    @Test
+    public void testRemoveBadHashCode() {
+        final $I$Set set = create();
+        final $p$[] arr = new $p$[10];
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(set.add(arr[i] = 4));
+        }
+        assertEquals(10, set.size());
+        //This will make sure removed keys need moving
+        for (int i = 0; i < 5; ++i) {
+            assertTrue(set.contains(arr[i]));
+
+            assertTrue(set.remove(arr[i]));
+            assertFalse(set.remove(arr[i]));
+        }
+        //This will make it skip keys before removing them
+        for (int i = 9; i > 4; --i) {
+            assertTrue(set.contains(arr[i]));
+
+            assertTrue(set.remove(arr[i]));
+            assertFalse(set.remove(arr[i]));
+        }
+        assertEquals(0, set.size());
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(set.add(arr[i]));
+        }
+    }
+    */
+
+    @Test
+    public void testRetainAllValue() {
+        final $I$Set set = create();
+        assertTrue(set.add(($p$)0));
+        assertTrue(set.add(($p$)1));
+        assertTrue(set.add(($p$)2));
+        assertFalse(set.contains(null));
+        assertTrue(set.contains(($p$)0));
+        assertTrue(set.contains(($p$)1));
+        assertTrue(set.contains(($p$)2));
+        assertEquals(3, set.size());
+
+        assertTrue(set.retainAll(($p$)1, ($p$)2));
+        assertFalse(set.contains(null));
+        assertFalse(set.contains(($p$)0));
+        assertTrue(set.contains(($p$)1));
+        assertTrue(set.contains(($p$)2));
+        assertEquals(2, set.size());
+
+        assertTrue(set.retainAll(($p$)1, ($p$)3));
+        assertFalse(set.contains(null));
+        assertFalse(set.contains(($p$)0));
+        assertTrue(set.contains(($p$)1));
+        assertFalse(set.contains(($p$)2));
+        assertEquals(1, set.size());
+    }
+
+    @Test
+    public void testRemoveAll() {
+        final $I$Set set = create();
+        assertTrue(set.add(($p$)1));
+        assertTrue(set.add(($p$)2));
+        assertTrue(set.add(($p$)3));
+        assertFalse(set.contains(null));
+        assertTrue(set.contains(($p$)1));
+        assertTrue(set.contains(($p$)2));
+        assertTrue(set.contains(($p$)3));
+        assertEquals(3, set.size());
+
+        assertTrue(set.removeAll(($p$)3, ($p$)2));
+        assertFalse(set.contains(null));
+        assertTrue(set.contains(($p$)1));
+        assertFalse(set.contains(($p$)2));
+        assertFalse(set.contains(($p$)3));
+        assertEquals(1, set.size());
+    }
+
+    @Test
+    public void testContainsAll() {
+        final $I$Set set = create();
+        assertTrue(set.add(($p$)0));
+        assertTrue(set.add(($p$)1));
+        assertTrue(set.add(($p$)2));
+        assertTrue(set.add(($p$)3));
+        assertFalse(set.contains(null));
+        assertTrue(set.contains(($p$)0));
+        assertTrue(set.contains(($p$)1));
+        assertTrue(set.contains(($p$)2));
+        assertTrue(set.contains(($p$)3));
+        assertEquals(4, set.size());
+
+        assertTrue(set.containsAll(($p$)0, ($p$)1, ($p$)2, ($p$)3));
+        assertTrue(set.containsAll(($p$)0, ($p$)1, ($p$)2));
+        assertTrue(set.containsAll(($p$)0, ($p$)1, ($p$)3));
+        assertTrue(set.containsAll(($p$)0, ($p$)2, ($p$)3));
+        assertTrue(set.containsAll(($p$)1, ($p$)2, ($p$)3));
+        assertTrue(set.containsAll(($p$)0, ($p$)1));
+        assertTrue(set.containsAll(($p$)0, ($p$)2));
+        assertTrue(set.containsAll(($p$)0, ($p$)3));
+        assertTrue(set.containsAll(($p$)1, ($p$)2));
+        assertTrue(set.containsAll(($p$)1, ($p$)3));
+        assertTrue(set.containsAll(($p$)2, ($p$)3));
+        assertTrue(set.containsAll(($p$)0));
+        assertTrue(set.containsAll(($p$)1));
+        assertTrue(set.containsAll(($p$)2));
+        assertTrue(set.containsAll(($p$)3));
+
+        assertFalse(set.containsAll(($p$)0, ($p$)1, ($p$)2, ($p$)3, ($p$)4));
+        assertFalse(set.containsAll(($p$)0, ($p$)1, ($p$)2, ($p$)4));
+        assertFalse(set.containsAll(($p$)1, ($p$)2, ($p$)3, ($p$)4));
+        assertFalse(set.containsAll(($p$)1, ($p$)2, ($p$)4));
+        assertFalse(set.containsAll(($p$)0, ($p$)4));
+        assertFalse(set.containsAll(($p$)4));
+    }
+
+    @Test
+    public void testCursor() {
+        final $I$Set set = create();
+
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final $I$Cursor c = set.cursor();
+        assertTrue(c.hasNext());
+        for (final $p$ x : set) {
+            assertNotNull(c.next());
+            assertEquals(x, c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.reset();
+
+        int i = 0;
+        for (final $I$Cursor x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+    }
+
+    @Test
+    public void testToArray() {
+        final $I$Set set = create();
+        assertTrue(set.add(($p$)0));
+        assertTrue(set.add(($p$)1));
+        assertTrue(set.add(($p$)2));
+        assertTrue(set.add(($p$)3));
+        assertFalse(set.contains(null));
+        assertTrue(set.contains(($p$)0));
+        assertTrue(set.contains(($p$)1));
+        assertTrue(set.contains(($p$)2));
+        assertTrue(set.contains(($p$)3));
+        assertEquals(4, set.size());
+        
+        final Object[] array = set.toArray();
+        assertFalse(TestUtil.arrayContains(array, null));
+        assertTrue(TestUtil.arrayContains(array, ($p$)0));
+        assertTrue(TestUtil.arrayContains(array, ($p$)1));
+        assertTrue(TestUtil.arrayContains(array, ($p$)2));
+        assertTrue(TestUtil.arrayContains(array, ($p$)3));
+        assertEquals(4, array.length);
+    }
+
+    @Test
+    public void testToArrayT() {
+        final $I$Set set = create();
+        assertTrue(set.add(($p$)0));
+        assertTrue(set.add(($p$)1));
+        assertTrue(set.add(($p$)2));
+        assertTrue(set.add(($p$)3));
+        assertFalse(set.contains(null));
+        assertTrue(set.contains(($p$)0));
+        assertTrue(set.contains(($p$)1));
+        assertTrue(set.contains(($p$)2));
+        assertTrue(set.contains(($p$)3));
+        assertEquals(4, set.size());
+
+        final $P$[] array = set.toArray(new $P$[4]);
+        assertFalse(TestUtil.arrayContains(array, null));
+        assertTrue(TestUtil.arrayContains(array, ($p$)0));
+        assertTrue(TestUtil.arrayContains(array, ($p$)1));
+        assertTrue(TestUtil.arrayContains(array, ($p$)2));
+        assertTrue(TestUtil.arrayContains(array, ($p$)3));
+        assertEquals(4, array.length);
+    }
+
+    /*
+     * The set has 8 elements and can insert 5 before it expands.
+     * We're inserting 5 elements with hc 5 which should wrap the
+     * last two in the backing array and trigger a
+     * copy when removing the element.
+     *
+     * 55xxx555
+     *      ^ remove this one
+     */
+     /*
+    @Test
+    public void testCursorRemoveCopy() {
+        final $I$Set set = create();
+        for (int i = 0; i < 5; ++i) {
+            assertTrue(set.add(($p$)5));
+        }
+        assertEquals(5, set.size());
+
+        final $I$Cursor it = set.cursor();
+        it.next().next();
+        for (final $I$Cursor x : it) {
+            x.remove();
+        }
+    }
+    */
+}
+>>

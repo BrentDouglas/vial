@@ -8,7 +8,6 @@ import io.machinecode.vial.api.map.$I$OCursor;
 import io.machinecode.vial.api.map.$I$OMap;
 import io.machinecode.vial.core.Hash;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -58,6 +57,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         this._size = m._size;
         this._threshold = m._threshold;
         this._mask = m._mask;
+        this._haveNoValue = m._haveNoValue;
+        this._noValue = m._noValue;
         this._keys = new $p$[m._keys.length];
         this._values = new Object[m._values.length];
         System.arraycopy(m._keys, 0, this._keys, 0, m._keys.length);
@@ -375,6 +376,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             final $p$ key = this._keys[next];
             if (key == NO_KEY) {
                 this._keys[index] = NO_KEY;
+                this._values[index] = null;
                 return;
             }
             final int hash = _spread.spread($hc$);
@@ -416,7 +418,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     @Override
     public boolean replace(final $p$ key, final V oldValue, final V newValue) {
         if (key == NO_KEY) {
-            if (!this._haveNoValue || this._noValue != oldValue) {
+            if (!this._haveNoValue || (oldValue == null ? _noValue != null : !oldValue.equals(_noValue))) {
                 return false;
             }
             this._noValue = newValue;
@@ -474,10 +476,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     @Override
     public void clear() {
         this._haveNoValue = false;
+        this._noValue = null;
         this._size = 0;
         for (int i = 0, len = this._keys.length; i < len; i++) {
             this._keys[i] = NO_KEY;
         }
+        fill(this._values, 0, this._values.length, null);
     }
 
     @Override
@@ -584,7 +588,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         this._mask = cap - 1;
         this._keys = new $p$[cap];
         this._values = new Object[cap];
-        for (int i = 0; i < keys.length; ++i) {
+        for (int i = 0, len = keys.length; i < len; i++) {
             final $p$ k = keys[i];
             if (k != NO_KEY) {
                 _putNoResize(k, values[i]);
@@ -602,10 +606,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 this._keys[index] = key;
                 this._values[index] = value;
                 return;
-            } else if (k == key) {
-                this._values[index] = value;
-                return;
             }
+            assert k != key;
             index = (index + 1) & this._mask;
         }
     }
@@ -631,10 +633,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         private void _advance() {
             assert !found;
+            assert index != INDEX_FINISHED;
             switch (index) {
-                case INDEX_FINISHED:
-                    found = true;
-                    return;
                 case INDEX_NO_VALUE:
                     index = INDEX_FINISHED;
                     found = true;
@@ -647,17 +647,13 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                     break;
             }
             for (; index < keys.length; ++index) {
-                if (index >= keys.length || keys[index] == NO_KEY) {
+                if (keys[index] == NO_KEY) {
                     continue;
                 }
                 found = true;
                 return;
             }
-            if (map._haveNoValue) {
-                index = INDEX_NO_VALUE;
-            } else {
-                index = INDEX_FINISHED;
-            }
+            index = map._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
             found = true;
         }
 
@@ -665,14 +661,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         public boolean hasNext() {
             if (!found) _advance();
             assert index != INDEX_BEFORE;
-            switch (index) {
-                case INDEX_FINISHED:
-                    return false;
-                case INDEX_NO_VALUE:
-                    return true;
-                default:
-                    return index < keys.length && map._size != 0;
-            }
+            return index != INDEX_FINISHED;
         }
 
         @Override
@@ -705,7 +694,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 map._haveNoValue = false;
             } else {
                 assert keyIndex >= 0;
-                assert map._keys[keyIndex] != NO_KEY;
+                assert this.keys[keyIndex] != NO_KEY;
                 if (this.keys == map._keys) {
                     _removeAndCopy(keyIndex);
                 } else {
@@ -715,9 +704,10 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             key = ILLEGAL;
         }
 
-        private void _removeAndCopy(final int delete) {
+        private void _removeAndCopy(final int remove) {
+            assert this.keys == map._keys;
             map._size--;
-            int index = delete;
+            int index = remove;
             int next = (index + 1) & map._mask;
             for (;;) {
                 final $p$ key = map._keys[next];
@@ -730,14 +720,14 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (this.keys == map._keys && next < delete && index >= delete) {
-                        this.keys = new $p$[map._keys.length - delete];
-                        System.arraycopy(map._keys, delete, this.keys, 0, this.keys.length);
-                        this.index = 0;
+                    if (next < remove && index >= remove && this.keys == map._keys) {
+                        map._keys[index] = NO_KEY;
+                        this.keys = new $p$[map._keys.length - remove];
+                        System.arraycopy(map._keys, remove, this.keys, 0, this.keys.length);
                     }
                     map._keys[index] = key;
                     map._values[index] = map._values[next];
-                    this.index = delete;
+                    this.index = this.keys == map._keys ? remove : 0;
                     this.found = true;
                     index = next;
                 }
@@ -747,6 +737,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         public void reset() {
             index = INDEX_BEFORE;
+            found = false;
             key = ILLEGAL;
             keys = map._keys;
         }
