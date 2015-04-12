@@ -29,6 +29,8 @@ public class $I$HashSet extends Hash implements $I$Set {
     private $p$[] _keys;
     private boolean _haveNoValue;
 
+    private final Spread _spread;
+    private final float _factor;
     private int _threshold;
     private int _size;
 
@@ -46,24 +48,33 @@ public class $I$HashSet extends Hash implements $I$Set {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
-    public $I$HashSet(final $I$HashSet c) {
-        super(c);
-        this._size = c._size;
-        this._threshold = c._threshold;
-        this._mask = c._mask;
-        this._haveNoValue = c._haveNoValue;
-        this._keys = new $p$[c._keys.length];
-        System.arraycopy(c._keys, 0, this._keys, 0, c._keys.length);
-    }
-
     public $I$HashSet(final Collection<? extends $P$> c) {
-        this(c.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        addAll(c);
+        if (c instanceof $I$HashSet) {
+            final $I$HashSet x = ($I$HashSet)c;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._mask = x._mask;
+            this._haveNoValue = x._haveNoValue;
+            this._keys = new $p$[x._keys.length];
+            System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (c.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            this._mask = cap - 1;
+            this._keys = new $p$[cap];
+            addAll(c);
+        }
     }
 
     public $I$HashSet(final $p$... c) {
         this(c.length, DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        addAll(c);
+        xaddAll(c);
     }
 
     public $I$HashSet(final int capacity, final float factor) {
@@ -71,8 +82,11 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     public $I$HashSet(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
+        this._factor = factor;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._size = 0;
         final int cap = capacity(capacity, factor, MAX_CAPACITY);
@@ -93,11 +107,11 @@ public class $I$HashSet extends Hash implements $I$Set {
 
     @Override
     public boolean contains(final Object key) {
-        return key instanceof $P$ && contains(($p$)key);
+        return key instanceof $P$ && xcontains(($p$)key);
     }
 
     @Override
-    public boolean contains(final $p$ key) {
+    public boolean xcontains(final $p$ key) {
         if (key == NO_KEY) {
             return this._haveNoValue;
         }
@@ -116,11 +130,11 @@ public class $I$HashSet extends Hash implements $I$Set {
 
     @Override
     public boolean add(final $P$ key) {
-        return add(($p$)key);
+        return xadd(($p$)key);
     }
 
     @Override
-    public boolean add(final $p$ key) {
+    public boolean xadd(final $p$ key) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 return false;
@@ -147,10 +161,10 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     @Override
-    public boolean addAll(final $p$... c) {
+    public boolean xaddAll(final $p$... c) {
         boolean ret = false;
         for (final $p$ key : c) {
-            ret |= add(key);
+            ret |= xadd(key);
         }
         return ret;
     }
@@ -159,7 +173,7 @@ public class $I$HashSet extends Hash implements $I$Set {
     public boolean addAll(final Collection<? extends $P$> c) {
         boolean ret = false;
         for (final $P$ key : c) {
-            ret |= add(key);
+            ret |= xadd(($p$)key);
         }
         return ret;
     }
@@ -171,11 +185,11 @@ public class $I$HashSet extends Hash implements $I$Set {
 
     @Override
     public boolean remove(final Object key) {
-        return key instanceof $P$ && remove(($p$)key);
+        return key instanceof $P$ && xremove(($p$)key);
     }
 
     @Override
-    public boolean remove(final $p$ key) {
+    public boolean xremove(final $p$ key) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 this._size--;
@@ -263,9 +277,9 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     @Override
-    public boolean containsAll(final $p$... c) {
+    public boolean xcontainsAll(final $p$... c) {
         for (final $p$ o : c) {
-            if (!contains(o)) {
+            if (!xcontains(o)) {
                 return false;
             }
         }
@@ -283,10 +297,10 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     @Override
-    public boolean removeAll(final $p$... c) {
+    public boolean xremoveAll(final $p$... c) {
         boolean ret = false;
         for (final $p$ o : c) {
-            ret |= remove(o);
+            ret |= xremove(o);
         }
         return ret;
     }
@@ -315,7 +329,7 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     @Override
-    public boolean retainAll(final $p$... c) {
+    public boolean xretainAll(final $p$... c) {
         if (c == null) throw new NullPointerException(); //TODO Message
         final Iterator<$P$> it = iterator(); //TODO Remove this
         boolean ret = false;

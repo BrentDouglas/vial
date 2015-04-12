@@ -8,6 +8,8 @@ import io.machinecode.vial.core.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
+
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
@@ -49,6 +51,15 @@ public class OHashSetExtTest extends Assert {
         assertEquals(2, f.size());
         assertTrue(f.contains(1L));
         assertTrue(f.contains(2L));
+
+        final OHashSet<Long> g = new OHashSet<>(new HashSet<Long>(){{
+            add(1L);
+            add(2L);
+        }});
+        assertEquals(a, g);
+        assertEquals(2, g.size());
+        assertTrue(g.contains(1L));
+        assertTrue(g.contains(2L));
     }
 
     @Test

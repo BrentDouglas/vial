@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PZHashMapTest(I, P, p, hc, X) ::= <<
+PPHashMapSuite(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import com.google.common.collect.testing.MapTestSuiteBuilder;
@@ -17,31 +17,33 @@ import java.util.Map;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $I$ZHashMapTest {
+public class $Ik$$Iv$HashMapSuite {
 
-    public static Test suite() {
-        final TestSuite suite = new TestSuite($I$ZHashMapF.class.getName());
-        suite.addTest(booleanTestsFor$I$ZHashMapF());
-        return suite;
+    public interface CreateMap {
+
+        Map<$Pk$, $Pv$> create();
     }
 
-    private static Test booleanTestsFor$I$ZHashMapF() {
+    public static void createSuite(final TestSuite suite, final String name, final CreateMap create) {
+        suite.addTest(testsFor$Ik$$Iv$HashMapF(name, create));
+    }
+
+    private static Test testsFor$Ik$$Iv$HashMapF(final String name, final CreateMap create) {
         return MapTestSuiteBuilder
-                .using(new $I$ZMapGenerator() {
+                .using(new $Ik$$Iv$MapGenerator() {
                     @Override
-                    protected Map<$P$, Boolean> create(final Map.Entry<$P$, Boolean>[] entries) {
-                        return TestUtil.populate(new $I$ZHashMapF(), entries);
+                    protected Map<$Pk$, $Pv$> create(final Map.Entry<$Pk$,$Pv$>[] entries) {
+                        return TestUtil.populate(create.create(), entries);
                     }
                 })
-                .named("$I$ZHashMap")
+                .named("$Ik$$Iv$HashMapF[" + name + "]")
                 .withFeatures(
                         MapFeature.GENERAL_PURPOSE,
                         MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
                         CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ZERO)
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionSize.ANY)
                 .createTestSuite();
     }
 }
-
 >>

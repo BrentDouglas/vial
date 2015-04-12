@@ -3,11 +3,7 @@ delimiters "$", "$"
 OPHashMapTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
-import com.google.common.collect.testing.MapTestSuiteBuilder;
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
-import com.google.common.collect.testing.features.MapFeature;
-import io.machinecode.vial.core.TestUtil;
+import io.machinecode.vial.api.Spread;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -21,47 +17,25 @@ public class O$I$HashMapTest {
 
     public static Test suite() {
         final TestSuite suite = new TestSuite(O$I$HashMap.class.getName());
-        suite.addTest(longTestsForO$I$HashMap());
-        suite.addTest(stringTestsForO$I$HashMap());
+        O$I$HashMapSuite.createSuite(suite, "NONE", new O$I$HashMapSuite.CreateMap() {
+            @Override
+            public <K> Map<K,$P$> create() {
+                return new O$I$HashMap<>(4, 0.75f, Spread.NONE);
+            }
+        });
+        O$I$HashMapSuite.createSuite(suite, "QUICK", new O$I$HashMapSuite.CreateMap() {
+            @Override
+            public <K> Map<K,$P$> create() {
+                return new O$I$HashMap<>(4, 0.75f, Spread.QUICK);
+            }
+        });
+        O$I$HashMapSuite.createSuite(suite, "MURMUR3", new O$I$HashMapSuite.CreateMap() {
+            @Override
+            public <K> Map<K,$P$> create() {
+                return new O$I$HashMap<>(4, 0.75f, Spread.MURMUR3);
+            }
+        });
         return suite;
-    }
-
-    private static Test longTestsForO$I$HashMap() {
-        return MapTestSuiteBuilder
-                .using(new L$I$MapGenerator() {
-                    @Override
-                    protected Map<Long, $P$> create(final Map.Entry<Long, $P$>[] entries) {
-                        return TestUtil.populate(new O$I$HashMap<Long>(), entries);
-                    }
-                })
-                .named("O$I$HashMap<Long>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_KEYS,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
-    }
-
-    private static Test stringTestsForO$I$HashMap() {
-        return MapTestSuiteBuilder
-                .using(new O$I$MapGenerator() {
-                    @Override
-                    protected Map<String, $P$> create(final Map.Entry<String, $P$>[] entries) {
-                        return TestUtil.populate(new O$I$HashMap<String>(), entries);
-                    }
-                })
-                .named("O$I$HashMap<String>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_KEYS,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
     }
 }
 

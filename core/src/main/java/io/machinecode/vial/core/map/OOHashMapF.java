@@ -27,6 +27,8 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     private boolean _haveNoValue;
     private Object _noValue;
 
+    private final Spread _spread;
+    private final float _factor;
     private int _threshold;
     private int _size;
 
@@ -45,8 +47,31 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     public OOHashMapF(final Map<? extends K, ? extends V> m) {
-        this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        putAll(m);
+        if (m instanceof OOHashMapF) {
+            final OOHashMapF x = (OOHashMapF)m;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._mask = x._mask;
+            this._haveNoValue = x._haveNoValue;
+            this._noValue = x._noValue;
+            this._keys = new Object[x._keys.length];
+            this._values = new Object[x._values.length];
+            System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
+            System.arraycopy(x._values, 0, this._values, 0, x._values.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            this._mask = cap - 1;
+            this._keys = new Object[cap];
+            this._values = new Object[cap];
+            putAll(m);
+        }
     }
 
     public OOHashMapF(final int capacity, final float factor) {
@@ -54,8 +79,11 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     public OOHashMapF(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
+        this._factor = factor;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._size = 0;
         final int cap = capacity(capacity, factor, MAX_CAPACITY);
@@ -155,10 +183,13 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     @Override
     public V put(final K key, final V value) {
         if (key == null) {
+            final V old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = null;
+            } else {
+                old = cast(this._noValue);
             }
-            final V old = cast(this._noValue);
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -215,9 +246,32 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putAll(final Map<? extends K, ? extends V> m) {
-        for (final Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
-            put(entry.getKey(), entry.getValue());
+        // TODO
+        //if (m instanceof OOHashMapF) {
+        //    final OOHashMapF<K,V> x = cast(m);
+        //    final Object[] keys = x._keys;
+        //    final Object[] values = x._values;
+        //    for (int i = 0, len = keys.length; i < len; ++i) {
+        //        if (keys[i] == null) {
+        //            continue;
+        //        }
+        //        put((K) keys[i], (V) values[i]);
+        //    }
+        //    if (x._haveNoValue) {
+        //        this._noValue = x._noValue;
+        //    }
+        //} else
+        if (m instanceof OOMap) {
+            final OOMap<K,V> x = cast(m);
+            for (final OOCursor<K,V> c : x.iterator()) {
+                put(c.key(), c.value());
+            }
+        } else {
+            for (final Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
+                put(entry.getKey(), entry.getValue());
+            }
         }
     }
 

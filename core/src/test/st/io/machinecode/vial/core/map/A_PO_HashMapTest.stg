@@ -3,11 +3,7 @@ delimiters "$", "$"
 POHashMapTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
-import com.google.common.collect.testing.MapTestSuiteBuilder;
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
-import com.google.common.collect.testing.features.MapFeature;
-import io.machinecode.vial.core.TestUtil;
+import io.machinecode.vial.api.Spread;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -21,47 +17,25 @@ public class $I$OHashMapTest {
 
     public static Test suite() {
         final TestSuite suite = new TestSuite($I$OHashMap.class.getName());
-        suite.addTest(longTestsFor$I$OHashMap());
-        suite.addTest(stringTestsFor$I$OHashMap());
+        $I$OHashMapSuite.createSuite(suite, "NONE", new $I$OHashMapSuite.CreateMap() {
+            @Override
+            public <V> Map<$P$,V> create() {
+                return new $I$OHashMap<>(4, 0.75f, Spread.NONE);
+            }
+        });
+        $I$OHashMapSuite.createSuite(suite, "QUICK", new $I$OHashMapSuite.CreateMap() {
+            @Override
+            public <V> Map<$P$,V> create() {
+                return new $I$OHashMap<>(4, 0.75f, Spread.QUICK);
+            }
+        });
+        $I$OHashMapSuite.createSuite(suite, "MURMUR3", new $I$OHashMapSuite.CreateMap() {
+            @Override
+            public <V> Map<$P$,V> create() {
+                return new $I$OHashMap<>(4, 0.75f, Spread.MURMUR3);
+            }
+        });
         return suite;
-    }
-
-    private static Test longTestsFor$I$OHashMap() {
-        return MapTestSuiteBuilder
-                .using(new $I$LMapGenerator() {
-                    @Override
-                    protected Map<$P$, Long> create(final Map.Entry<$P$, Long>[] entries) {
-                        return TestUtil.populate(new $I$OHashMap<Long>(), entries);
-                    }
-                })
-                .named("$I$OHashMap<Long>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_VALUES,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
-    }
-
-    private static Test stringTestsFor$I$OHashMap() {
-        return MapTestSuiteBuilder
-                .using(new $I$OMapGenerator() {
-                    @Override
-                    protected Map<$P$, String> create(final Map.Entry<$P$, String>[] entries) {
-                        return TestUtil.populate(new $I$OHashMap<String>(), entries);
-                    }
-                })
-                .named("$I$OHashMap<String>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_VALUES,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
     }
 }
 

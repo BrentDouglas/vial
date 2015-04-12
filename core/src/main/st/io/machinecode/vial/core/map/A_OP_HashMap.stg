@@ -33,6 +33,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     private boolean _haveNoValue;
     private $p$ _noValue;
 
+    private final Spread _spread;
     private final float _factor;
     private int _threshold;
     private int _size;
@@ -51,23 +52,32 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
-    public O$I$HashMap(final O$I$HashMap<?> m) {
-        super(m);
-        this._factor = m._factor;
-        this._size = m._size;
-        this._threshold = m._threshold;
-        this._mask = m._mask;
-        this._haveNoValue = m._haveNoValue;
-        this._noValue = m._noValue;
-        this._keys = new Object[m._keys.length];
-        this._values = new $p$[m._values.length];
-        System.arraycopy(m._keys, 0, this._keys, 0, m._keys.length);
-        System.arraycopy(m._values, 0, this._values, 0, m._values.length);
-    }
-
     public O$I$HashMap(final Map<? extends K, ? extends $P$> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        putAll(m);
+        if (m instanceof O$I$HashMap) {
+            final O$I$HashMap x = (O$I$HashMap)m;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._mask = x._mask;
+            this._haveNoValue = x._haveNoValue;
+            this._noValue = x._noValue;
+            this._keys = new Object[x._keys.length];
+            this._values = new $p$[x._values.length];
+            System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
+            System.arraycopy(x._values, 0, this._values, 0, x._values.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            this._mask = cap - 1;
+            this._keys = new Object[cap];
+            this._values = new $p$[cap];
+            putAll(m);
+        }
     }
 
     public O$I$HashMap(final int capacity, final float factor) {
@@ -75,8 +85,10 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     public O$I$HashMap(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._factor = factor;
         this._size = 0;
@@ -116,7 +128,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public boolean containsValue(final $p$ value) {
+    public boolean xcontainsValue(final $p$ value) {
         if (_haveNoValue && _noValue == value) {
             return true;
         }
@@ -128,6 +140,11 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
             }
         }
         return false;
+    }
+
+    @Override
+    public $p$ nv() {
+        return NO_VALUE;
     }
 
     @Override
@@ -147,6 +164,26 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
             }
         }
         return false;
+    }
+
+    @Override
+    public $p$ xget(final Object key) {
+        if (key == null) {
+            return this._haveNoValue
+                    ? this._noValue
+                    : NO_VALUE;
+        }
+        final int hash = _spread.spread(key.hashCode());
+        int index = hash & this._mask;
+        for (;;) {
+            final Object k = this._keys[index];
+            if (k == null) {
+                return NO_VALUE;
+            } else if (k.equals(key)) {
+                return this._values[index];
+            }
+            index = (index + 1) & this._mask;
+        }
     }
 
     @Override
@@ -170,7 +207,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public $p$ getOrDefault(final K key, final $p$ defaultValue) {
+    public $p$ xgetOrDefault(final K key, final $p$ defaultValue) {
         if (key == null) {
             return this._haveNoValue
                     ? this._noValue
@@ -212,7 +249,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public $p$ put(final K key, final $p$ value) {
+    public $p$ xput(final K key, final $p$ value) {
         if (key == null) {
             if (!this._haveNoValue) {
                 this._size++;
@@ -280,7 +317,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public $p$ putIfAbsent(final K key, final $p$ value) {
+    public $p$ xputIfAbsent(final K key, final $p$ value) {
         if (key == null) {
             if (this._haveNoValue) {
                 return this._noValue;
@@ -340,16 +377,30 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public void putAll(final O$I$Map<? extends K> m) {
-        for (final O$I$Cursor<? extends K> entry : m) {
-            put(entry.key(), entry.value());
-        }
-    }
-
-    @Override
     public void putAll(final Map<? extends K, ? extends $P$> m) {
-        for (final Map.Entry<? extends K, ? extends $P$> entry : m.entrySet()) {
-            put(entry.getKey(), entry.getValue());
+        // TODO
+        //if (m instanceof O$I$HashMap) {
+        //    final O$I$HashMap<K> x = cast(m);
+        //    final Object[] keys = x._keys;
+        //    final $p$[] values = x._values;
+        //    for (int i = 0, len = keys.length; i < len; ++i) {
+        //        if (keys[i] == null) {
+        //            continue;
+        //        }
+        //        xput((K) keys[i], values[i]);
+        //    }
+        //    if (x._haveNoValue) {
+        //        this._noValue = x._noValue;
+        //    }
+        //} else
+        if (m instanceof O$I$Map) {
+            for (final O$I$Cursor<? extends K> entry : ((O$I$Map<? extends K>)m)) {
+                xput(entry.key(), entry.value());
+            }
+        } else {
+            for (final Map.Entry<? extends K, ? extends $P$> entry : m.entrySet()) {
+                xput(entry.getKey(), entry.getValue().$p$Value());
+            }
         }
     }
 
@@ -380,7 +431,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public boolean remove(final Object key, final $p$ value) {
+    public boolean xremove(final Object key, final $p$ value) {
         if (key == null) {
             if (this._haveNoValue && value == _noValue) {
                 this._size--;
@@ -454,7 +505,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public boolean removeValue(final $p$ value) {
+    public boolean xremoveValue(final $p$ value) {
         if (_haveNoValue && value == _noValue) {
             _haveNoValue = false;
             --_size;
@@ -472,7 +523,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public boolean replace(final K key, final $p$ oldValue, final $p$ newValue) {
+    public boolean xreplace(final K key, final $p$ oldValue, final $p$ newValue) {
         if (key == null) {
             if (!this._haveNoValue || this._noValue != oldValue) {
                 return false;
@@ -488,7 +539,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
-                if (this._values[index] == oldValue) {
+                if (this._values[index] != oldValue) {
                     return false;
                 }
                 this._values[index] = newValue;
@@ -515,7 +566,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
-                if (this._values[index] == oldValue) {
+                if (this._values[index] != oldValue) {
                     return false;
                 }
                 this._values[index] = newValue;
@@ -526,7 +577,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public $p$ replace(final K key, final $p$ value) {
+    public $p$ xreplace(final K key, final $p$ value) {
         if (key == null) {
             if (!this._haveNoValue) {
                 return NO_VALUE;
@@ -864,7 +915,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
 
         @Override
         public $p$ value() {
-            return map.get(key);
+            return map.xget(key);
         }
 
         @Override
@@ -910,7 +961,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
         @Override
         Entry<K, $P$> _get() {
             final K k = cast(key);
-            return new En<>(map, k, map.get(k));
+            return new En<>(map, k, map.xget(k));
         }
     }
 
@@ -1111,9 +1162,6 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
 
         @Override
         $P$ _get(final Object key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
             return map.get(key);
         }
 
@@ -1129,7 +1177,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
 
         @Override
         public boolean remove(final Object o) {
-            return o instanceof $P$ && map.removeValue(($p$)o);
+            return o instanceof $P$ && map.xremoveValue(($p$)o);
         }
     }
 
@@ -1158,11 +1206,8 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
 
         @Override
         Entry<K,$P$> _get(final Object key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
             final K k = cast(key);
-            return new En<>(map, k, map.get(key));
+            return new En<>(map, k, map.xget(key));
         }
 
         @Override

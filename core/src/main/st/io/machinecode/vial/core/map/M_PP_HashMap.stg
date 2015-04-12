@@ -33,6 +33,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     private boolean _haveNoValue;
     private $p$ _noValue;
 
+    private final Spread _spread;
     private final float _factor;
     private int _threshold;
     private int _size;
@@ -52,22 +53,32 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
-    public $I$$I$HashMap(final $I$$I$HashMap m) {
-        super(m);
-        this._factor = m._factor;
-        this._size = m._size;
-        this._threshold = m._threshold;
-        this._initialMask = m._initialMask;
-        this._nextMask = m._nextMask;
-        this._haveNoValue = m._haveNoValue;
-        this._noValue = m._noValue;
-        this._data = new $p$[m._data.length];
-        System.arraycopy(m._data, 0, this._data, 0, m._data.length);
-    }
-
     public $I$$I$HashMap(final Map<? extends $P$, ? extends $P$> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        putAll(m);
+        if (m instanceof $I$$I$HashMap) {
+            final $I$$I$HashMap x = ($I$$I$HashMap)m;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._initialMask = x._initialMask;
+            this._nextMask = x._nextMask;
+            this._haveNoValue = x._haveNoValue;
+            this._noValue = x._noValue;
+            this._data = new $p$[x._data.length];
+            System.arraycopy(x._data, 0, this._data, 0, x._data.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            final int length = cap * 2;
+            this._initialMask = cap - 1;
+            this._nextMask = length - 1;
+            this._data = new $p$[length];
+            putAll(m);
+        }
     }
 
     public $I$$I$HashMap(final int capacity, final float factor) {
@@ -75,8 +86,10 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     public $I$$I$HashMap(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._factor = factor;
         this._size = 0;
@@ -100,11 +113,11 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
     @Override
     public boolean containsKey(final Object key) {
-        return key instanceof $P$ && containsKey(($p$)key);
+        return key instanceof $P$ && xcontainsKey(($p$)key);
     }
 
     @Override
-    public boolean containsKey(final $p$ key) {
+    public boolean xcontainsKey(final $p$ key) {
         if (key == NO_KEY) {
             return this._haveNoValue;
         }
@@ -120,13 +133,19 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
             index = (index + 2) & this._nextMask;
         }
     }
+
     @Override
-    public boolean containsValue(final Object value) {
-        return value instanceof $P$ && containsValue(($p$)value);
+    public $p$ nv() {
+        return NO_VALUE;
     }
 
     @Override
-    public boolean containsValue(final $p$ value) {
+    public boolean containsValue(final Object value) {
+        return value instanceof $P$ && xcontainsValue(($p$)value);
+    }
+
+    @Override
+    public boolean xcontainsValue(final $p$ value) {
         if (_haveNoValue && _noValue == value) {
             return true;
         }
@@ -164,7 +183,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public $p$ get(final $p$ key) {
+    public $p$ xget(final $p$ key) {
         if (key == NO_KEY) {
             return this._haveNoValue
                     ? this._noValue
@@ -186,14 +205,14 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     @Override
     public $P$ getOrDefault(final Object key, final $P$ defaultValue) {
         if (key instanceof $P$) {
-            return getOrDefault(($p$) key, ($p$)defaultValue);
+            return xgetOrDefault(($p$) key, ($p$)defaultValue);
         } else {
             return defaultValue;
         }
     }
 
     @Override
-    public $p$ getOrDefault(final $p$ key, final $p$ defaultValue) {
+    public $p$ xgetOrDefault(final $p$ key, final $p$ defaultValue) {
         if (key == NO_KEY) {
             return this._haveNoValue
                     ? this._noValue
@@ -217,10 +236,13 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
         final $p$ key = _key;
         final $p$ value = _value;
         if (key == NO_KEY) {
+            final $P$ old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = null;
+            } else {
+                old = this._noValue;
             }
-            final $p$ old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -247,7 +269,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public $p$ put(final $p$ key, final $p$ value) {
+    public $p$ xput(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
             if (!this._haveNoValue) {
                 this._size++;
@@ -311,7 +333,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public $p$ putIfAbsent(final $p$ key, final $p$ value) {
+    public $p$ xputIfAbsent(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 return this._noValue;
@@ -341,16 +363,29 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public void putAll(final $I$$I$Map m) {
-        for (final $I$$I$Cursor entry : m) {
-            put(entry.key(), entry.value());
-        }
-    }
-
-    @Override
     public void putAll(final Map<? extends $P$, ? extends $P$> m) {
-        for (final Entry<? extends $P$, ? extends $P$> entry : m.entrySet()) {
-            put(entry.getKey().$p$Value(), entry.getValue().$p$Value());
+        // TODO
+        //if (m instanceof $I$$I$Map) {
+        //    final $I$$I$Map x = cast(m);
+        //    final $I$[] data = x._data;
+        //    for (int i = 0, len = data.length; i < len; i+=2) {
+        //        if (data[i] == NO_KEY) {
+        //            continue;
+        //        }
+        //        xput(data[i], data[i + 1]);
+        //    }
+        //    if (x._haveNoValue) {
+        //        this._noValue = x._noValue;
+        //    }
+        //} else
+        if (m instanceof $I$$I$Map) {
+            for (final $I$$I$Cursor entry : (($I$$I$Map)m)) {
+                xput(entry.key(), entry.value());
+            }
+        } else {
+            for (final Entry<? extends $P$, ? extends $P$> entry : m.entrySet()) {
+                xput(entry.getKey().$p$Value(), entry.getValue().$p$Value());
+            }
         }
     }
 
@@ -385,7 +420,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public $p$ remove(final $p$ key) {
+    public $p$ xremove(final $p$ key) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 this._size--;
@@ -412,11 +447,11 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
     @Override
     public boolean remove(final Object key, final Object value) {
-        return key instanceof $P$ && value instanceof $P$ && remove(($p$) key, ($p$) value);
+        return key instanceof $P$ && value instanceof $P$ && xremove(($p$) key, ($p$) value);
     }
 
     @Override
-    public boolean remove(final $p$ key, final $p$ value) {
+    public boolean xremove(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
             if (this._haveNoValue && value == this._noValue) {
                 this._size--;
@@ -490,7 +525,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public boolean removeValue(final $p$ value) {
+    public boolean xremoveValue(final $p$ value) {
         if (_haveNoValue && (value == NO_VALUE ? _noValue == NO_VALUE : value == _noValue)) {
             _haveNoValue = false;
             --_size;
@@ -509,11 +544,11 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
     @Override
     public boolean replace(final $P$ key, final $P$ oldValue, final $P$ newValue) {
-        return replace(($p$)key, ($p$)oldValue, ($p$)newValue);
+        return xreplace(($p$)key, ($p$)oldValue, ($p$)newValue);
     }
 
     @Override
-    public boolean replace(final $p$ key, final $p$ oldValue, final $p$ newValue) {
+    public boolean xreplace(final $p$ key, final $p$ oldValue, final $p$ newValue) {
         if (key == NO_KEY) {
             if (!this._haveNoValue || this._noValue != oldValue) {
                 return false;
@@ -568,7 +603,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public $p$ replace(final $p$ key, final $p$ value) {
+    public $p$ xreplace(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
             if (!this._haveNoValue) {
                 return NO_VALUE;
@@ -665,7 +700,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
             final $I$$I$HashMap m = ($I$$I$HashMap) o;
             if (_size != m.size()) return false;
             for (final $I$$I$Cursor e : this) {
-                if (e.value() != m.get(e.key())) return false;
+                if (e.value() != m.xget(e.key())) return false;
             }
             return true;
         } else if (o instanceof Map) {
@@ -1077,7 +1112,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
         public int hashCode() {
             int h = 0;
             for (final X x : _Col.this) {
-                h += x == null ? 0 : x.hashCode();
+                h += x.hashCode();
             }
             return h;
         }
@@ -1136,10 +1171,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
         @Override
         $P$ _get(final $p$ key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
-            return map.get(key);
+            return map.xget(key);
         }
 
         @Override
@@ -1154,7 +1186,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
         @Override
         public boolean remove(final Object o) {
-            return o instanceof $P$ && map.removeValue(($p$)o);
+            return o instanceof $P$ && map.xremoveValue(($p$)o);
         }
     }
 
@@ -1172,7 +1204,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
             final Entry<?,?> e = (Entry<?,?>)o;
             final Object key = e.getKey();
             if (!map.containsKey(key)) return false;
-            final $p$ value = map.get(key);
+            final $p$ value = map.xget(($p$)key);
             final Object evalue = e.getValue();
             return evalue != null && evalue.equals(value);
         }
@@ -1184,10 +1216,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
 
         @Override
         Entry<$P$,$P$> _get(final $p$ key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
-            return new En<>(map, key, map.get(key));
+            return new En<>(map, key, map.xget(key));
         }
 
         @Override

@@ -11,27 +11,25 @@ import java.util.Map;
  */
 public interface $I$OMap<V> extends Map<$P$,V>, Iterable<$I$OCursor<V$X$ {
 
-    boolean containsKey(final $p$ key);
+    boolean xcontainsKey(final $p$ key);
 
-    V get(final $p$ key);
+    V xget(final $p$ key);
 
-    V getOrDefault(final $p$ key, final V defaultValue);
+    V xgetOrDefault(final $p$ key, final V defaultValue);
 
-    V put(final $p$ key, final V value);
+    V xput(final $p$ key, final V value);
 
-    V putIfAbsent(final $p$ key, final V value);
+    V xputIfAbsent(final $p$ key, final V value);
 
-    void putAll(final $I$OMap<? extends V> m);
+    V xremove(final $p$ key);
 
-    V remove(final $p$ key);
+    boolean xremove(final $p$ key, final V value);
 
-    boolean remove(final $p$ key, final V value);
+    boolean xremoveValue(final V value);
 
-    boolean removeValue(final V value);
+    boolean xreplace(final $p$ key, final V oldValue, final V newValue);
 
-    boolean replace(final $p$ key, final V oldValue, final V newValue);
-
-    V replace(final $p$ key, final V value);
+    V xreplace(final $p$ key, final V value);
 
     $p$[] keyArray();
 

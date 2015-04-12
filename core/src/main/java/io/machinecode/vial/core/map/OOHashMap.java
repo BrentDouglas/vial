@@ -25,6 +25,8 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     private boolean _haveNoValue;
     private Object _noValue;
 
+    private final Spread _spread;
+    private final float _factor;
     private int _threshold;
     private int _size;
 
@@ -44,8 +46,31 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     }
 
     public OOHashMap(final Map<? extends K, ? extends V> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        putAll(m);
+        if (m instanceof OOHashMap) {
+            final OOHashMap x = (OOHashMap)m;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._initialMask = x._initialMask;
+            this._nextMask = x._nextMask;
+            this._haveNoValue = x._haveNoValue;
+            this._noValue = x._noValue;
+            this._data = new Object[x._data.length];
+            System.arraycopy(x._data, 0, this._data, 0, x._data.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, DEFAULT_LOAD_FACTOR, MAX_CAPACITY);
+            this._threshold = (int)(cap * DEFAULT_LOAD_FACTOR);
+            final int length = cap * 2;
+            this._initialMask = cap - 1;
+            this._nextMask = length - 1;
+            this._data = new Object[length];
+            putAll(m);
+        }
     }
 
     public OOHashMap(final int capacity, final float factor) {
@@ -53,8 +78,11 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     }
 
     public OOHashMap(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
+        this._factor = factor;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._size = 0;
         final int cap = capacity(capacity, factor, MAX_CAPACITY);
@@ -155,10 +183,13 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     @Override
     public V put(final K key, final V value) {
         if (key == null) {
+            final V old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = null;
+            } else {
+                old = cast(this._noValue);
             }
-            final V old = cast(this._noValue);
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -216,9 +247,31 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putAll(final Map<? extends K, ? extends V> m) {
-        for (final Entry<? extends K, ? extends V> entry : m.entrySet()) {
-            put(entry.getKey(), entry.getValue());
+        // TODO
+        //if (m instanceof OOHashMap) {
+        //    final OOHashMap<K,V> x = cast(m);
+        //    final Object[] data = x._data;
+        //    for (int i = 0, len = data.length; i < len; i+=2) {
+        //        if (data[i] == null) {
+        //            continue;
+        //        }
+        //        put((K) data[i], (V) data[i + 1]);
+        //    }
+        //    if (x._haveNoValue) {
+        //        this._noValue = x._noValue;
+        //    }
+        //} else
+        if (m instanceof OOMap) {
+            final OOMap<K,V> x = cast(m);
+            for (final OOCursor<K,V> c : x.iterator()) {
+                put(c.key(), c.value());
+            }
+        } else {
+            for (final Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
+                put(entry.getKey(), entry.getValue());
+            }
         }
     }
 

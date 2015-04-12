@@ -3,11 +3,7 @@ delimiters "$", "$"
 PPHashMapTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
-import com.google.common.collect.testing.MapTestSuiteBuilder;
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
-import com.google.common.collect.testing.features.MapFeature;
-import io.machinecode.vial.core.TestUtil;
+import io.machinecode.vial.api.Spread;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -21,26 +17,25 @@ public class $I$$I$HashMapTest {
 
     public static Test suite() {
         final TestSuite suite = new TestSuite($I$$I$HashMap.class.getName());
-        suite.addTest(testsFor$I$$I$HashMap());
+        $I$$I$HashMapSuite.createSuite(suite, "NONE", new $I$$I$HashMapSuite.CreateMap() {
+            @Override
+            public Map<$P$,$P$> create() {
+                return new $I$$I$HashMap(4, 0.75f, Spread.NONE);
+            }
+        });
+        $I$$I$HashMapSuite.createSuite(suite, "QUICK", new $I$$I$HashMapSuite.CreateMap() {
+            @Override
+            public Map<$P$,$P$> create() {
+                return new $I$$I$HashMap(4, 0.75f, Spread.QUICK);
+            }
+        });
+        $I$$I$HashMapSuite.createSuite(suite, "MURMUR3", new $I$$I$HashMapSuite.CreateMap() {
+            @Override
+            public Map<$P$,$P$> create() {
+                return new $I$$I$HashMap(4, 0.75f, Spread.MURMUR3);
+            }
+        });
         return suite;
-    }
-
-    private static Test testsFor$I$$I$HashMap() {
-        return MapTestSuiteBuilder
-                .using(new $I$$I$MapGenerator() {
-                    @Override
-                    protected Map<$P$, $P$> create(final Map.Entry<$P$, $P$>[] entries) {
-                        return TestUtil.populate(new $I$$I$HashMap(), entries);
-                    }
-                })
-                .named("$I$$I$HashMap")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionSize.ANY)
-                .createTestSuite();
     }
 }
 >>

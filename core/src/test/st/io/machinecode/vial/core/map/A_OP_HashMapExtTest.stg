@@ -1,0 +1,1113 @@
+delimiters "$", "$"
+
+OPHashMapExtTest(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.api.map.O$I$Cursor;
+import io.machinecode.vial.api.map.O$I$Map;
+import io.machinecode.vial.core.BadHashCode;
+import io.machinecode.vial.core.TestUtil;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Iterator;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class O$I$HashMapExtTest extends Assert {
+    
+    static final $p$ _0 = ($p$)0;
+    static final $p$ _1 = ($p$)1;
+    static final $p$ _2 = ($p$)2;
+    static final $p$ _3 = ($p$)3;
+
+    protected <K> O$I$Map<K> create(final float factor) {
+        return new O$I$HashMap<>(factor);
+    }
+
+    protected <K> O$I$Map<K> create() {
+        return new O$I$HashMap<>();
+    }
+
+    private <K> O$I$Map<K> vmap(final K k, final $p$ v) {
+        final O$I$Map<K> map = create();
+        map.put(k, v);
+        return map;
+    }
+
+    private <K,V> HashMap<K,V> jmap(final K k, final V v) {
+        final HashMap<K,V> map = new HashMap<>();
+        map.put(k, v);
+        return map;
+    }
+
+    @Test
+    public void testConstructors() {
+        doTestConstructors();
+    }
+
+    protected void doTestConstructors() {
+        final O$I$HashMap<$P$> a = new O$I$HashMap<>(4);
+        final O$I$HashMap<$P$> b = new O$I$HashMap<>(0.5f);
+        final O$I$HashMap<$P$> c = new O$I$HashMap<>(4, 0.5f);
+        final O$I$HashMap<$P$> d = new O$I$HashMap<>(4, 0.5f, Spread.MURMUR3);
+        assertEquals(a, b);
+        assertEquals(a, c);
+        assertEquals(a, d);
+        assertEquals(b, c);
+        assertEquals(b, d);
+        assertEquals(c, d);
+        assertTrue(a.isEmpty());
+        assertTrue(b.isEmpty());
+        assertTrue(c.isEmpty());
+        assertTrue(d.isEmpty());
+        a.xput(_1, _2);
+        a.xput(_2, _3);
+        assertEquals(2, a.size());
+
+        final O$I$HashMap<$P$> e = new O$I$HashMap<>(a);
+        assertEquals(a, e);
+        assertEquals(2, e.size());
+        assertTrue(e.containsKey(_1));
+        assertTrue(e.containsKey(_2));
+        assertTrue(e.xcontainsValue(_2));
+        assertTrue(e.xcontainsValue(_3));
+
+        final O$I$HashMap<$P$> f = new O$I$HashMap<>(new HashMap<$P$,$P$>(){{
+            put(_1, _2);
+            put(_2, _3);
+        }});
+        assertEquals(a, f);
+        assertEquals(2, f.size());
+        assertTrue(f.containsKey(_1));
+        assertTrue(f.containsKey(_2));
+        assertTrue(f.xcontainsValue(_2));
+        assertTrue(f.xcontainsValue(_3));
+    }
+
+    @Test
+    public void testNullKey() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(null, map.put(null, _1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_1));
+        assertEquals(($P$)_1, map.get(null));
+
+        assertNotNull(map.putIfAbsent(null, _2));
+        assertEquals(($P$)_1, map.get(null));
+
+        assertEquals(($P$)_1, map.remove(null));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+
+        assertNull(map.remove(null));
+
+        assertNull(map.putIfAbsent(null, _2));
+        assertEquals(($P$)_2, map.get(null));
+    }
+
+    @Test
+    public void testNullKeyAndValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(null, map.put(null, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(map.nv(), ($p$)map.get(null));
+
+        assertEquals(map.nv(), ($p$)map.putIfAbsent(null, _2));
+        assertEquals(map.nv(), ($p$)map.get(null));
+
+        assertEquals(map.nv(), ($p$)map.remove(null));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+
+        assertNull(map.remove(null));
+
+        assertNull(map.putIfAbsent(null, _2));
+        assertEquals(($P$)_2, map.get(null));
+    }
+
+    @Test
+    public void testNullValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(_1, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(map.nv(), map.xget(_1));
+
+        assertEquals(map.nv(), map.xputIfAbsent(($P$)_1, _2));
+        assertEquals(map.nv(), map.xget(_1));
+
+        assertEquals(($P$)map.nv(), map.remove(_1));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(_1));
+        assertFalse(map.containsValue(map.nv()));
+
+        assertEquals(map.nv(), map.xputIfAbsent(($P$)_1, map.nv()));
+        assertEquals(map.nv(), map.xget(_1));
+    }
+
+    @Test
+    public void testValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(_1, _2));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(_1));
+
+        assertEquals(_2, map.xputIfAbsent(($P$)_1, _2));
+        assertEquals(_2, map.xget(_1));
+
+        assertEquals(($P$)_2, map.remove(_1));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(_1));
+        assertFalse(map.containsValue(_2));
+
+        assertEquals(map.nv(), map.xputIfAbsent(($P$)_1, _3));
+        assertEquals(($P$)_3, map.get(_1));
+    }
+
+    @Test
+    public void testPutWithRehash() {
+        final O$I$Map<$P$> map = create();
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+        assertEquals(10, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(map.containsKey(($p$)i));
+            assertTrue(map.containsValue(($p$)i));
+            assertEquals(($p$)i, map.xget(($p$)i));
+        }
+    }
+
+    @Test
+    public void testPutIfAbsentWithRehash() {
+        final O$I$Map<$P$> map = create();
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xputIfAbsent(($P$)($p$)i, ($p$)i));
+        }
+        assertEquals(10, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(map.containsKey(($p$)i));
+            assertTrue(map.containsValue(($p$)i));
+            assertEquals(($p$)i, map.xget(($p$)i));
+        }
+    }
+
+    @Test
+    public void testPutIfAbsentBadHashCode() {
+        final O$I$Map<BadHashCode> map = create();
+        final BadHashCode[] arr = new BadHashCode[10];
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xputIfAbsent(arr[i] = new BadHashCode(4), ($p$)i));
+        }
+        assertEquals(10, map.size());
+        for (int i = 0; i < 10; ++i) {
+            final BadHashCode bad = arr[i];
+            assertTrue(map.containsKey(bad));
+            assertTrue(map.containsValue(($p$)i));
+            assertEquals(($p$)i, map.xget(bad));
+        }
+    }
+
+    @Test
+    public void testClear() {
+        final O$I$Map<$P$> map = create();
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+        assertEquals(10, map.size());
+        map.clear();
+        assertEquals(0, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertFalse(map.containsKey(($p$)i));
+            assertFalse(map.containsValue(($p$)i));
+            assertNull(map.get(($p$)i));
+        }
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+    }
+
+    @Test
+    public void testRemoveKey() {
+        final O$I$Map<$P$> map = create();
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+        assertEquals(10, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(map.containsKey(($p$)i));
+            assertTrue(map.xcontainsValue(($p$)i));
+
+            assertEquals(($P$)($p$)i, map.remove(($p$)i));
+            assertNull(map.remove(($p$)i));
+        }
+        assertEquals(0, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+    }
+
+    @Test
+    public void testRemoveKeyNullKey() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(null, map.put(null, _1));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_1));
+        assertEquals(1, map.size());
+
+        assertEquals(($P$)_1, map.remove(null));
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testRemoveKeyNullKeyAndValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(null, map.put(null, map.nv()));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(1, map.size());
+
+        assertEquals(map.nv(), ($p$)map.remove(null));
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testRemoveDefaultKey() {
+        final O$I$Map<$P$> map = create();
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+        assertEquals(10, map.size());
+        assertFalse(map.remove(null, _2));
+        assertFalse(map.remove(null, map.nv()));
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(map.containsKey(($p$)i));
+            assertTrue(map.containsValue(($p$)i));
+
+            assertFalse(map.remove(($p$)i, ($p$)11));
+            assertTrue(map.remove(($p$)i, ($p$)i));
+            assertFalse(map.remove(($p$)i, ($p$)i));
+        }
+        assertEquals(0, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+    }
+
+    @Test
+    public void testRemoveDefaultKeyNullKey() {
+        final O$I$Map<$P$> map = create();
+        assertNull(map.put(null, _1));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_1));
+        assertEquals(1, map.size());
+
+        assertFalse(map.remove(null, _2));
+        assertEquals(1, map.size());
+        assertFalse(map.remove(null, map.nv()));
+        assertEquals(1, map.size());
+
+        assertTrue(map.remove(null, _1));
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testRemoveKeyDefaultNullKeyAndValue() {
+        final O$I$Map<$P$> map = create();
+        assertNull(map.put(null, map.nv()));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(1, map.size());
+
+
+        assertFalse(map.remove(null, _2));
+        assertEquals(1, map.size());
+
+        assertTrue(map.remove(null, map.nv()));
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testRemoveValue() {
+        final O$I$Map<$P$> map = create();
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+        assertEquals(10, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertTrue(map.containsKey(($p$)i));
+            assertTrue(map.containsValue(($p$)i));
+
+            assertTrue(map.xremoveValue(($p$)i));
+            assertFalse(map.xremoveValue(($p$)i));
+        }
+        assertEquals(0, map.size());
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, _0));
+        }
+        for (int i = 0; i < 9; ++i) {
+            assertTrue(map.xremoveValue(_0));
+            assertTrue(map.containsValue(_0));
+        }
+        assertEquals(1, map.size());
+
+        assertTrue(map.xremoveValue(_0));
+        assertFalse(map.containsValue(_0));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testRemoveValueNullKey() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_1));
+        assertEquals(1, map.size());
+
+        assertFalse(map.xremoveValue(_0));
+        assertEquals(1, map.size());
+
+        assertFalse(map.xremoveValue(_2));
+        assertEquals(1, map.size());
+
+        assertTrue(map.xremoveValue(_1));
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testRemoveValueNullKeyAndValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, map.nv()));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(1, map.size());
+
+        assertFalse(map.xremoveValue(_2));
+        assertEquals(1, map.size());
+
+        assertTrue(map.xremoveValue(_0));
+        assertFalse(map.containsKey(_0));
+        assertFalse(map.containsValue(_0));
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertEquals(0, map.size());
+    }
+
+    @Test
+    public void testReplaceNullKey() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_1));
+        assertEquals(($P$)_1, map.get(null));
+
+        assertEquals(($P$)_1, map.putIfAbsent(null, _3));
+        assertEquals(($P$)_1, map.get(null));
+
+        assertFalse(map.replace(null, map.nv(), _3));
+        assertEquals(($P$)_1, map.get(null));
+        
+        assertEquals(($P$)_1, map.replace(null, _2));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_2));
+        assertFalse(map.containsValue(_1));
+        assertEquals(($P$)_2, map.get(null));
+
+        assertTrue(map.replace(null, _2, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertFalse(map.containsValue(_2));
+        assertTrue(map.containsValue(map.nv()));
+        assertNull(map.get(_1));
+
+        assertTrue(map.replace(null, map.nv(), _1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_2));
+        assertTrue(map.containsValue(_1));
+        assertEquals(($P$)_1, map.get(null));
+
+        assertEquals(($P$)_1, map.remove(null));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertFalse(map.containsValue(_3));
+
+        assertEquals(map.nv(), map.xputIfAbsent(null, _2));
+        assertEquals(($P$)_2, map.get(null));
+        assertTrue(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertFalse(map.containsValue(_3));
+    }
+
+    @Test
+    public void testReplaceNullKeyAndValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(map.nv(), map.xget(null));
+
+        assertEquals(map.nv(), map.xputIfAbsent(null, _1));
+        assertEquals(map.nv(), map.xget(null));
+
+        assertFalse(map.replace(null, _1, _1));
+        assertEquals(map.nv(), map.xget(null));
+
+        assertEquals(map.nv(), map.xreplace(null, _1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsValue(_1));
+        assertFalse(map.containsValue(map.nv()));
+        assertEquals(($P$)_1, map.get(null));
+
+        assertTrue(map.replace(null, _1, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(map.nv(), map.xget(null));
+
+        assertTrue(map.replace(null, map.nv(), _2));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(null));
+
+        assertEquals(($P$)_2, map.remove(null));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_1));
+
+        assertEquals(map.nv(), map.xputIfAbsent(null, _2));
+        assertEquals(($P$)_2, map.get(null));
+        assertTrue(map.containsKey(null));
+        assertFalse(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+    }
+
+    @Test
+    public void testReplaceNullValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(_1, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(map.nv(), map.xget(_1));
+
+        assertEquals(map.nv(), map.xputIfAbsent(($P$)_1, _2));
+        assertEquals(map.nv(), map.xget(_1));
+
+        assertFalse(map.replace(_1, _1, _3));
+        assertEquals(map.nv(), map.xget(_1));
+
+        assertEquals(map.nv(), map.xreplace(_1, _1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(_1));
+        assertFalse(map.containsValue(map.nv()));
+        assertEquals(($P$)_1, map.get(_1));
+
+        assertTrue(map.replace(_1, _1, map.nv()));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(map.nv()));
+        assertEquals(map.nv(), map.xget(_1));
+
+        assertTrue(map.replace(_1, map.nv(), _2));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertFalse(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(_1));
+
+        assertFalse(map.replace(_1, map.nv(), map.nv()));
+
+        assertEquals(($P$)_2, map.remove(_1));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(_1));
+        assertFalse(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_1));
+
+        assertEquals(map.nv(), map.xputIfAbsent(($P$)_1, map.nv()));
+        assertEquals(map.nv(), map.xget(_1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(map.nv()));
+        assertFalse(map.containsValue(_1));
+    }
+
+    @Test
+    public void testReplaceValue() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(_1, _2));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(_1));
+
+        assertEquals(($P$)_2, map.putIfAbsent(($P$)_1, _3));
+        assertEquals(($P$)_2, map.get(_1));
+
+        assertFalse(map.replace(_1, _1, _3));
+        assertEquals(($P$)_2, map.get(_1));
+
+        assertEquals(($P$)_2, map.replace(_1, _1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertEquals(($P$)_1, map.get(_1));
+
+        assertTrue(map.replace(_1, _1, _2));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(_1));
+
+        assertEquals(($P$)_2, map.remove(_1));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(_1));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+
+        assertEquals(map.nv(), map.xputIfAbsent(($P$)_1, _3));
+        assertEquals(($P$)_3, map.get(_1));
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(_1));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertTrue(map.containsValue(_3));
+    }
+
+    @Test
+    public void testReplaceNoKey() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xreplace(_1, _1));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(_1));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertNull(map.get(_1));
+
+        assertFalse(map.replace(_1, _1, _2));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(_1));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertNull(map.get(_1));
+
+        assertEquals(map.nv(), map.xreplace(null, _1));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertNull(map.get(_1));
+
+        assertFalse(map.replace(null, _1, _2));
+        assertEquals(0, map.size());
+        assertFalse(map.containsKey(null));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertNull(map.get(_1));
+    }
+
+    @Test
+    public void testReplaceBadHashCode() {
+        final O$I$Map<BadHashCode> map = create();
+        final BadHashCode key = new BadHashCode(4);
+
+        assertEquals(map.nv(), map.xput(new BadHashCode(4), ($p$)123));
+        assertEquals(map.nv(), map.xput(key, _2));
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey(key));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(key));
+
+        assertEquals(($P$)_2, map.putIfAbsent(key, _3));
+        assertEquals(($P$)_2, map.get(key));
+
+        assertFalse(map.replace(key, _1, _3));
+        assertEquals(($P$)_2, map.get(key));
+
+        assertEquals(($P$)_2, map.replace(key, _1));
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey(key));
+        assertTrue(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertEquals(($P$)_1, map.get(key));
+
+        assertTrue(map.replace(key, _1, _2));
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey(key));
+        assertFalse(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertEquals(($P$)_2, map.get(key));
+
+        assertEquals(($P$)_2, map.remove(key));
+        assertEquals(1, map.size());
+        assertFalse(map.containsKey(key));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+
+        assertEquals(map.nv(), map.xputIfAbsent(key, _3));
+        assertEquals(($P$)_3, map.get(key));
+        assertEquals(2, map.size());
+        assertTrue(map.containsKey(key));
+        assertFalse(map.containsValue(_1));
+        assertFalse(map.containsValue(_2));
+        assertTrue(map.containsValue(_3));
+    }
+
+    @Test
+    public void testGetOrDefault() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(($P$)map.nv(), map.getOrDefault(null, map.nv()));
+        assertEquals(($P$)_1, map.getOrDefault(null, _1));
+
+        assertEquals(($P$)map.nv(), map.getOrDefault(_1, map.nv()));
+        assertEquals(($P$)_2, map.getOrDefault(_1, _2));
+
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertEquals(map.nv(), map.xput(_1, _2));
+        assertEquals(map.nv(), map.xput(_2, map.nv()));
+        assertEquals(3, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsKey(_2));
+        assertTrue(map.containsValue(map.nv()));
+        assertTrue(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+
+        assertEquals(($P$)_1, map.getOrDefault(null, map.nv()));
+        assertEquals(($P$)_2, map.getOrDefault(_1, map.nv()));
+        assertEquals(($P$)map.nv(), map.getOrDefault(_2, _3));
+    }
+
+    @Test
+    public void testGetOrDefaultBadHashCode() {
+        final O$I$Map<BadHashCode> map = create();
+
+        assertEquals(($P$)map.nv(), map.getOrDefault(null, map.nv()));
+        assertEquals(($P$)_1, map.getOrDefault(null, _1));
+
+        assertEquals(($P$)map.nv(), map.getOrDefault(new BadHashCode(4), map.nv()));
+        assertEquals(($P$)_2, map.getOrDefault(new BadHashCode(4), _2));
+
+        final BadHashCode[] arr = new BadHashCode[10];
+
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertEquals(map.nv(), map.xput(arr[1] = new BadHashCode(4), _2));
+        assertEquals(map.nv(), map.xput(arr[2] = new BadHashCode(4), map.nv()));
+        assertEquals(3, map.size());
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(arr[1]));
+        assertTrue(map.containsKey(arr[2]));
+        assertTrue(map.containsValue(map.nv()));
+        assertTrue(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+
+        assertEquals(($P$)_1, map.getOrDefault(null, map.nv()));
+        assertEquals(($P$)_2, map.getOrDefault(arr[1], map.nv()));
+        assertEquals(($P$)map.nv(), map.getOrDefault(arr[2], _3));
+    }
+
+    @Test
+    public void testPutAll() {
+        final O$I$Map<$P$> map = create();
+        assertNull(map.put(null, _1));
+        assertNull(map.put(_1, _2));
+        assertNull(map.put(_2, _3));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsKey(_2));
+        assertTrue(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertTrue(map.containsValue(_3));
+        assertEquals(3, map.size());
+
+        final HashMap<$P$,$P$> jmap = new HashMap<$P$,$P$>(){{
+            assertNull(put(null, _1));
+            assertNull(put(_1, _2));
+            assertNull(put(_2, _3));
+        }};
+
+        final O$I$Map<$P$> a = create();
+        a.putAll(map);
+
+        final O$I$Map<$P$> b = create();
+        b.putAll(jmap);
+
+        assertEquals(map, jmap);
+        assertEquals(a, map);
+        assertEquals(b, jmap);
+        assertEquals(a, b);
+    }
+
+    @Test
+    public void testToArray() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertEquals(map.nv(), map.xput(_1, _2));
+        assertEquals(map.nv(), map.xput(_2, _3));
+        assertEquals(map.nv(), map.xput(_3, map.nv()));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsKey(_2));
+        assertTrue(map.containsKey(_3));
+        assertTrue(map.containsValue(map.nv()));
+        assertTrue(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertTrue(map.containsValue(_3));
+        assertEquals(4, map.size());
+
+        {
+            final Object[] array = map.keySet().toArray();
+            assertTrue(TestUtil.arrayContains(array, null));
+            assertTrue(TestUtil.arrayContains(array, _1));
+            assertTrue(TestUtil.arrayContains(array, _2));
+            assertTrue(TestUtil.arrayContains(array, _3));
+            assertEquals(4, array.length);
+        }
+        {
+            final Object[] array = map.values().toArray();
+            assertTrue(TestUtil.arrayContains(array, map.nv()));
+            assertTrue(TestUtil.arrayContains(array, _1));
+            assertTrue(TestUtil.arrayContains(array, _2));
+            assertTrue(TestUtil.arrayContains(array, _3));
+            assertEquals(4, array.length);
+        }
+    }
+
+    @Test
+    public void testToArrayT() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertEquals(map.nv(), map.xput(_1, _2));
+        assertEquals(map.nv(), map.xput(_2, _3));
+        assertEquals(map.nv(), map.xput(_3, map.nv()));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsKey(_2));
+        assertTrue(map.containsKey(_3));
+        assertTrue(map.containsValue(map.nv()));
+        assertTrue(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertTrue(map.containsValue(_3));
+        assertEquals(4, map.size());
+
+        {
+            final $P$[] array = map.keySet().toArray(new $P$[4]);
+            assertTrue(TestUtil.arrayContains(array, null));
+            assertTrue(TestUtil.arrayContains(array, _1));
+            assertTrue(TestUtil.arrayContains(array, _2));
+            assertTrue(TestUtil.arrayContains(array, _3));
+            assertEquals(4, array.length);
+        }
+        {
+            final $P$[] array = map.values().toArray(new $P$[4]);
+            assertTrue(TestUtil.arrayContains(array, map.nv()));
+            assertTrue(TestUtil.arrayContains(array, _1));
+            assertTrue(TestUtil.arrayContains(array, _2));
+            assertTrue(TestUtil.arrayContains(array, _3));
+            assertEquals(4, array.length);
+        }
+    }
+
+    @Test
+    public void testCursor() {
+        final O$I$Map<$P$> map = create();
+
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
+        }
+        assertEquals(map.nv(), map.xput(($p$)10, map.nv()));
+
+        final O$I$Cursor<$P$> c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final O$I$Cursor<$P$> x : map) {
+            assertNotNull(c.next());
+            assertEquals(x, c);
+            assertNotSame(x, c);
+            assertEquals(x.key(), c.key());
+            assertEquals(x.value(), c.value());
+            assertEquals(x.toString(), c.toString());
+        }
+        assertFalse(c.hasNext());
+
+        c.reset();
+        int i = 0;
+        for (final O$I$Cursor<$P$> x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(($p$)11, i);
+
+        c.reset();
+        c.next();
+        assertFalse(c.equals(null));
+        assertFalse(c.equals(new Object()));
+    }
+
+    @Test
+    public void testCursorEquals() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, map.nv()));
+        assertTrue(map.iterator().next().equals(new Cur(null, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _2)));
+        map.clear();
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertFalse(map.iterator().next().equals(new Cur(null, _0)));
+        assertTrue(map.iterator().next().equals(new Cur(null, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _2)));
+        map.clear();
+        assertEquals(map.nv(), map.xput(_1, _1));
+        assertFalse(map.iterator().next().equals(new Cur(null, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _0)));
+        assertTrue(map.iterator().next().equals(new Cur(_1, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _2)));
+        map.clear();
+        assertEquals(map.nv(), map.xput(_1, map.nv()));
+        assertFalse(map.iterator().next().equals(new Cur(null, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(null, _2)));
+        assertTrue(map.iterator().next().equals(new Cur(_1, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_1, _2)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _0)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _1)));
+        assertFalse(map.iterator().next().equals(new Cur(_2, _2)));
+    }
+
+    @Test
+    public void testCursorRemove() {
+        final O$I$Map<BadHashCode> map = create();
+        final BadHashCode[] arr = new BadHashCode[10];
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(map.nv(), map.xput(arr[i] = new BadHashCode(4), ($p$)i));
+        }
+        assertEquals(10, map.size());
+
+        int i = 10;
+        for (final O$I$Cursor<BadHashCode> x : map) {
+            assertEquals(i--, map.size());
+            x.remove();
+            assertEquals(i, map.size());
+        }
+        assertEquals(0, map.size());
+    }
+
+    /*
+     * The map has 8 elements and can insert 5 before it expands.
+     * We're inserting 5 elements with hc 5 which should wrap the
+     * last two in the backing array and trigger a
+     * copy when removing the element.
+     *
+     * 55xxx555
+     *      ^ remove this one
+     */
+    @Test
+    public void testCursorRemoveCopyWrap() {
+        final O$I$Map<BadHashCode> map = create();
+        for (int i = 0; i < 5; ++i) {
+            assertEquals(map.nv(), map.xput(new BadHashCode(5), ($p$)i));
+        }
+        assertEquals(5, map.size());
+
+        final O$I$Cursor<BadHashCode> it = map.iterator();
+        it.next().next();
+        for (final O$I$Cursor<BadHashCode> x : it) {
+            x.remove();
+        }
+    }
+
+    @Test
+    public void testEntrySetContains() {
+        final O$I$Map<$P$> map = create();
+        assertEquals(map.nv(), map.xput(null, map.nv()));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, null)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, null)));
+        assertTrue(map.entrySet().contains(new En<>(map, null, map.nv())));
+        map.clear();
+        assertEquals(map.nv(), map.xput(null, _1));
+        assertFalse(map.entrySet().contains(new En<>(map, null, null)));
+        assertTrue(map.entrySet().contains(new En<>(map, null, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, _2)));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, null)));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, _1)));
+        map.clear();
+        assertEquals(map.nv(), map.xput(_1, map.nv()));
+        assertFalse(map.entrySet().contains(new En<>(map, null, null)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, _2)));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, null)));
+        assertTrue(map.entrySet().contains(new En<>(map, _1, map.nv())));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, _2, null)));
+        assertFalse(map.entrySet().contains(new En<>(map, _2, _1)));
+        map.clear();
+        assertEquals(map.nv(), map.xput(_1, _1));
+        assertFalse(map.entrySet().contains(new En<>(map, null, null)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, null, _2)));
+        assertFalse(map.entrySet().contains(new En<>(map, _1, null)));
+        assertTrue(map.entrySet().contains(new En<>(map, _1, _1)));
+        assertFalse(map.entrySet().contains(new En<>(map, _2, null)));
+        assertFalse(map.entrySet().contains(new En<>(map, _2, _1)));
+    }
+
+    @Test
+    public void testEqualsNullKey() {
+        final O$I$Map<$P$> map = vmap(null, _1);
+        assertFalse(map.equals(jmap(null, null)));
+        assertFalse(map.equals(jmap(null, _0)));
+        assertTrue(map.equals(jmap(null, _1)));
+        assertFalse(map.equals(jmap(_0,null)));
+        assertFalse(map.equals(jmap(_1,null)));
+        assertFalse(map.equals(jmap(_1,_1)));
+        assertFalse(map.equals(jmap(_1,_2)));
+        assertFalse(map.equals(jmap(_2,_2)));
+    }
+
+    @Test
+    public void testEqualsNullValue() {
+        final O$I$Map<$P$> map = vmap(_1, _0);
+        assertFalse(map.equals(jmap(null, null)));
+        assertFalse(map.equals(jmap(null, _0)));
+        assertFalse(map.equals(jmap(null, _1)));
+        assertFalse(map.equals(jmap(_0,null)));
+        assertFalse(map.equals(jmap(_1,null)));
+        assertTrue(map.equals(jmap(_1,_0)));
+        assertFalse(map.equals(jmap(_1,_1)));
+        assertFalse(map.equals(jmap(_1,_2)));
+        assertFalse(map.equals(jmap(_2,_2)));
+    }
+
+    @Test
+    public void testEqualsNullKeyValue() {
+        final O$I$Map<$P$> map = vmap(null, _0);
+        assertFalse(map.equals(jmap(null, null)));
+        assertTrue(map.equals(jmap(null, _0)));
+        assertFalse(map.equals(jmap(null, _1)));
+        assertFalse(map.equals(jmap(_0,null)));
+        assertFalse(map.equals(jmap(_1,null)));
+        assertFalse(map.equals(jmap(_1,_0)));
+        assertFalse(map.equals(jmap(_1,_1)));
+        assertFalse(map.equals(jmap(_1,_2)));
+        assertFalse(map.equals(jmap(_2,_2)));
+    }
+
+    @Test
+    public void testEqualsKeyValue() {
+        final O$I$Map<$P$> map = vmap(_1, _1);
+        assertFalse(map.equals(jmap(null, null)));
+        assertFalse(map.equals(jmap(null, _0)));
+        assertFalse(map.equals(jmap(null, _1)));
+        assertFalse(map.equals(jmap(_0,null)));
+        assertFalse(map.equals(jmap(_1,null)));
+        assertTrue(map.equals(jmap(_1,_1)));
+        assertFalse(map.equals(jmap(_1,_2)));
+        assertFalse(map.equals(jmap(_2,_2)));
+    }
+
+    public static class Cur implements O$I$Cursor<$P$> {
+
+        final $P$ k;
+        final $p$ v;
+
+        private Cur(final $P$ k, final $p$ v) {
+            this.k = k;
+            this.v = v;
+        }
+
+        @Override
+        public $P$ key() {
+            return k;
+        }
+
+        @Override
+        public $p$ value() {
+            return v;
+        }
+
+        @Override
+        public void reset() {}
+
+        @Override
+        public Iterator<O$I$Cursor<$P$$X$ iterator() {
+            return null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public O$I$Cursor<$P$> next() {
+            return this;
+        }
+
+        @Override
+        public void remove() {}
+    }
+}
+>>

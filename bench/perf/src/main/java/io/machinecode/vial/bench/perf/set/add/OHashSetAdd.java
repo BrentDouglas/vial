@@ -1,4 +1,4 @@
-package io.machinecode.vial.bench.perf.set;
+package io.machinecode.vial.bench.perf.set.add;
 
 import com.carrotsearch.hppc.ObjectSet;
 import com.gs.collections.impl.set.mutable.UnifiedSet;
@@ -40,7 +40,7 @@ public class OHashSetAdd {
 
     private Random r;
 
-    private Set<Long> ours;
+    private Set<Long> vial;
     private Set<Long> jdk;
     private Set<Long> trove;
     private Set<Long> fastutil;
@@ -52,7 +52,7 @@ public class OHashSetAdd {
     public void init() {
         r = new Random();
         r.setSeed(0x654265);
-        ours = new OHashSet<>(capacity, factor);
+        vial = new OHashSet<>(capacity, factor);
         jdk = new HashSet<>(capacity, factor);
         trove = new THashSet<>(capacity, factor);
         fastutil = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet<>(capacity);
@@ -64,9 +64,9 @@ public class OHashSetAdd {
     }
 
     @Benchmark
-    public boolean ours() {
+    public boolean vial() {
         final Long key = r.nextLong();
-        return ours.add(key);
+        return vial.add(key);
     }
 
     @Benchmark

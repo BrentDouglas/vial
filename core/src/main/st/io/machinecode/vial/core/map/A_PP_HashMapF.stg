@@ -34,6 +34,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     private boolean _haveNoValue;
     private $pv$ _noValue;
 
+    private final Spread _spread;
     private final float _factor;
     private int _threshold;
     private int _size;
@@ -52,23 +53,32 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
-    public $Ik$$Iv$HashMapF(final $Ik$$Iv$HashMapF m) {
-        super(m);
-        this._factor = m._factor;
-        this._size = m._size;
-        this._threshold = m._threshold;
-        this._mask = m._mask;
-        this._haveNoValue = m._haveNoValue;
-        this._noValue = m._noValue;
-        this._keys = new $pk$[m._keys.length];
-        this._values = new $pv$[m._values.length];
-        System.arraycopy(m._keys, 0, this._keys, 0, m._keys.length);
-        System.arraycopy(m._values, 0, this._values, 0, m._values.length);
-    }
-
     public $Ik$$Iv$HashMapF(final Map<? extends $Pk$, ? extends $Pv$> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        putAll(m);
+        if (m instanceof $Ik$$Iv$HashMapF) {
+            final $Ik$$Iv$HashMapF x = ($Ik$$Iv$HashMapF)m;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._mask = x._mask;
+            this._haveNoValue = x._haveNoValue;
+            this._noValue = x._noValue;
+            this._keys = new $pk$[x._keys.length];
+            this._values = new $pv$[x._values.length];
+            System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
+            System.arraycopy(x._values, 0, this._values, 0, x._values.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            this._mask = cap - 1;
+            this._keys = new $pk$[cap];
+            this._values = new $pv$[cap];
+            putAll(m);
+        }
     }
 
     public $Ik$$Iv$HashMapF(final int capacity, final float factor) {
@@ -76,8 +86,10 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     public $Ik$$Iv$HashMapF(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._factor = factor;
         this._size = 0;
@@ -100,11 +112,11 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
     @Override
     public boolean containsKey(final Object key) {
-        return key instanceof $Pk$ && containsKey(($pk$)key);
+        return key instanceof $Pk$ && xcontainsKey(($pk$)key);
     }
 
     @Override
-    public boolean containsKey(final $pk$ key) {
+    public boolean xcontainsKey(final $pk$ key) {
         if (key == NO_KEY) {
             return this._haveNoValue;
         }
@@ -120,13 +132,19 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
             index = (index + 1) & this._mask;
         }
     }
+
     @Override
-    public boolean containsValue(final Object value) {
-        return value instanceof $Pv$ && containsValue(($pv$)value);
+    public $pv$ nv() {
+        return NO_VALUE;
     }
 
     @Override
-    public boolean containsValue(final $pv$ value) {
+    public boolean containsValue(final Object value) {
+        return value instanceof $Pv$ && xcontainsValue(($pv$)value);
+    }
+
+    @Override
+    public boolean xcontainsValue(final $pv$ value) {
         if (_haveNoValue && _noValue == value) {
             return true;
         }
@@ -164,7 +182,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public $pv$ get(final $pk$ key) {
+    public $pv$ xget(final $pk$ key) {
         if (key == NO_KEY) {
             return this._haveNoValue
                     ? this._noValue
@@ -186,14 +204,14 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     @Override
     public $Pv$ getOrDefault(final Object key, final $Pv$ defaultValue) {
         if (key instanceof $Pk$) {
-            return getOrDefault(($pk$) key, ($pv$)defaultValue);
+            return xgetOrDefault(($pk$) key, ($pv$)defaultValue);
         } else {
             return defaultValue;
         }
     }
 
     @Override
-    public $pv$ getOrDefault(final $pk$ key, final $pv$ defaultValue) {
+    public $pv$ xgetOrDefault(final $pk$ key, final $pv$ defaultValue) {
         if (key == NO_KEY) {
             return this._haveNoValue
                     ? this._noValue
@@ -217,10 +235,13 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
         final $pk$ key = _key;
         final $pv$ value = _value;
         if (key == NO_KEY) {
+            final $Pv$ old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = null;
+            } else {
+                old = this._noValue;
             }
-            final $pv$ old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -247,7 +268,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public $pv$ put(final $pk$ key, final $pv$ value) {
+    public $pv$ xput(final $pk$ key, final $pv$ value) {
         if (key == NO_KEY) {
             if (!this._haveNoValue) {
                 this._size++;
@@ -311,7 +332,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public $pv$ putIfAbsent(final $pk$ key, final $pv$ value) {
+    public $pv$ xputIfAbsent(final $pk$ key, final $pv$ value) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 return this._noValue;
@@ -341,16 +362,30 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public void putAll(final $Ik$$Iv$Map m) {
-        for (final $Ik$$Iv$Cursor entry : m) {
-            put(entry.key(), entry.value());
-        }
-    }
-
-    @Override
     public void putAll(final Map<? extends $Pk$, ? extends $Pv$> m) {
-        for (final Entry<? extends $Pk$, ? extends $Pv$> entry : m.entrySet()) {
-            put(entry.getKey().$pk$Value(), entry.getValue().$pv$Value());
+        // TODO
+        //if (m instanceof $Ik$$Iv$Map) {
+        //    final $Ik$$Iv$Map x = cast(m);
+        //    final $pk$[] keys = x._keys;
+        //    final $pv$[] values = x._values;
+        //    for (int i = 0, len = keys.length; i < len; ++i) {
+        //        if (keys[i] == NO_KEY) {
+        //            continue;
+        //        }
+        //        xput(keys[i], values[i]);
+        //    }
+        //    if (x._haveNoValue) {
+        //        this._noValue = x._noValue;
+        //    }
+        //} else
+        if (m instanceof $Ik$$Iv$Map) {
+            for (final $Ik$$Iv$Cursor entry : (($Ik$$Iv$Map)m)) {
+                xput(entry.key(), entry.value());
+            }
+        } else {
+            for (final Entry<? extends $Pk$, ? extends $Pv$> entry : m.entrySet()) {
+                xput(entry.getKey().$pk$Value(), entry.getValue().$pv$Value());
+            }
         }
     }
 
@@ -385,7 +420,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public $pv$ remove(final $pk$ key) {
+    public $pv$ xremove(final $pk$ key) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 this._size--;
@@ -412,11 +447,11 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
     @Override
     public boolean remove(final Object key, final Object value) {
-        return key instanceof $Pk$ && value instanceof $Pv$ && remove(($pk$) key, ($pv$) value);
+        return key instanceof $Pk$ && value instanceof $Pv$ && xremove(($pk$) key, ($pv$) value);
     }
 
     @Override
-    public boolean remove(final $pk$ key, final $pv$ value) {
+    public boolean xremove(final $pk$ key, final $pv$ value) {
         if (key == NO_KEY) {
             if (this._haveNoValue && value == this._noValue) {
                 this._size--;
@@ -490,7 +525,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public boolean removeValue(final $pv$ value) {
+    public boolean xremoveValue(final $pv$ value) {
         if (_haveNoValue && (value == NO_VALUE ? _noValue == NO_VALUE : value == _noValue)) {
             _haveNoValue = false;
             --_size;
@@ -509,11 +544,11 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
     @Override
     public boolean replace(final $Pk$ key, final $Pv$ oldValue, final $Pv$ newValue) {
-        return replace(($pk$)key, ($pv$)oldValue, ($pv$)newValue);
+        return xreplace(($pk$)key, ($pv$)oldValue, ($pv$)newValue);
     }
 
     @Override
-    public boolean replace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue) {
+    public boolean xreplace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue) {
         if (key == NO_KEY) {
             if (!this._haveNoValue || this._noValue != oldValue) {
                 return false;
@@ -568,7 +603,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public $pv$ replace(final $pk$ key, final $pv$ value) {
+    public $pv$ xreplace(final $pk$ key, final $pv$ value) {
         if (key == NO_KEY) {
             if (!this._haveNoValue) {
                 return NO_VALUE;
@@ -664,7 +699,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
             final $Ik$$Iv$HashMapF m = ($Ik$$Iv$HashMapF) o;
             if (_size != m.size()) return false;
             for (final $Ik$$Iv$Cursor e : this) {
-                if (e.value() != m.get(e.key())) return false;
+                if (e.value() != m.xget(e.key())) return false;
             }
             return true;
         } else if (o instanceof Map) {
@@ -845,7 +880,6 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
                         map._keys[index] = NO_KEY;
                         this.keys = new $pk$[map._keys.length - remove];
                         System.arraycopy(map._keys, remove, this.keys, 0, this.keys.length);
-                    this.index = this.keys == map._keys ? remove : 0;
                     }
                     map._keys[index] = key;
                     map._values[index] = map._values[next];
@@ -1075,7 +1109,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
         public int hashCode() {
             int h = 0;
             for (final X x : _Col.this) {
-                h += x == null ? 0 : x.hashCode();
+                h += x.hashCode();
             }
             return h;
         }
@@ -1103,7 +1137,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
         @Override
         public boolean contains(final Object o) {
-            return o instanceof $Pk$ && map.containsKey(($pk$)o);
+            return o instanceof $Pk$ && map.xcontainsKey(($pk$)o);
         }
 
         @Override
@@ -1135,15 +1169,12 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
         @Override
         $Pv$ _get(final $pk$ key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
-            return map.get(key);
+            return map.xget(key);
         }
 
         @Override
         public boolean contains(final Object o) {
-            return o instanceof $Pv$ && map.containsValue(($pv$)o);
+            return o instanceof $Pv$ && map.xcontainsValue(($pv$)o);
         }
 
         @Override
@@ -1153,7 +1184,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
         @Override
         public boolean remove(final Object o) {
-            return o instanceof $Pv$ && map.removeValue(($pv$) o);
+            return o instanceof $Pv$ && map.xremoveValue(($pv$) o);
         }
     }
 
@@ -1172,7 +1203,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
             final Object ko = e.getKey();
             if (!(ko instanceof $Pk$)) return false;
             final $pk$ key = ($pk$)ko;
-            if (!map.containsKey(key)) return false;
+            if (!map.xcontainsKey(key)) return false;
             final $pv$ value = map.get(key);
             final Object evalue = e.getValue();
             return evalue != null && evalue.equals(value);
@@ -1185,10 +1216,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
         @Override
         Entry<$Pk$,$Pv$> _get(final $pk$ key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
-            return new En<>(map, key, map.get(key));
+            return new En<>(map, key, map.xget(key));
         }
 
         @Override

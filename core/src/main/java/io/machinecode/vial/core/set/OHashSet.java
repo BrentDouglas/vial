@@ -24,6 +24,8 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     private Object[] _keys;
     private boolean _haveNoValue;
 
+    private final Spread _spread;
+    private final float _factor;
     private int _threshold;
     private int _size;
 
@@ -42,8 +44,27 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     public OHashSet(final Collection<? extends V> c) {
-        this(c.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        addAll(c);
+        if (c instanceof OHashSet) {
+            final OHashSet x = (OHashSet)c;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._mask = x._mask;
+            this._haveNoValue = x._haveNoValue;
+            this._keys = new Object[x._keys.length];
+            System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (c.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            this._mask = cap - 1;
+            this._keys = new Object[cap];
+            addAll(c);
+        }
     }
 
     public OHashSet(final V[] c) {
@@ -56,8 +77,11 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     public OHashSet(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
+        this._factor = factor;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._size = 0;
         final int cap = capacity(capacity, factor, MAX_CAPACITY);

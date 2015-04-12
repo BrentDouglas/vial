@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
@@ -43,10 +44,10 @@ public class OOHashMapExtTest extends Assert {
     }
 
     protected void doTestConstructors() {
-        final OOHashMap<Long, Long> a = new OOHashMap<>(4);
-        final OOHashMap<Long, Long> b = new OOHashMap<>(0.5f);
-        final OOHashMap<Long, Long> c = new OOHashMap<>(4, 0.5f);
-        final OOHashMap<Long, Long> d = new OOHashMap<>(4, 0.5f, Spread.MURMUR3);
+        final OOHashMap<Integer, Integer> a = new OOHashMap<>(4);
+        final OOHashMap<Integer, Integer> b = new OOHashMap<>(0.5f);
+        final OOHashMap<Integer, Integer> c = new OOHashMap<>(4, 0.5f);
+        final OOHashMap<Integer, Integer> d = new OOHashMap<>(4, 0.5f, Spread.MURMUR3);
         assertEquals(a, b);
         assertEquals(a, c);
         assertEquals(a, d);
@@ -57,51 +58,62 @@ public class OOHashMapExtTest extends Assert {
         assertTrue(b.isEmpty());
         assertTrue(c.isEmpty());
         assertTrue(d.isEmpty());
-        a.put(1L, 2L);
-        a.put(2L, 3L);
+        a.put(1, 2);
+        a.put(2, 3);
         assertEquals(2, a.size());
-        final OOHashMap<Long, Long> e = new OOHashMap<>(a);
+        final OOHashMap<Integer, Integer> e = new OOHashMap<>(a);
         assertEquals(a, e);
         assertEquals(2, e.size());
-        assertTrue(e.containsKey(1L));
-        assertTrue(e.containsKey(2L));
-        assertTrue(e.containsValue(2L));
-        assertTrue(e.containsValue(3L));
+        assertTrue(e.containsKey(1));
+        assertTrue(e.containsKey(2));
+        assertTrue(e.containsValue(2));
+        assertTrue(e.containsValue(3));
+
+        final OOHashMap<Integer, Integer> f = new OOHashMap<>(new HashMap<Integer,Integer>(){{
+            put(1, 2);
+            put(2, 3);
+        }});
+        assertEquals(a, f);
+        assertEquals(2, f.size());
+        assertTrue(f.containsKey(1));
+        assertTrue(f.containsKey(2));
+        assertTrue(f.containsValue(2));
+        assertTrue(f.containsValue(3));
     }
 
     @Test
     public void testNullKey() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(1L));
-        assertEquals(new Long(1L), map.get(null));
+        assertTrue(map.containsValue(1));
+        assertEquals(new Integer(1), map.get(null));
 
-        assertNotNull(map.putIfAbsent(null, 2L));
-        assertEquals(new Long(1L), map.get(null));
+        assertNotNull(map.putIfAbsent(null, 2));
+        assertEquals(new Integer(1), map.get(null));
 
-        assertEquals(new Long(1L), map.remove(null));
+        assertEquals(new Integer(1), map.remove(null));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
 
         assertNull(map.remove(null));
 
-        assertNull(map.putIfAbsent(null, 2L));
-        assertEquals(new Long(2L), map.get(null));
+        assertNull(map.putIfAbsent(null, 2));
+        assertEquals(new Integer(2), map.get(null));
     }
 
     @Test
     public void testNullKeyAndValue() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
         assertNull(map.put(null, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
         assertEquals(null, map.get(null));
 
-        assertNull(map.putIfAbsent(null, 2L));
+        assertNull(map.putIfAbsent(null, 2));
         assertNull(map.get(null));
 
         assertNull(map.remove(null));
@@ -111,152 +123,152 @@ public class OOHashMapExtTest extends Assert {
 
         assertNull(map.remove(null));
 
-        assertNull(map.putIfAbsent(null, 2L));
-        assertEquals(new Long(2L), map.get(null));
+        assertNull(map.putIfAbsent(null, 2));
+        assertEquals(new Integer(2), map.get(null));
     }
 
     @Test
     public void testNullValue() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(1L, null));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(1, null));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
+        assertTrue(map.containsKey(1));
         assertTrue(map.containsValue(null));
-        assertNull(map.get(1L));
+        assertNull(map.get(1));
 
-        assertNull(map.putIfAbsent(1L, 2L));
-        assertNull(map.get(1L));
+        assertNull(map.putIfAbsent(1, 2));
+        assertNull(map.get(1));
 
-        assertNull(map.remove(1L));
+        assertNull(map.remove(1));
         assertEquals(0, map.size());
-        assertFalse(map.containsKey(1L));
+        assertFalse(map.containsKey(1));
         assertFalse(map.containsValue(null));
 
-        assertNull(map.putIfAbsent(1L, null));
-        assertEquals(null, map.get(1L));
+        assertNull(map.putIfAbsent(1, null));
+        assertEquals(null, map.get(1));
     }
 
     @Test
     public void testValue() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(1L, 2L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(1, 2));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertNotNull(map.putIfAbsent(1L, 2L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertNotNull(map.putIfAbsent(1, 2));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertEquals(new Long(2L), map.remove(1L));
+        assertEquals(new Integer(2), map.remove(1));
         assertEquals(0, map.size());
-        assertFalse(map.containsKey(1L));
-        assertFalse(map.containsValue(2L));
+        assertFalse(map.containsKey(1));
+        assertFalse(map.containsValue(2));
 
-        assertNull(map.putIfAbsent(1L, 3L));
-        assertEquals(new Long(3L), map.get(1L));
+        assertNull(map.putIfAbsent(1, 3));
+        assertEquals(new Integer(3), map.get(1));
     }
 
     @Test
     public void testPutWithRehash() {
-        final OOMap<Long,Long> map = create();
-        for (long i = 0; i < 10; ++i) {
+        final OOMap<Integer,Integer> map = create();
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
         assertEquals(10, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
-            assertEquals(new Long(i), map.get(i));
+            assertEquals(new Integer(i), map.get(i));
         }
     }
 
     @Test
     public void testPutIfAbsentWithRehash() {
-        final OOMap<Long,Long> map = create();
-        for (long i = 0; i < 10; ++i) {
+        final OOMap<Integer,Integer> map = create();
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.putIfAbsent(i, i));
         }
         assertEquals(10, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
-            assertEquals(new Long(i), map.get(i));
+            assertEquals(new Integer(i), map.get(i));
         }
     }
 
     @Test
     public void testPutIfAbsentBadHashCode() {
-        final OOMap<BadHashCode,Long> map = create();
+        final OOMap<BadHashCode,Integer> map = create();
         final BadHashCode[] arr = new BadHashCode[10];
-        for (long i = 0; i < 10; ++i) {
-            assertNull(map.putIfAbsent(arr[(int) i] = new BadHashCode(4), i));
+        for (int i = 0; i < 10; ++i) {
+            assertNull(map.putIfAbsent(arr[i] = new BadHashCode(4), i));
         }
         assertEquals(10, map.size());
-        for (long i = 0; i < 10; ++i) {
-            final BadHashCode bad = arr[(int)i];
+        for (int i = 0; i < 10; ++i) {
+            final BadHashCode bad = arr[i];
             assertTrue(map.containsKey(bad));
             assertTrue(map.containsValue(i));
-            assertEquals(new Long(i), map.get(bad));
+            assertEquals(new Integer(i), map.get(bad));
         }
     }
 
     @Test
     public void testClear() {
-        final OOMap<Long,Long> map = create();
-        for (long i = 0; i < 10; ++i) {
+        final OOMap<Integer,Integer> map = create();
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
         assertEquals(10, map.size());
         map.clear();
         assertEquals(0, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertFalse(map.containsKey(i));
             assertFalse(map.containsValue(i));
             assertNull(map.get(i));
         }
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
     }
 
     @Test
     public void testRemoveKey() {
-        final OOMap<Long,Long> map = create();
-        for (long i = 0; i < 10; ++i) {
+        final OOMap<Integer,Integer> map = create();
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
         assertEquals(10, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
 
-            assertEquals(new Long(i), map.remove(i));
+            assertEquals(new Integer(i), map.remove(i));
             assertNull(map.remove(i));
         }
         assertEquals(0, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
     }
 
     @Test
     public void testRemoveKeyNullKey() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(1L));
+        assertTrue(map.containsValue(1));
         assertEquals(1, map.size());
 
-        assertEquals(new Long(1L), map.remove(null));
+        assertEquals(new Integer(1), map.remove(null));
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
         assertEquals(0, map.size());
     }
 
     @Test
     public void testRemoveKeyNullKeyAndValue() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
         assertNull(map.put(null, null));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
@@ -270,14 +282,14 @@ public class OOHashMapExtTest extends Assert {
 
     @Test
     public void testRemoveDefaultKey() {
-        final OOMap<Long,Long> map = create();
-        for (long i = 0; i < 10; ++i) {
+        final OOMap<Integer,Integer> map = create();
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
         assertEquals(10, map.size());
-        assertFalse(map.remove(null, 2L));
+        assertFalse(map.remove(null, 2));
         assertFalse(map.remove(null, null));
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
 
@@ -286,40 +298,40 @@ public class OOHashMapExtTest extends Assert {
             assertFalse(map.remove(i, i));
         }
         assertEquals(0, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
     }
 
     @Test
     public void testRemoveDefaultKeyNullKey() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(1L));
+        assertTrue(map.containsValue(1));
         assertEquals(1, map.size());
 
-        assertFalse(map.remove(null, 2L));
+        assertFalse(map.remove(null, 2));
         assertEquals(1, map.size());
         assertFalse(map.remove(null, null));
         assertEquals(1, map.size());
 
-        assertTrue(map.remove(null, 1L));
+        assertTrue(map.remove(null, 1));
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
         assertEquals(0, map.size());
     }
 
     @Test
     public void testRemoveKeyDefaultNullKeyAndValue() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
         assertNull(map.put(null, null));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
         assertEquals(1, map.size());
 
 
-        assertFalse(map.remove(null, 2L));
+        assertFalse(map.remove(null, 2));
         assertEquals(1, map.size());
 
         assertTrue(map.remove(null, null));
@@ -330,12 +342,12 @@ public class OOHashMapExtTest extends Assert {
 
     @Test
     public void testRemoveValue() {
-        final OOMap<Long,Long> map = create();
-        for (long i = 0; i < 10; ++i) {
+        final OOMap<Integer,Integer> map = create();
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
         assertEquals(10, map.size());
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
 
@@ -343,50 +355,50 @@ public class OOHashMapExtTest extends Assert {
             assertFalse(map.removeValue(i));
         }
         assertEquals(0, map.size());
-        for (long i = 0; i < 10; ++i) {
-            assertNull(map.put(i, 0L));
+        for (int i = 0; i < 10; ++i) {
+            assertNull(map.put(i, 0));
         }
-        for (long i = 0; i < 9; ++i) {
-            assertTrue(map.removeValue(0L));
-            assertTrue(map.containsValue(0L));
+        for (int i = 0; i < 9; ++i) {
+            assertTrue(map.removeValue(0));
+            assertTrue(map.containsValue(0));
         }
         assertFalse(map.removeValue(null));
         assertEquals(1, map.size());
 
-        assertTrue(map.removeValue(0L));
-        assertFalse(map.containsValue(0L));
+        assertTrue(map.removeValue(0));
+        assertFalse(map.containsValue(0));
         assertEquals(0, map.size());
     }
 
     @Test
     public void testRemoveValueNullKey() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(1L));
+        assertTrue(map.containsValue(1));
         assertEquals(1, map.size());
 
         assertFalse(map.removeValue(null));
         assertEquals(1, map.size());
 
-        assertFalse(map.removeValue(2L));
+        assertFalse(map.removeValue(2));
         assertEquals(1, map.size());
 
-        assertTrue(map.removeValue(1L));
+        assertTrue(map.removeValue(1));
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
         assertEquals(0, map.size());
     }
 
     @Test
     public void testRemoveValueNullKeyAndValue() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
         assertNull(map.put(null, null));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
         assertEquals(1, map.size());
 
-        assertFalse(map.removeValue(2L));
+        assertFalse(map.removeValue(2));
         assertEquals(1, map.size());
 
         assertTrue(map.removeValue(null));
@@ -397,418 +409,454 @@ public class OOHashMapExtTest extends Assert {
 
     @Test
     public void testReplaceNullKey() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(1L));
-        assertEquals(new Long(1L), map.get(null));
+        assertTrue(map.containsValue(1));
+        assertEquals(new Integer(1), map.get(null));
 
-        assertEquals(new Long(1L), map.putIfAbsent(null, 3L));
-        assertEquals(new Long(1L), map.get(null));
+        assertEquals(new Integer(1), map.putIfAbsent(null, 3));
+        assertEquals(new Integer(1), map.get(null));
 
-        assertFalse(map.replace(null, null, 3L));
-        assertEquals(new Long(1L), map.get(null));
+        assertFalse(map.replace(null, null, 3));
+        assertEquals(new Integer(1), map.get(null));
         
-        assertEquals(new Long(1L), map.replace(null, 2L));
+        assertEquals(new Integer(1), map.replace(null, 2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(2L));
-        assertFalse(map.containsValue(1L));
-        assertEquals(new Long(2L), map.get(null));
+        assertTrue(map.containsValue(2));
+        assertFalse(map.containsValue(1));
+        assertEquals(new Integer(2), map.get(null));
 
-        assertTrue(map.replace(null, 2L, null));
+        assertTrue(map.replace(null, 2, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
-        assertFalse(map.containsValue(2L));
+        assertFalse(map.containsValue(2));
         assertTrue(map.containsValue(null));
-        assertNull(map.get(1L));
+        assertNull(map.get(1));
 
-        assertTrue(map.replace(null, null, 1L));
+        assertTrue(map.replace(null, null, 1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
         assertFalse(map.containsValue(null));
-        assertFalse(map.containsValue(2L));
-        assertTrue(map.containsValue(1L));
-        assertEquals(new Long(1L), map.get(null));
+        assertFalse(map.containsValue(2));
+        assertTrue(map.containsValue(1));
+        assertEquals(new Integer(1), map.get(null));
 
-        assertEquals(new Long(1L), map.remove(null));
+        assertEquals(new Integer(1), map.remove(null));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertFalse(map.containsValue(3L));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertFalse(map.containsValue(3));
 
-        assertNull(map.putIfAbsent(null, 2L));
-        assertEquals(new Long(2L), map.get(null));
+        assertNull(map.putIfAbsent(null, 2));
+        assertEquals(new Integer(2), map.get(null));
         assertTrue(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertFalse(map.containsValue(3L));
+        assertFalse(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertFalse(map.containsValue(3));
     }
 
     @Test
     public void testReplaceNullKeyAndValue() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
         assertNull(map.put(null, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
         assertEquals(null, map.get(null));
 
-        assertNull(map.putIfAbsent(null, 1L));
+        assertNull(map.putIfAbsent(null, 1));
         assertNull(map.get(null));
 
-        assertFalse(map.replace(null, 1L, 1L));
+        assertFalse(map.replace(null, 1, 1));
         assertNull(map.get(null));
 
-        assertNull(map.replace(null, 1L));
+        assertNull(map.replace(null, 1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsValue(1L));
+        assertTrue(map.containsValue(1));
         assertFalse(map.containsValue(null));
-        assertEquals(new Long(1L), map.get(null));
+        assertEquals(new Integer(1), map.get(null));
 
-        assertTrue(map.replace(null, 1L, null));
+        assertTrue(map.replace(null, 1, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
         assertTrue(map.containsValue(null));
         assertNull(map.get(null));
 
-        assertTrue(map.replace(null, null, 2L));
+        assertTrue(map.replace(null, null, 2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
         assertFalse(map.containsValue(null));
-        assertFalse(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(null));
+        assertFalse(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(null));
 
-        assertEquals(new Long(2L), map.remove(null));
+        assertEquals(new Integer(2), map.remove(null));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(null));
         assertFalse(map.containsValue(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
 
-        assertNull(map.putIfAbsent(null, 2L));
-        assertEquals(new Long(2L), map.get(null));
+        assertNull(map.putIfAbsent(null, 2));
+        assertEquals(new Integer(2), map.get(null));
         assertTrue(map.containsKey(null));
         assertFalse(map.containsValue(null));
-        assertFalse(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
+        assertFalse(map.containsValue(1));
+        assertTrue(map.containsValue(2));
     }
 
     @Test
     public void testReplaceNullValue() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(1L, null));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(1, null));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
+        assertTrue(map.containsKey(1));
         assertTrue(map.containsValue(null));
-        assertNull(map.get(1L));
+        assertNull(map.get(1));
 
-        assertNull(map.putIfAbsent(1L, 2L));
-        assertNull(map.get(1L));
+        assertNull(map.putIfAbsent(1, 2));
+        assertNull(map.get(1));
 
-        assertFalse(map.replace(1L, 1L, 3L));
-        assertNull(map.get(1L));
+        assertFalse(map.replace(1, 1, 3));
+        assertNull(map.get(1));
 
-        assertNull(map.replace(1L, 1L));
+        assertNull(map.replace(1, 1));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsValue(1L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsValue(1));
         assertFalse(map.containsValue(null));
-        assertEquals(new Long(1L), map.get(1L));
+        assertEquals(new Integer(1), map.get(1));
 
-        assertTrue(map.replace(1L, 1L, null));
+        assertTrue(map.replace(1, 1, null));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertFalse(map.containsValue(1L));
+        assertTrue(map.containsKey(1));
+        assertFalse(map.containsValue(1));
         assertTrue(map.containsValue(null));
-        assertNull(map.get(1L));
+        assertNull(map.get(1));
 
-        assertTrue(map.replace(1L, null, 2L));
+        assertTrue(map.replace(1, null, 2));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
+        assertTrue(map.containsKey(1));
         assertFalse(map.containsValue(null));
-        assertFalse(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertFalse(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertFalse(map.replace(1L, null, null));
+        assertFalse(map.replace(1, null, null));
 
-        assertEquals(new Long(2L), map.remove(1L));
+        assertEquals(new Integer(2), map.remove(1));
         assertEquals(0, map.size());
-        assertFalse(map.containsKey(1L));
+        assertFalse(map.containsKey(1));
         assertFalse(map.containsValue(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
 
-        assertNull(map.putIfAbsent(1L, null));
-        assertEquals(null, map.get(1L));
+        assertNull(map.putIfAbsent(1, null));
+        assertEquals(null, map.get(1));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
+        assertTrue(map.containsKey(1));
         assertTrue(map.containsValue(null));
-        assertFalse(map.containsValue(1L));
+        assertFalse(map.containsValue(1));
     }
 
     @Test
     public void testReplaceValue() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(1L, 2L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(1, 2));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertEquals(new Long(2L), map.putIfAbsent(1L, 3L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertEquals(new Integer(2), map.putIfAbsent(1, 3));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertFalse(map.replace(1L, 1L, 3L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertFalse(map.replace(1, 1, 3));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertEquals(new Long(2L), map.replace(1L, 1L));
+        assertEquals(new Integer(2), map.replace(1, 1));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertEquals(new Long(1L), map.get(1L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertEquals(new Integer(1), map.get(1));
 
-        assertTrue(map.replace(1L, 1L, 2L));
+        assertTrue(map.replace(1, 1, 2));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertFalse(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(1L));
+        assertTrue(map.containsKey(1));
+        assertFalse(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(1));
 
-        assertEquals(new Long(2L), map.remove(1L));
+        assertEquals(new Integer(2), map.remove(1));
         assertEquals(0, map.size());
-        assertFalse(map.containsKey(1L));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
+        assertFalse(map.containsKey(1));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
 
-        assertNull(map.putIfAbsent(1L, 3L));
-        assertEquals(new Long(3L), map.get(1L));
+        assertNull(map.putIfAbsent(1, 3));
+        assertEquals(new Integer(3), map.get(1));
         assertEquals(1, map.size());
-        assertTrue(map.containsKey(1L));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertTrue(map.containsValue(3L));
+        assertTrue(map.containsKey(1));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertTrue(map.containsValue(3));
     }
 
     @Test
     public void testReplaceNoKey() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.replace(1L, 1L));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.replace(1, 1));
         assertEquals(0, map.size());
-        assertFalse(map.containsKey(1L));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertNull(map.get(1L));
+        assertFalse(map.containsKey(1));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertNull(map.get(1));
 
-        assertFalse(map.replace(1L, 1L, 2L));
+        assertFalse(map.replace(1, 1, 2));
         assertEquals(0, map.size());
-        assertFalse(map.containsKey(1L));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertNull(map.get(1L));
+        assertFalse(map.containsKey(1));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertNull(map.get(1));
 
-        assertNull(map.replace(null, 1L));
+        assertNull(map.replace(null, 1));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertNull(map.get(1L));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertNull(map.get(1));
 
-        assertFalse(map.replace(null, 1L, 2L));
+        assertFalse(map.replace(null, 1, 2));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(null));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertNull(map.get(1L));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertNull(map.get(1));
     }
 
     @Test
     public void testReplaceBadHashCode() {
-        final OOMap<BadHashCode,Long> map = create();
+        final OOMap<BadHashCode,Integer> map = create();
         final BadHashCode key = new BadHashCode(4);
 
-        assertNull(map.put(new BadHashCode(4), 123L));
-        assertNull(map.put(key, 2L));
+        assertNull(map.put(new BadHashCode(4), 123));
+        assertNull(map.put(key, 2));
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(key));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(key));
 
-        assertEquals(new Long(2L), map.putIfAbsent(key, 3L));
-        assertEquals(new Long(2L), map.get(key));
+        assertEquals(new Integer(2), map.putIfAbsent(key, 3));
+        assertEquals(new Integer(2), map.get(key));
 
-        assertFalse(map.replace(key, 1L, 3L));
-        assertEquals(new Long(2L), map.get(key));
+        assertFalse(map.replace(key, 1, 3));
+        assertEquals(new Integer(2), map.get(key));
 
-        assertEquals(new Long(2L), map.replace(key, 1L));
+        assertEquals(new Integer(2), map.replace(key, 1));
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key));
-        assertTrue(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertEquals(new Long(1L), map.get(key));
+        assertTrue(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertEquals(new Integer(1), map.get(key));
 
-        assertTrue(map.replace(key, 1L, 2L));
+        assertTrue(map.replace(key, 1, 2));
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key));
-        assertFalse(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertEquals(new Long(2L), map.get(key));
+        assertFalse(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertEquals(new Integer(2), map.get(key));
 
-        assertEquals(new Long(2L), map.remove(key));
+        assertEquals(new Integer(2), map.remove(key));
         assertEquals(1, map.size());
         assertFalse(map.containsKey(key));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
 
-        assertNull(map.putIfAbsent(key, 3L));
-        assertEquals(new Long(3L), map.get(key));
+        assertNull(map.putIfAbsent(key, 3));
+        assertEquals(new Integer(3), map.get(key));
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key));
-        assertFalse(map.containsValue(1L));
-        assertFalse(map.containsValue(2L));
-        assertTrue(map.containsValue(3L));
+        assertFalse(map.containsValue(1));
+        assertFalse(map.containsValue(2));
+        assertTrue(map.containsValue(3));
     }
 
     @Test
     public void testGetOrDefault() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
         assertNull(map.getOrDefault(null, null));
-        assertEquals(new Long(1L), map.getOrDefault(null, 1L));
+        assertEquals(new Integer(1), map.getOrDefault(null, 1));
 
-        assertNull(map.getOrDefault(1l, null));
-        assertEquals(new Long(2L), map.getOrDefault(1l, 2L));
+        assertNull(map.getOrDefault(1, null));
+        assertEquals(new Integer(2), map.getOrDefault(1, 2));
 
-        assertNull(map.put(null, 1L));
-        assertNull(map.put(1L, 2L));
-        assertNull(map.put(2L, null));
+        assertNull(map.put(null, 1));
+        assertNull(map.put(1, 2));
+        assertNull(map.put(2, null));
         assertEquals(3, map.size());
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsKey(2L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsKey(2));
         assertTrue(map.containsValue(null));
-        assertTrue(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
+        assertTrue(map.containsValue(1));
+        assertTrue(map.containsValue(2));
 
-        assertEquals(new Long(1L), map.getOrDefault(null, null));
-        assertEquals(new Long(2L), map.getOrDefault(1L, null));
-        assertNull(map.getOrDefault(2L, 3L));
+        assertEquals(new Integer(1), map.getOrDefault(null, null));
+        assertEquals(new Integer(2), map.getOrDefault(1, null));
+        assertNull(map.getOrDefault(2, 3));
     }
 
     @Test
     public void testGetOrDefaultBadHashCode() {
-        final OOMap<BadHashCode,Long> map = create();
+        final OOMap<BadHashCode,Integer> map = create();
 
         assertNull(map.getOrDefault(null, null));
-        assertEquals(new Long(1L), map.getOrDefault(null, 1L));
+        assertEquals(new Integer(1), map.getOrDefault(null, 1));
 
         assertNull(map.getOrDefault(new BadHashCode(4), null));
-        assertEquals(new Long(2L), map.getOrDefault(new BadHashCode(4), 2L));
+        assertEquals(new Integer(2), map.getOrDefault(new BadHashCode(4), 2));
 
         final BadHashCode[] arr = new BadHashCode[10];
 
-        assertNull(map.put(null, 1L));
-        assertNull(map.put(arr[1] = new BadHashCode(4), 2L));
+        assertNull(map.put(null, 1));
+        assertNull(map.put(arr[1] = new BadHashCode(4), 2));
         assertNull(map.put(arr[2] = new BadHashCode(4), null));
         assertEquals(3, map.size());
         assertTrue(map.containsKey(null));
         assertTrue(map.containsKey(arr[1]));
         assertTrue(map.containsKey(arr[2]));
         assertTrue(map.containsValue(null));
-        assertTrue(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
+        assertTrue(map.containsValue(1));
+        assertTrue(map.containsValue(2));
 
-        assertEquals(new Long(1L), map.getOrDefault(null, null));
-        assertEquals(new Long(2L), map.getOrDefault(arr[1], null));
-        assertNull(map.getOrDefault(arr[2], 3L));
+        assertEquals(new Integer(1), map.getOrDefault(null, null));
+        assertEquals(new Integer(2), map.getOrDefault(arr[1], null));
+        assertNull(map.getOrDefault(arr[2], 3));
+    }
+
+    @Test
+    public void testPutAll() {
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
+        assertNull(map.put(1, 2));
+        assertNull(map.put(2, 3));
+        assertNull(map.put(3, null));
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsKey(2));
+        assertTrue(map.containsKey(3));
+        assertTrue(map.containsValue(null));
+        assertTrue(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertTrue(map.containsValue(3));
+        assertEquals(4, map.size());
+
+        final Map<Integer,Integer> jmap = new HashMap<Integer,Integer>(){{
+            assertNull(put(null, 1));
+            assertNull(put(1, 2));
+            assertNull(put(2, 3));
+            assertNull(put(3, null));
+        }};
+
+        final OOMap<Integer,Integer> a = create();
+        a.putAll(map);
+
+        final OOMap<Integer,Integer> b = create();
+        b.putAll(jmap);
+
+        assertEquals(map, jmap);
+        assertEquals(a, map);
+        assertEquals(b, jmap);
+        assertEquals(a, b);
     }
 
     @Test
     public void testToArray() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
-        assertNull(map.put(1L, 2L));
-        assertNull(map.put(2L, 3L));
-        assertNull(map.put(3L, null));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
+        assertNull(map.put(1, 2));
+        assertNull(map.put(2, 3));
+        assertNull(map.put(3, null));
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsKey(2L));
-        assertTrue(map.containsKey(3L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsKey(2));
+        assertTrue(map.containsKey(3));
         assertTrue(map.containsValue(null));
-        assertTrue(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertTrue(map.containsValue(3L));
+        assertTrue(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertTrue(map.containsValue(3));
         assertEquals(4, map.size());
 
         {
             final Object[] array = map.keySet().toArray();
             assertTrue(TestUtil.arrayContains(array, null));
-            assertTrue(TestUtil.arrayContains(array, 1L));
-            assertTrue(TestUtil.arrayContains(array, 2L));
-            assertTrue(TestUtil.arrayContains(array, 3l));
+            assertTrue(TestUtil.arrayContains(array, 1));
+            assertTrue(TestUtil.arrayContains(array, 2));
+            assertTrue(TestUtil.arrayContains(array, 3));
             assertEquals(4, array.length);
         }
         {
             final Object[] array = map.values().toArray();
             assertTrue(TestUtil.arrayContains(array, null));
-            assertTrue(TestUtil.arrayContains(array, 1L));
-            assertTrue(TestUtil.arrayContains(array, 2L));
-            assertTrue(TestUtil.arrayContains(array, 3l));
+            assertTrue(TestUtil.arrayContains(array, 1));
+            assertTrue(TestUtil.arrayContains(array, 2));
+            assertTrue(TestUtil.arrayContains(array, 3));
             assertEquals(4, array.length);
         }
     }
 
     @Test
     public void testToArrayT() {
-        final OOMap<Long,Long> map = create();
-        assertNull(map.put(null, 1L));
-        assertNull(map.put(1L, 2L));
-        assertNull(map.put(2L, 3L));
-        assertNull(map.put(3L, null));
+        final OOMap<Integer,Integer> map = create();
+        assertNull(map.put(null, 1));
+        assertNull(map.put(1, 2));
+        assertNull(map.put(2, 3));
+        assertNull(map.put(3, null));
         assertTrue(map.containsKey(null));
-        assertTrue(map.containsKey(1L));
-        assertTrue(map.containsKey(2L));
-        assertTrue(map.containsKey(3L));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsKey(2));
+        assertTrue(map.containsKey(3));
         assertTrue(map.containsValue(null));
-        assertTrue(map.containsValue(1L));
-        assertTrue(map.containsValue(2L));
-        assertTrue(map.containsValue(3L));
+        assertTrue(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertTrue(map.containsValue(3));
         assertEquals(4, map.size());
 
         {
-            final Long[] array = map.keySet().toArray(new Long[4]);
+            final Integer[] array = map.keySet().toArray(new Integer[4]);
             assertTrue(TestUtil.arrayContains(array, null));
-            assertTrue(TestUtil.arrayContains(array, 1L));
-            assertTrue(TestUtil.arrayContains(array, 2L));
-            assertTrue(TestUtil.arrayContains(array, 3l));
+            assertTrue(TestUtil.arrayContains(array, 1));
+            assertTrue(TestUtil.arrayContains(array, 2));
+            assertTrue(TestUtil.arrayContains(array, 3));
             assertEquals(4, array.length);
         }
         {
-            final Long[] array = map.values().toArray(new Long[4]);
+            final Integer[] array = map.values().toArray(new Integer[4]);
             assertTrue(TestUtil.arrayContains(array, null));
-            assertTrue(TestUtil.arrayContains(array, 1L));
-            assertTrue(TestUtil.arrayContains(array, 2L));
-            assertTrue(TestUtil.arrayContains(array, 3l));
+            assertTrue(TestUtil.arrayContains(array, 1));
+            assertTrue(TestUtil.arrayContains(array, 2));
+            assertTrue(TestUtil.arrayContains(array, 3));
             assertEquals(4, array.length);
         }
     }
 
     @Test
     public void testCursor() {
-        final OOMap<Long,Long> map = create();
+        final OOMap<Integer,Integer> map = create();
 
-        for (long i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
-        assertNull(map.put(10L, null));
+        assertNull(map.put(10, null));
 
-        final OOCursor<Long, Long> c = map.iterator();
+        final OOCursor<Integer, Integer> c = map.iterator();
         assertTrue(c.hasNext());
-        for (final OOCursor<Long, Long> x : map) {
+        for (final OOCursor<Integer, Integer> x : map) {
             assertNotNull(c.next());
             assertEquals(x, c);
             assertNotSame(x, c);
@@ -820,7 +868,7 @@ public class OOHashMapExtTest extends Assert {
 
         c.reset();
         int i = 0;
-        for (final OOCursor<Long, Long> x : c) {
+        for (final OOCursor<Integer, Integer> x : c) {
             ++i;
             assertSame(x, c);
             assertEquals(x, c);

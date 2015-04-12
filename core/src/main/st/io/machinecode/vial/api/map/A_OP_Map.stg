@@ -11,23 +11,25 @@ import java.util.Map;
  */
 public interface O$I$Map<K> extends Map<K,$P$>, Iterable<O$I$Cursor<K$X$ {
 
-    boolean containsValue(final $p$ value);
+    $p$ nv();
 
-    $p$ getOrDefault(final K key, final $p$ defaultValue);
+    boolean xcontainsValue(final $p$ value);
 
-    $p$ put(final K key, final $p$ value);
+    $p$ xget(final K key);
 
-    $p$ putIfAbsent(final K key, final $p$ value);
+    $p$ xgetOrDefault(final K key, final $p$ defaultValue);
 
-    void putAll(final O$I$Map<? extends K> m);
+    $p$ xput(final K key, final $p$ value);
 
-    boolean remove(final K key, final $p$ value);
+    $p$ xputIfAbsent(final K key, final $p$ value);
 
-    boolean removeValue(final $p$ value);
+    boolean xremove(final K key, final $p$ value);
 
-    boolean replace(final K key, final $p$ oldValue, final $p$ newValue);
+    boolean xremoveValue(final $p$ value);
 
-    $p$ replace(final K key, final $p$ value);
+    boolean xreplace(final K key, final $p$ oldValue, final $p$ newValue);
+
+    $p$ xreplace(final K key, final $p$ value);
 
     K[] keyArray();
 

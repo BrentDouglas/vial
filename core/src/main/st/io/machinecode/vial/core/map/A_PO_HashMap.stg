@@ -33,6 +33,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     private boolean _haveNoValue;
     private Object _noValue;
 
+    private final Spread _spread;
     private final float _factor;
     private int _threshold;
     private int _size;
@@ -51,23 +52,32 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         this(DEFAULT_CAPACITY, factor, Spread.QUICK);
     }
 
-    public $I$OHashMap(final $I$OHashMap<?> m) {
-        super(m);
-        this._factor = m._factor;
-        this._size = m._size;
-        this._threshold = m._threshold;
-        this._mask = m._mask;
-        this._haveNoValue = m._haveNoValue;
-        this._noValue = m._noValue;
-        this._keys = new $p$[m._keys.length];
-        this._values = new Object[m._values.length];
-        System.arraycopy(m._keys, 0, this._keys, 0, m._keys.length);
-        System.arraycopy(m._values, 0, this._values, 0, m._values.length);
-    }
-
     public $I$OHashMap(final Map<? extends $P$, ? extends V> m) {
-        this(m.size(), DEFAULT_LOAD_FACTOR, Spread.QUICK);
-        putAll(m);
+        if (m instanceof $I$OHashMap) {
+            final $I$OHashMap x = ($I$OHashMap)m;
+            this._spread = x._spread;
+            this._factor = x._factor;
+            this._size = x._size;
+            this._threshold = x._threshold;
+            this._mask = x._mask;
+            this._haveNoValue = x._haveNoValue;
+            this._noValue = x._noValue;
+            this._keys = new $p$[x._keys.length];
+            this._values = new Object[x._values.length];
+            System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
+            System.arraycopy(x._values, 0, this._values, 0, x._values.length);
+        } else {
+            this._spread = Spread.QUICK;
+            this._factor = DEFAULT_LOAD_FACTOR;
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            this._size = 0;
+            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            this._threshold = (int)(cap * this._factor);
+            this._mask = cap - 1;
+            this._keys = new $p$[cap];
+            this._values = new Object[cap];
+            putAll(m);
+        }
     }
 
     public $I$OHashMap(final int capacity, final float factor) {
@@ -75,8 +85,10 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     public $I$OHashMap(final int _capacity, final float factor, final Spread spread) {
-        super(factor, spread);
+        assert factor > 0 && factor <= 1;
+        assert spread != null;
         assert _capacity >= 0;
+        this._spread = spread;
         final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
         this._factor = factor;
         this._size = 0;
@@ -99,11 +111,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     @Override
     public boolean containsKey(final Object key) {
-        return key instanceof $P$ && containsKey(($p$)key);
+        return key instanceof $P$ && xcontainsKey(($p$)key);
     }
 
     @Override
-    public boolean containsKey(final $p$ key) {
+    public boolean xcontainsKey(final $p$ key) {
         if (key == NO_KEY) {
             return this._haveNoValue;
         }
@@ -138,12 +150,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     @Override
     public V get(final Object key) {
         return key instanceof $P$
-                ? get(($p$)key)
+                ? xget(($p$)key)
                 : null;
     }
 
     @Override
-    public V get(final $p$ key) {
+    public V xget(final $p$ key) {
         if (key == NO_KEY) {
             return cast(
                     this._haveNoValue
@@ -167,12 +179,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     @Override
     public V getOrDefault(final Object key, final V defaultValue) {
         return key instanceof $P$
-                ? getOrDefault(($p$) key, defaultValue)
+                ? xgetOrDefault(($p$) key, defaultValue)
                 : defaultValue;
     }
 
     @Override
-    public V getOrDefault(final $p$ key, final V defaultValue) {
+    public V xgetOrDefault(final $p$ key, final V defaultValue) {
         if (key == NO_KEY) {
             return cast(
                     this._haveNoValue
@@ -195,16 +207,19 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     @Override
     public V put(final $P$ key, final V value) {
-        return put(($p$)key, value);
+        return xput(key, value);
     }
 
     @Override
-    public V put(final $p$ key, final V value) {
+    public V xput(final $p$ key, final V value) {
         if (key == NO_KEY) {
+            final V old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = null;
+            } else {
+                old = cast(this._noValue);
             }
-            final V old = cast(this._noValue);
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -232,11 +247,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     @Override
     public V putIfAbsent(final $P$ key, final V value) {
-        return put(($p$)key, value);
+        return xputIfAbsent(key, value);
     }
 
     @Override
-    public V putIfAbsent(final $p$ key, final V value) {
+    public V xputIfAbsent(final $p$ key, final V value) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 return cast(this._noValue);
@@ -266,33 +281,49 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     @Override
-    public void putAll(final $I$OMap<? extends V> m) {
-        for (final $I$OCursor<? extends V> entry : m) {
-            put(entry.key(), entry.value());
-        }
-    }
-
-    @Override
     public void putAll(final Map<? extends $P$, ? extends V> m) {
-        for (final Map.Entry<? extends $P$, ? extends V> entry : m.entrySet()) {
-            put(entry.getKey().$p$Value(), entry.getValue());
+        // TODO
+        //if (m instanceof $I$OHashMap) {
+        //    final $I$OHashMap<V> x = cast(m);
+        //    final $p$[] keys = x._keys;
+        //    final Object[] values = x._values;
+        //    for (int i = 0, len = keys.length; i < len; ++i) {
+        //        if (keys[i] == NO_KEY) {
+        //            continue;
+        //        }
+        //        xput(keys[i], (V) values[i]);
+        //    }
+        //    if (x._haveNoValue) {
+        //        this._noValue = x._noValue;
+        //    }
+        //} else
+        if (m instanceof $I$OMap) {
+            for (final $I$OCursor<? extends V> entry : (($I$OMap<? extends V>)m)) {
+                xput(entry.key(), entry.value());
+            }
+        } else {
+            for (final Map.Entry<? extends $P$, ? extends V> entry : m.entrySet()) {
+                xput(entry.getKey().$p$Value(), entry.getValue());
+            }
         }
     }
 
     @Override
     public V remove(final Object key) {
         return key instanceof $P$
-                ? remove(($p$)key)
+                ? xremove(($p$)key)
                 : null;
     }
 
     @Override
-    public V remove(final $p$ key) {
+    public V xremove(final $p$ key) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
                 this._size--;
                 this._haveNoValue = false;
-                return cast(this._noValue);
+                final V old = cast(this._noValue);
+                this._noValue = null;
+                return old;
             } else {
                 return null;
             }
@@ -306,7 +337,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             } else if (k == key) {
                 final V old = cast(this._values[index]);
                 _remove(index);
-                return cast(old);
+                return old;
             }
             index = (index + 1) & this._mask;
         }
@@ -314,15 +345,16 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     @Override
     public boolean remove(final Object key, final Object value) {
-        return key instanceof $P$ && remove(($p$) key, value);
+        return key instanceof $P$ && xremove(($p$) key, value);
     }
 
     @Override
-    public boolean remove(final $p$ key, final Object value) {
+    public boolean xremove(final $p$ key, final Object value) {
         if (key == NO_KEY) {
             if (this._haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
                 this._size--;
                 this._haveNoValue = false;
+                this._noValue = null;
                 return true;
             } else {
                 return false;
@@ -350,6 +382,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (this._haveNoValue) {
                 this._size--;
                 this._haveNoValue = false;
+                this._noValue = null;
                 return true;
             } else {
                 return false;
@@ -393,9 +426,10 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     @Override
-    public boolean removeValue(final Object value) {
+    public boolean xremoveValue(final Object value) {
         if (_haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
             _haveNoValue = false;
+            _noValue = null;
             --_size;
             return true;
         }
@@ -412,11 +446,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     @Override
     public boolean replace(final $P$ key, final V oldValue, final V newValue) {
-        return replace(($p$)key, oldValue, newValue);
+        return xreplace(($p$)key, oldValue, newValue);
     }
 
     @Override
-    public boolean replace(final $p$ key, final V oldValue, final V newValue) {
+    public boolean xreplace(final $p$ key, final V oldValue, final V newValue) {
         if (key == NO_KEY) {
             if (!this._haveNoValue || (oldValue == null ? _noValue != null : !oldValue.equals(_noValue))) {
                 return false;
@@ -432,7 +466,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
-                if (this._values[index].equals(oldValue)) {
+                if (oldValue == null ? this._values[index] != null : !oldValue.equals(this._values[index])) {
                     return false;
                 }
                 this._values[index] = newValue;
@@ -444,11 +478,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     @Override
     public V replace(final $P$ key, final V value) {
-        return replace(($p$)key, value);
+        return xreplace(($p$)key, value);
     }
 
     @Override
-    public V replace(final $p$ key, final V value) {
+    public V xreplace(final $p$ key, final V value) {
         if (key == NO_KEY) {
             if (!this._haveNoValue) {
                 return null;
@@ -692,6 +726,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 assert map._haveNoValue;
                 --map._size;
                 map._haveNoValue = false;
+                map._noValue = null;
             } else {
                 assert keyIndex >= 0;
                 assert this.keys[keyIndex] != NO_KEY;
@@ -713,6 +748,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 final $p$ key = map._keys[next];
                 if (key == NO_KEY) {
                     map._keys[index] = NO_KEY;
+                    map._values[index] = null;
                     return;
                 }
                 final int hash = map._spread.spread($hc$);
@@ -808,8 +844,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         @Override
         Entry<$P$, V> _get() {
-            final $p$ k = key;
-            return new En<>(map, k, map.get(k));
+            return new En<>(map, key, map.xget(key));
         }
     }
 
@@ -831,7 +866,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         @Override
         V _get() {
-            return map.get(key);
+            return map.xget(key);
         }
     }
 
@@ -1010,9 +1045,6 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         @Override
         V _get(final $p$ key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
             return map.get(key);
         }
 
@@ -1028,7 +1060,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         @Override
         public boolean remove(final Object o) {
-            return map.removeValue(o);
+            return map.xremoveValue(o);
         }
     }
 
@@ -1046,8 +1078,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             final Object ko = e.getKey();
             if (!(ko instanceof $P$)) return false;
             final $p$ key = ($p$)ko;
-            if (!map.containsKey(key)) return false;
-            final V value = map.get(key);
+            if (!map.xcontainsKey(key)) return false;
+            final V value = map.xget(key);
             final Object evalue = e.getValue();
             return value == null ? evalue == null : value.equals(evalue);
         }
@@ -1059,10 +1091,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         @Override
         Entry<$P$, V> _get(final $p$ key) {
-            if (!map.containsKey(key)) {
-                return null;
-            }
-            return new En<>(map, key, map.get(key));
+            return new En<>(map, key, map.xget(key));
         }
 
         @Override

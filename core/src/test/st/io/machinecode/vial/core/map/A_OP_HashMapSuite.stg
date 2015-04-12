@@ -1,0 +1,71 @@
+delimiters "$", "$"
+
+OPHashMapSuite(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.core.map;
+
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
+import io.machinecode.vial.core.TestUtil;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import java.util.Map;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class O$I$HashMapSuite {
+
+    public interface CreateMap {
+
+        <K> Map<K,$P$> create();
+    }
+
+    public static void createSuite(final TestSuite suite, final String name, final CreateMap create) {
+        suite.addTest(longTestsForO$I$HashMap(name, create));
+        suite.addTest(stringTestsForO$I$HashMap(name, create));
+    }
+
+    private static Test longTestsForO$I$HashMap(final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new L$I$MapGenerator() {
+                    @Override
+                    protected Map<Long, $P$> create(final Map.Entry<Long,$P$>[] entries) {
+                        return TestUtil.populate(create.<Long>create(), entries);
+                    }
+                })
+                .named("O$I$HashMap<Long>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    private static Test stringTestsForO$I$HashMap(final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new O$I$MapGenerator() {
+                    @Override
+                    protected Map<String, $P$> create(final Map.Entry<String,$P$>[] entries) {
+                        return TestUtil.populate(create.<String>create(), entries);
+                    }
+                })
+                .named("O$I$HashMap<String>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+}
+
+>>

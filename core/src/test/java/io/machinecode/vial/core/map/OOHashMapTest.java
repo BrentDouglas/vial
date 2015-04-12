@@ -1,13 +1,6 @@
 package io.machinecode.vial.core.map;
 
-import com.google.common.collect.testing.AnEnum;
-import com.google.common.collect.testing.MapTestSuiteBuilder;
-import com.google.common.collect.testing.TestEnumMapGenerator;
-import com.google.common.collect.testing.TestStringMapGenerator;
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
-import com.google.common.collect.testing.features.MapFeature;
-import io.machinecode.vial.core.TestUtil;
+import io.machinecode.vial.api.Spread;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -21,90 +14,24 @@ public class OOHashMapTest {
 
     public static Test suite() {
         final TestSuite suite = new TestSuite(OOHashMap.class.getName());
-        suite.addTest(enumStringTestsForOOHashMap());
-        suite.addTest(stringStringTestsForOOHashMap());
-        suite.addTest(longLongTestsForOOHashMap());
-        suite.addTest(longStringTestsForOOHashMap());
+        OOHashMapSuite.createSuite(suite, OOHashMap.class, "NONE", new OOHashMapSuite.CreateMap() {
+            @Override
+            public <K, V> Map<K, V> create() {
+                return new OOHashMap<>(4, 0.75f, Spread.NONE);
+            }
+        });
+        OOHashMapSuite.createSuite(suite, OOHashMap.class, "QUICK", new OOHashMapSuite.CreateMap() {
+            @Override
+            public <K, V> Map<K, V> create() {
+                return new OOHashMap<>(4, 0.75f, Spread.QUICK);
+            }
+        });
+        OOHashMapSuite.createSuite(suite, OOHashMap.class, "MURMUR3", new OOHashMapSuite.CreateMap() {
+            @Override
+            public <K, V> Map<K, V> create() {
+                return new OOHashMap<>(4, 0.75f, Spread.MURMUR3);
+            }
+        });
         return suite;
-    }
-
-    private static Test enumStringTestsForOOHashMap() {
-        return MapTestSuiteBuilder
-                .using(new TestEnumMapGenerator() {
-                    @Override
-                    protected Map<AnEnum, String> create(final Map.Entry<AnEnum, String>[] entries) {
-                        return TestUtil.populate(new OOHashMap<AnEnum, String>(), entries);
-                    }
-                })
-                .named("OOHashMap<AnEnum,String>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_KEYS,
-                        MapFeature.ALLOWS_NULL_VALUES,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
-    }
-
-    private static Test stringStringTestsForOOHashMap() {
-        return MapTestSuiteBuilder
-                .using(new TestStringMapGenerator() {
-                    @Override
-                    protected Map<String, String> create(final Map.Entry<String, String>[] entries) {
-                        return TestUtil.populate(new OOHashMap<String, String>(), entries);
-                    }
-                })
-                .named("OOHashMap<String,String>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_KEYS,
-                        MapFeature.ALLOWS_NULL_VALUES,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
-    }
-
-    private static Test longLongTestsForOOHashMap() {
-        return MapTestSuiteBuilder
-                .using(new LLMapGenerator() {
-                    @Override
-                    protected Map<Long, Long> create(final Map.Entry<Long, Long>[] entries) {
-                        return TestUtil.populate(new OOHashMap<Long, Long>(), entries);
-                    }
-                })
-                .named("OOHashMap<Long,Long>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_KEYS,
-                        MapFeature.ALLOWS_NULL_VALUES,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
-    }
-
-    private static Test longStringTestsForOOHashMap() {
-        return MapTestSuiteBuilder
-                .using(new LOMapGenerator() {
-                    @Override
-                    protected Map<Long, String> create(final Map.Entry<Long, String>[] entries) {
-                        return TestUtil.populate(new OOHashMap<Long, String>(), entries);
-                    }
-                })
-                .named("OOHashMap<Long,String>")
-                .withFeatures(
-                        MapFeature.GENERAL_PURPOSE,
-                        MapFeature.ALLOWS_NULL_KEYS,
-                        MapFeature.ALLOWS_NULL_VALUES,
-                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
-                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
-                        CollectionFeature.SERIALIZABLE,
-                        CollectionSize.ANY)
-                .createTestSuite();
     }
 }

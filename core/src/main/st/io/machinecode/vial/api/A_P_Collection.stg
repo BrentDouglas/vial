@@ -11,19 +11,19 @@ import java.util.Collection;
  */
 public interface $I$Collection extends Collection<$P$> {
 
-    boolean contains(final $p$ v);
+    boolean xcontains(final $p$ v);
 
-    boolean add(final $p$ v);
+    boolean xadd(final $p$ v);
 
-    boolean remove(final $p$ v);
+    boolean xremove(final $p$ v);
 
-    boolean containsAll(final $p$... c);
+    boolean xcontainsAll(final $p$... c);
 
-    boolean addAll(final $p$... c);
+    boolean xaddAll(final $p$... c);
 
-    boolean removeAll(final $p$... c);
+    boolean xremoveAll(final $p$... c);
 
-    boolean retainAll(final $p$... c);
+    boolean xretainAll(final $p$... c);
 
     $I$Cursor cursor();
 }

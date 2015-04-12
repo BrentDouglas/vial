@@ -11,29 +11,29 @@ import java.util.Map;
  */
 public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
 
-    boolean containsKey(final $pk$ key);
+    $pv$ nv();
 
-    boolean containsValue(final $pv$ value);
+    boolean xcontainsKey(final $pk$ key);
 
-    $pv$ get(final $pk$ key);
+    boolean xcontainsValue(final $pv$ value);
 
-    $pv$ getOrDefault(final $pk$ key, final $pv$ defaultValue);
+    $pv$ xget(final $pk$ key);
 
-    $pv$ put(final $pk$ key, final $pv$ value);
+    $pv$ xgetOrDefault(final $pk$ key, final $pv$ defaultValue);
 
-    $pv$ putIfAbsent(final $pk$ key, final $pv$ value);
+    $pv$ xput(final $pk$ key, final $pv$ value);
 
-    void putAll(final $Ik$$Iv$Map m);
+    $pv$ xputIfAbsent(final $pk$ key, final $pv$ value);
 
-    $pv$ remove(final $pk$ key);
+    $pv$ xremove(final $pk$ key);
 
-    boolean remove(final $pk$ key, final $pv$ value);
+    boolean xremove(final $pk$ key, final $pv$ value);
 
-    boolean removeValue(final $pv$ value);
+    boolean xremoveValue(final $pv$ value);
 
-    boolean replace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue);
+    boolean xreplace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue);
 
-    $pv$ replace(final $pk$ key, final $pv$ value);
+    $pv$ xreplace(final $pk$ key, final $pv$ value);
 
     $pk$[] keyArray();
 
