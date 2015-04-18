@@ -251,10 +251,13 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     @Override
     public $p$ xput(final K key, final $p$ value) {
         if (key == null) {
+            final $p$ old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = NO_VALUE;
+            } else {
+                old = this._noValue;
             }
-            final $p$ old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -641,42 +644,8 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public K[] keyArray() {
-        final Object[] ret = new Object[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = null;
-        }
-        for (int di = 0; di < this._keys.length; ++di,++ri) {
-            if (this._keys[di] == null) {
-                continue;
-            }
-            ret[ri] = this._keys[di];
-        }
-        assert ri == ret.length - 1;
-        return cast(ret);
-    }
-
-    @Override
     public Collection<$P$> values() {
         return new ValueCol<>(this);
-    }
-
-    @Override
-    public $p$[] valueArray() {
-        final $p$[] ret = new $p$[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = this._noValue;
-        }
-        for (int di = 0; di < this._keys.length; ++di,++ri) {
-            if (this._keys[di] == null) {
-                continue;
-            }
-            ret[ri] = this._values[di];
-        }
-        assert ri == ret.length - 1;
-        return cast(ret);
     }
 
     @Override

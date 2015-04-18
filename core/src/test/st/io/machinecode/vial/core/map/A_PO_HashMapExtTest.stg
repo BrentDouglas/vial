@@ -11,8 +11,10 @@ import io.machinecode.vial.core.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
@@ -291,14 +293,14 @@ public class $I$OHashMapExtTest extends Assert {
     }
 
     @Test
-    public void testRemoveDefaultKey() {
+    public void testRemoveNullKey() {
         final $I$OMap<$P$> map = create();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(($p$)i, ($p$)i));
         }
         assertEquals(10, map.size());
-        assertFalse(map.remove(_0, _2));
-        assertFalse(map.remove(_0, null));
+        assertFalse(map.remove(null, _2));
+        assertFalse(map.remove(null, null));
         for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(($p$)i));
             assertTrue(map.containsValue(($p$)i));
@@ -701,6 +703,7 @@ public class $I$OHashMapExtTest extends Assert {
     @Test
     public void testGetOrDefault() {
         final $I$OMap<$P$> map = create();
+        assertNull(map.getOrDefault(null, null));
         assertNull(map.getOrDefault(_0, null));
         assertEquals(($P$)_1, map.getOrDefault(_0, _1));
 
@@ -783,6 +786,38 @@ public class $I$OHashMapExtTest extends Assert {
         assertEquals(a, map);
         assertEquals(b, jmap);
         assertEquals(a, b);
+    }
+
+    @Test
+    public void testKeySetRemove() {
+        final $I$OMap<$P$> map = create();
+        assertNull(map.put(_0, _1));
+        assertNull(map.put(_1, _2));
+        assertNull(map.put(_2, _3));
+
+        final Set<$P$> keys = map.keySet();
+        assertFalse(keys.remove(null));
+        assertFalse(keys.remove(new Object()));
+
+        assertTrue(keys.remove(_2));
+        assertFalse(keys.remove(_2));
+
+        assertTrue(keys.remove(_1));
+        assertFalse(keys.remove(_1));
+
+        assertTrue(keys.remove(_0));
+        assertFalse(keys.remove(_0));
+    }
+
+    @Test
+    public void testValuesHashCode() {
+        final $I$OMap<$P$> map = create();
+        assertNull(map.put(_0, null));
+        assertNull(map.put(_1, _2));
+        assertNull(map.put(_2, _3));
+
+        final Collection<$P$> vals = map.values();
+        vals.hashCode(); //Just testing it can handle having null in it
     }
 
     @Test

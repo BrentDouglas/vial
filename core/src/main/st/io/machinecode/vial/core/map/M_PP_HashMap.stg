@@ -271,10 +271,13 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     @Override
     public $p$ xput(final $p$ key, final $p$ value) {
         if (key == NO_KEY) {
+            final $p$ old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = NO_VALUE;
+            } else {
+                old = this._noValue;
             }
-            final $p$ old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -644,42 +647,8 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     }
 
     @Override
-    public $p$[] keyArray() {
-        final $p$[] ret = new $p$[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = NO_KEY;
-        }
-        for (int di = 0; di < this._data.length; di+=2,++ri) {
-            if (this._data[di] == NO_KEY) {
-                continue;
-            }
-            ret[ri] = this._data[di];
-        }
-        assert ri == ret.length - 1;
-        return ret;
-    }
-
-    @Override
     public Collection<$P$> values() {
         return new ValueCol(this);
-    }
-
-    @Override
-    public $p$[] valueArray() {
-        final $p$[] ret = new $p$[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = this._noValue;
-        }
-        for (int di = 0; di < this._data.length; di+=2,++ri) {
-            if (this._data[di] == NO_KEY) {
-                continue;
-            }
-            ret[ri] = this._data[di+1];
-        }
-        assert ri == ret.length - 1;
-        return ret;
     }
 
     @Override

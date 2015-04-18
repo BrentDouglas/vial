@@ -35,10 +35,6 @@ public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
 
     $pv$ xreplace(final $pk$ key, final $pv$ value);
 
-    $pk$[] keyArray();
-
-    $pv$[] valueArray();
-
     $Ik$$Iv$Cursor iterator();
 }
 >>

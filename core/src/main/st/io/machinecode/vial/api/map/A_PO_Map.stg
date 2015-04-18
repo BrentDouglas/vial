@@ -31,10 +31,6 @@ public interface $I$OMap<V> extends Map<$P$,V>, Iterable<$I$OCursor<V$X$ {
 
     V xreplace(final $p$ key, final V value);
 
-    $p$[] keyArray();
-
-    V[] valueArray();
-
     $I$OCursor<V> iterator();
 }
 >>

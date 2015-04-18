@@ -524,42 +524,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     @Override
-    public $p$[] keyArray() {
-        final $p$[] ret = new $p$[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = NO_KEY;
-        }
-        for (int di = 0; di < this._keys.length; ++di,++ri) {
-            if (this._keys[di] == NO_KEY) {
-                continue;
-            }
-            ret[ri] = this._keys[di];
-        }
-        assert ri == ret.length - 1;
-        return ret;
-    }
-
-    @Override
     public Collection<V> values() {
         return new ValueCol<>(this);
-    }
-
-    @Override
-    public V[] valueArray() {
-        final Object[] ret = new Object[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = cast(this._noValue);
-        }
-        for (int di = 0; di < this._keys.length; ++di,++ri) {
-            if (this._keys[di] == NO_KEY) {
-                continue;
-            }
-            ret[ri] = cast(this._values[di]);
-        }
-        assert ri == ret.length - 1;
-        return cast(ret);
     }
 
     @Override

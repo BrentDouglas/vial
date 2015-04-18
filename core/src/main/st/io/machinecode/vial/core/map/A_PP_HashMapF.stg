@@ -270,10 +270,13 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     @Override
     public $pv$ xput(final $pk$ key, final $pv$ value) {
         if (key == NO_KEY) {
+            final $pv$ old;
             if (!this._haveNoValue) {
                 this._size++;
+                old = NO_VALUE;
+            } else {
+                old = this._noValue;
             }
-            final $pv$ old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -643,42 +646,8 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     @Override
-    public $pk$[] keyArray() {
-        final $pk$[] ret = new $pk$[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = NO_KEY;
-        }
-        for (int di = 0; di < this._keys.length; di++,++ri) {
-            if (this._keys[di] == NO_KEY) {
-                continue;
-            }
-            ret[ri] = this._keys[di];
-        }
-        assert ri == ret.length - 1;
-        return ret;
-    }
-
-    @Override
     public Collection<$Pv$> values() {
         return new ValueCol(this);
-    }
-
-    @Override
-    public $pv$[] valueArray() {
-        final $pv$[] ret = new $pv$[_size];
-        int ri = 0;
-        if (this._haveNoValue) {
-            ret[ri++] = this._noValue;
-        }
-        for (int di = 0; di < this._keys.length; di++,++ri) {
-            if (this._keys[di] == NO_KEY) {
-                continue;
-            }
-            ret[ri] = this._values[di];
-        }
-        assert ri == ret.length - 1;
-        return ret;
     }
 
     @Override
