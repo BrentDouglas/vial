@@ -1,60 +1,123 @@
 delimiters "$", "$"
 
-OPHashMapExtTest(I, P, p, hc, X) ::= <<
+OPMapSuite(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.O$I$Cursor;
 import io.machinecode.vial.api.map.O$I$Map;
 import io.machinecode.vial.core.BadHashCode;
 import io.machinecode.vial.core.TestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import io.machinecode.vial.core.VialSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class O$I$HashMapExtTest extends Assert {
-    
+public class O$I$MapSuite extends VialSuite {
+
+    public interface CreateMap {
+
+        <K> O$I$Map<K> make();
+
+        <K> O$I$Map<K> create();
+
+        <K> O$I$Map<K> create(final int cap);
+
+        <K> O$I$Map<K> create(final float factor);
+
+        <K> O$I$Map<K> create(final int cap, final float factor);
+
+        <K> O$I$Map<K> create(final int cap, final float factor, final Spread spread);
+
+        <K> O$I$Map<K> create(final Map<K, $P$> map);
+    }
+
+    public static void createSuite(final TestSuite suite, final Class<?> clazz, final String name, final CreateMap create) {
+        suite.addTest(longTestsForO$I$Map(clazz, name, create));
+        suite.addTest(stringTestsForO$I$Map(clazz, name, create));
+
+        for (final Method method : O$I$MapSuite.class.getDeclaredMethods()) {
+            if (method.getName().startsWith("test") && method.getReturnType().equals(void.class)) {
+                suite.addTest(new O$I$MapSuite(method.getName(), name, create));
+            }
+        }
+    }
+
+    private static Test longTestsForO$I$Map(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new L$I$MapGenerator() {
+                    @Override
+                    protected Map<Long, $P$> create(final Map.Entry<Long,$P$>[] entries) {
+                        return TestUtil.populate(create.<Long>make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "<Long>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    private static Test stringTestsForO$I$Map(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new O$I$MapGenerator() {
+                    @Override
+                    protected Map<String, $P$> create(final Map.Entry<String,$P$>[] entries) {
+                        return TestUtil.populate(create.<String>make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "<String>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
     static final $p$ _0 = ($p$)0;
     static final $p$ _1 = ($p$)1;
     static final $p$ _2 = ($p$)2;
     static final $p$ _3 = ($p$)3;
 
-    protected <K> O$I$Map<K> create(final float factor) {
-        return new O$I$HashMap<>(factor);
-    }
+    final CreateMap create;
 
-    protected <K> O$I$Map<K> create() {
-        return new O$I$HashMap<>();
+    public O$I$MapSuite(final String method, final String spreadName, final CreateMap create) {
+        super(method, spreadName);
+        this.create = create;
     }
 
     private <K> O$I$Map<K> vmap(final K k, final $p$ v) {
-        final O$I$Map<K> map = create();
+        final O$I$Map<K> map = create.make();
         map.put(k, v);
         return map;
     }
 
-    private <K,V> HashMap<K,V> jmap(final K k, final V v) {
-        final HashMap<K,V> map = new HashMap<>();
-        map.put(k, v);
-        return map;
-    }
-
-    @Test
     public void testConstructors() {
-        doTestConstructors();
-    }
-
-    protected void doTestConstructors() {
-        final O$I$HashMap<$P$> a = new O$I$HashMap<>(4);
-        final O$I$HashMap<$P$> b = new O$I$HashMap<>(0.5f);
-        final O$I$HashMap<$P$> c = new O$I$HashMap<>(4, 0.5f);
-        final O$I$HashMap<$P$> d = new O$I$HashMap<>(4, 0.5f, Spread.MURMUR3);
+        final O$I$Map<$P$> a = create.create(4);
+        final O$I$Map<$P$> b = create.create(0.5f);
+        final O$I$Map<$P$> c = create.create(4, 0.5f);
+        final O$I$Map<$P$> d = create.create(4, 0.5f, Spreads.MURMUR3);
         assertEquals(a, b);
         assertEquals(a, c);
         assertEquals(a, d);
@@ -69,7 +132,7 @@ public class O$I$HashMapExtTest extends Assert {
         a.xput(_2, _3);
         assertEquals(2, a.size());
 
-        final O$I$HashMap<$P$> e = new O$I$HashMap<>(a);
+        final O$I$Map<$P$> e = create.create(a);
         assertEquals(a, e);
         assertEquals(2, e.size());
         assertTrue(e.containsKey(_1));
@@ -77,7 +140,7 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(e.xcontainsValue(_2));
         assertTrue(e.xcontainsValue(_3));
 
-        final O$I$HashMap<$P$> f = new O$I$HashMap<>(new HashMap<$P$,$P$>(){{
+        final O$I$Map<$P$> f = create.create(new HashMap<$P$,$P$>(){{
             put(_1, _2);
             put(_2, _3);
         }});
@@ -87,11 +150,12 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(f.containsKey(_2));
         assertTrue(f.xcontainsValue(_2));
         assertTrue(f.xcontainsValue(_3));
+
+        final O$I$Map<$P$> g = create.create(); //TODO
     }
 
-    @Test
     public void testXNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -115,9 +179,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(_2, map.xget(null));
     }
 
-    @Test
     public void testNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(null, map.put(null, _1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -138,9 +201,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(($P$)_2, map.get(null));
     }
 
-    @Test
     public void testXNullKeyAndNoValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -164,9 +226,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(_2, map.xget(null));
     }
 
-    @Test
     public void testNullKeyAndValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(null, map.put(null, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -187,9 +248,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(($P$)_2, map.get(null));
     }
 
-    @Test
     public void testNullValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(_1));
@@ -208,9 +268,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(map.nv(), map.xget(_1));
     }
 
-    @Test
     public void testValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(_1, _2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(_1));
@@ -229,9 +288,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(($P$)_3, map.get(_1));
     }
 
-    @Test
     public void testXPutWithRehash() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
         }
@@ -243,9 +301,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testXPutIfAbsentWithRehash() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xputIfAbsent(($P$)($p$)i, ($p$)i));
         }
@@ -257,9 +314,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testPutWithRehash() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(($p$)i, ($p$)i));
         }
@@ -271,9 +327,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testPutIfAbsentWithRehash() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.putIfAbsent(($P$)($p$)i, ($p$)i));
         }
@@ -285,9 +340,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testPutIfAbsentBadHashCode() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
         final BadHashCode[] arr = new BadHashCode[10];
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xputIfAbsent(arr[i] = new BadHashCode(4), ($p$)i));
@@ -301,9 +355,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testContainsValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertFalse(map.xcontainsValue(_0));
         assertFalse(map.xcontainsValue(_1));
         assertFalse(map.xcontainsValue(_2));
@@ -334,9 +387,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(2, map.size());
     }
 
-    @Test
     public void testClear() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
         }
@@ -353,9 +405,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
         }
@@ -373,9 +424,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveKeyNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(null, map.put(null, _1));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(_1));
@@ -387,9 +437,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveKeyNullKeyAndValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(null, map.put(null, map.nv()));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(map.nv()));
@@ -401,9 +450,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveDefaultKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
         }
@@ -424,9 +472,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveDefaultKeyNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertNull(map.put(null, _1));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(_1));
@@ -443,9 +490,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveKeyDefaultNullKeyAndValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertNull(map.put(null, map.nv()));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(map.nv()));
@@ -461,9 +507,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
         }
@@ -490,9 +535,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValueNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(_1));
@@ -510,9 +554,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValueNullKeyAndValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, map.nv()));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(map.nv()));
@@ -529,9 +572,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testXReplaceNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -581,9 +623,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.containsValue(_3));
     }
 
-    @Test
     public void testReplaceNullKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -595,7 +636,7 @@ public class O$I$HashMapExtTest extends Assert {
 
         assertFalse(map.replace(null, map.nv(), _3));
         assertEquals(($P$)_1, map.get(null));
-        
+
         assertEquals(($P$)_1, map.replace(null, _2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -633,9 +674,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.containsValue(_3));
     }
 
-    @Test
     public void testXReplaceNullKeyAndValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -684,9 +724,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(map.containsValue(_2));
     }
 
-    @Test
     public void testReplaceNullKeyAndValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -735,9 +774,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(map.containsValue(_2));
     }
 
-    @Test
     public void testXReplaceNullValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(_1));
@@ -788,9 +826,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.containsValue(_1));
     }
 
-    @Test
     public void testReplaceNullValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(_1));
@@ -841,9 +878,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.containsValue(_1));
     }
 
-    @Test
     public void testXReplaceValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(_1, _2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(_1));
@@ -885,9 +921,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(map.containsValue(_3));
     }
 
-    @Test
     public void testReplaceValue() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(_1, _2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(_1));
@@ -929,9 +964,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(map.containsValue(_3));
     }
 
-    @Test
     public void testXReplaceNoKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xreplace(_1, _1));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(_1));
@@ -961,9 +995,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertNull(map.get(_1));
     }
 
-    @Test
     public void testReplaceNoKey() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertNull(map.replace(_1, _1));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(_1));
@@ -993,9 +1026,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertNull(map.get(_1));
     }
 
-    @Test
     public void testXReplaceBadHashCode() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
         final BadHashCode key = new BadHashCode(4);
 
         assertEquals(map.nv(), map.xput(new BadHashCode(4), ($p$)123));
@@ -1040,9 +1072,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(map.containsValue(_3));
     }
 
-    @Test
     public void testReplaceBadHashCode() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
         final BadHashCode key = new BadHashCode(4);
 
         assertEquals(map.nv(), map.xput(new BadHashCode(4), ($p$)123));
@@ -1087,9 +1118,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertTrue(map.containsValue(_3));
     }
 
-    @Test
     public void testXRemove() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
 
         assertFalse(map.xremove(null, _0));
         assertFalse(map.xremove(_1, _0));
@@ -1107,9 +1137,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveBadHashCode() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
         final BadHashCode key = new BadHashCode(4);
 
         assertEquals(map.nv(), map.xput(new BadHashCode(4), _0));
@@ -1129,9 +1158,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.containsKey(key));
     }
 
-    @Test
     public void testGetOrDefault() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(($P$)map.nv(), map.getOrDefault(null, map.nv()));
         assertEquals(($P$)_1, map.getOrDefault(null, _1));
 
@@ -1154,9 +1182,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(($P$)map.nv(), map.getOrDefault(_2, _3));
     }
 
-    @Test
     public void testGetOrDefaultBadHashCode() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
 
         assertEquals(($P$)map.nv(), map.getOrDefault(null, map.nv()));
         assertEquals(($P$)_1, map.getOrDefault(null, _1));
@@ -1182,9 +1209,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(($P$)map.nv(), map.getOrDefault(arr[2], _3));
     }
 
-    @Test
     public void testXGetOrDefault() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xgetOrDefault(null, map.nv()));
         assertEquals(_1, map.xgetOrDefault(null, _1));
 
@@ -1207,9 +1233,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(map.nv(), map.xgetOrDefault(_2, _3));
     }
 
-    @Test
     public void testXGetOrDefaultBadHashCode() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
 
         assertEquals(map.nv(), map.xgetOrDefault(null, map.nv()));
         assertEquals(_1, map.xgetOrDefault(null, _1));
@@ -1235,9 +1260,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(map.nv(), map.xgetOrDefault(arr[2], _3));
     }
 
-    @Test
     public void testPutAll() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertNull(map.put(null, _1));
         assertNull(map.put(_1, _2));
         assertNull(map.put(_2, _3));
@@ -1255,10 +1279,10 @@ public class O$I$HashMapExtTest extends Assert {
             assertNull(put(_2, _3));
         }};
 
-        final O$I$Map<$P$> a = create();
+        final O$I$Map<$P$> a = create.make();
         a.putAll(map);
 
-        final O$I$Map<$P$> b = create();
+        final O$I$Map<$P$> b = create.make();
         b.putAll(jmap);
 
         assertEquals(map, jmap);
@@ -1267,9 +1291,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertEquals(a, b);
     }
 
-    @Test
     public void testToArray() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
         assertEquals(map.nv(), map.xput(_1, _2));
         assertEquals(map.nv(), map.xput(_2, _3));
@@ -1302,9 +1325,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testToArrayT() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
         assertEquals(map.nv(), map.xput(_1, _2));
         assertEquals(map.nv(), map.xput(_2, _3));
@@ -1337,9 +1359,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testCursor() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
 
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($p$)i, ($p$)i));
@@ -1374,9 +1395,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(c.equals(new Object()));
     }
 
-    @Test
     public void testCursorEquals() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, map.nv()));
         assertTrue(map.iterator().next().equals(new Cur(null, _0)));
         assertFalse(map.iterator().next().equals(new Cur(null, _1)));
@@ -1422,9 +1442,8 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.iterator().next().equals(new Cur(_2, _2)));
     }
 
-    @Test
     public void testCursorRemove() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
         final BadHashCode[] arr = new BadHashCode[10];
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(arr[i] = new BadHashCode(4), ($p$)i));
@@ -1449,9 +1468,8 @@ public class O$I$HashMapExtTest extends Assert {
      * 55xxx555
      *      ^ remove this one
      */
-    @Test
     public void testCursorRemoveCopyWrap() {
-        final O$I$Map<BadHashCode> map = create();
+        final O$I$Map<BadHashCode> map = create.make();
         for (int i = 0; i < 5; ++i) {
             assertEquals(map.nv(), map.xput(new BadHashCode(5), ($p$)i));
         }
@@ -1464,9 +1482,8 @@ public class O$I$HashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testEntrySetContains() {
-        final O$I$Map<$P$> map = create();
+        final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, map.nv()));
         assertFalse(map.entrySet().contains(new En<>(map, _1, _1)));
         assertFalse(map.entrySet().contains(new En<>(map, _1, null)));
@@ -1501,7 +1518,6 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.entrySet().contains(new En<>(map, _2, _1)));
     }
 
-    @Test
     public void testEqualsNullKey() {
         final O$I$Map<$P$> map = vmap(null, _1);
         assertFalse(map.equals(jmap(null, null)));
@@ -1514,7 +1530,6 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.equals(jmap(_2,_2)));
     }
 
-    @Test
     public void testEqualsNullValue() {
         final O$I$Map<$P$> map = vmap(_1, _0);
         assertFalse(map.equals(jmap(null, null)));
@@ -1528,7 +1543,6 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.equals(jmap(_2,_2)));
     }
 
-    @Test
     public void testEqualsNullKeyValue() {
         final O$I$Map<$P$> map = vmap(null, _0);
         assertFalse(map.equals(jmap(null, null)));
@@ -1542,7 +1556,6 @@ public class O$I$HashMapExtTest extends Assert {
         assertFalse(map.equals(jmap(_2,_2)));
     }
 
-    @Test
     public void testEqualsKeyValue() {
         final O$I$Map<$P$> map = vmap(_1, _1);
         assertFalse(map.equals(jmap(null, null)));
@@ -1597,4 +1610,5 @@ public class O$I$HashMapExtTest extends Assert {
         public void remove() {}
     }
 }
+
 >>

@@ -1,31 +1,89 @@
 package io.machinecode.vial.core.set;
 
+import com.google.common.collect.testing.MinimalCollection;
+import com.google.common.collect.testing.SetTestSuiteBuilder;
+import com.google.common.collect.testing.TestStringSetGenerator;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.SetFeature;
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.set.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.BadHashCode;
 import io.machinecode.vial.core.TestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import io.machinecode.vial.core.VialSuite;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OHashSetExtTest extends Assert {
+public class OSetSuite extends VialSuite {
 
-    protected <V> OSet<V> create() {
-        return new OHashSet<>();
+    public interface CreateSet {
+
+        <K> OSet<K> make();
+
+        <K> OSet<K> create();
+
+        <K> OSet<K> create(final int cap);
+
+        <K> OSet<K> create(final float factor);
+
+        <K> OSet<K> create(final int cap, final float factor);
+
+        <K> OSet<K> create(final int cap, final float factor, final Spread spread);
+
+        <K> OSet<K> create(final K[] set);
+
+        <K> OSet<K> create(final Collection<K> set);
     }
 
-    @Test
+    public static void createSuite(final TestSuite suite, final Class<?> clazz, final String name, final CreateSet create) {
+        suite.addTest(testsForOSet(clazz, name, create));
+        for (final Method method : OSetSuite.class.getDeclaredMethods()) {
+            if (method.getName().startsWith("test") && method.getReturnType().equals(void.class)) {
+                suite.addTest(new OSetSuite(method.getName(), name, create));
+            }
+        }
+    }
+
+    private static Test testsForOSet(final Class<?> clazz, final String name, final CreateSet create) {
+        return SetTestSuiteBuilder
+                .using(new TestStringSetGenerator() {
+                    @Override
+                    public Set<String> create(final String[] elements) {
+                        return TestUtil.populate(create.<String>make(), MinimalCollection.of(elements));
+                    }
+                })
+                .named(clazz.getSimpleName() + "[" + name + "]")
+                .withFeatures(
+                        SetFeature.GENERAL_PURPOSE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionFeature.ALLOWS_NULL_VALUES,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+    
+    final CreateSet create;
+
+    public OSetSuite(final String method, final String spreadName, final CreateSet create) {
+        super(method, spreadName);
+        this.create = create;
+    }
+
     public void testConstructors() {
-        final OHashSet<Long> a = new OHashSet<>(4);
-        final OHashSet<Long> b = new OHashSet<>(0.5f);
-        final OHashSet<Long> c = new OHashSet<>(4, 0.5f);
-        final OHashSet<Long> d = new OHashSet<>(4, 0.5f, Spread.MURMUR3);
+        final OSet<Long> a = create.create(4);
+        final OSet<Long> b = create.create(0.5f);
+        final OSet<Long> c = create.create(4, 0.5f);
+        final OSet<Long> d = create.create(4, 0.5f, Spreads.MURMUR3);
         assertEquals(a, b);
         assertEquals(a, c);
         assertEquals(a, d);
@@ -40,19 +98,19 @@ public class OHashSetExtTest extends Assert {
         a.add(2L);
         assertEquals(2, a.size());
 
-        final OHashSet<Long> e = new OHashSet<>(a);
+        final OSet<Long> e = create.create(a);
         assertEquals(a, e);
         assertEquals(2, e.size());
         assertTrue(e.contains(1L));
         assertTrue(e.contains(2L));
 
-        final OHashSet<Long> f = new OHashSet<>(new Long[]{2L, 1L});
+        final OSet<Long> f = create.create(new Long[]{2L, 1L});
         assertEquals(a, f);
         assertEquals(2, f.size());
         assertTrue(f.contains(1L));
         assertTrue(f.contains(2L));
 
-        final OHashSet<Long> g = new OHashSet<>(new HashSet<Long>(){{
+        final OSet<Long> g = create.create(new HashSet<Long>(){{
             add(1L);
             add(2L);
         }});
@@ -62,9 +120,8 @@ public class OHashSetExtTest extends Assert {
         assertTrue(g.contains(2L));
     }
 
-    @Test
     public void testNull() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertEquals(1, set.size());
         assertTrue(set.contains(null));
@@ -74,9 +131,8 @@ public class OHashSetExtTest extends Assert {
         assertFalse(set.contains(null));
     }
 
-    @Test
     public void testValue() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(1L));
         assertEquals(1, set.size());
         assertTrue(set.contains(1L));
@@ -86,9 +142,8 @@ public class OHashSetExtTest extends Assert {
         assertFalse(set.contains(1L));
     }
 
-    @Test
     public void testAddWithRehash() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         for (long i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
@@ -98,9 +153,8 @@ public class OHashSetExtTest extends Assert {
         }
     }
 
-    @Test
     public void testClear() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         for (long i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
@@ -115,9 +169,8 @@ public class OHashSetExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveValue() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         for (long i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
@@ -134,9 +187,8 @@ public class OHashSetExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveBadHashCode() {
-        final OSet<BadHashCode> set = create();
+        final OSet<BadHashCode> set = create.create();
         final BadHashCode[] arr = new BadHashCode[10];
         for (int i = 0; i < 10; ++i) {
             assertTrue(set.add(arr[i] = new BadHashCode(4)));
@@ -162,9 +214,8 @@ public class OHashSetExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveNull() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.contains(null));
         assertEquals(1, set.size());
@@ -174,9 +225,8 @@ public class OHashSetExtTest extends Assert {
         assertEquals(0, set.size());
     }
 
-    @Test
     public void testRetainAllNull() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.add(1L));
         assertTrue(set.add(2L));
@@ -203,9 +253,8 @@ public class OHashSetExtTest extends Assert {
         } catch (final NullPointerException e) {}
     }
 
-    @Test
     public void testRetainAllValue() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.add(1L));
         assertTrue(set.add(2L));
@@ -227,9 +276,8 @@ public class OHashSetExtTest extends Assert {
         assertEquals(1, set.size());
     }
 
-    @Test
     public void testRemoveAll() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.add(1L));
         assertTrue(set.add(2L));
@@ -255,9 +303,8 @@ public class OHashSetExtTest extends Assert {
         assertEquals(1, set.size());
     }
 
-    @Test
     public void testContainsAll() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.add(1L));
         assertTrue(set.add(2L));
@@ -289,9 +336,8 @@ public class OHashSetExtTest extends Assert {
         assertFalse(set.containsAll(4L));
     }
 
-    @Test
     public void testCursor() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
 
         for (long i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
@@ -317,9 +363,8 @@ public class OHashSetExtTest extends Assert {
         assertEquals(10, i);
     }
 
-    @Test
     public void testToArray() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.add(1L));
         assertTrue(set.add(2L));
@@ -338,9 +383,8 @@ public class OHashSetExtTest extends Assert {
         assertEquals(4, array.length);
     }
 
-    @Test
     public void testToArrayT() {
-        final OSet<Long> set = create();
+        final OSet<Long> set = create.create();
         assertTrue(set.add(null));
         assertTrue(set.add(1L));
         assertTrue(set.add(2L));
@@ -368,9 +412,8 @@ public class OHashSetExtTest extends Assert {
      * 55xxx555
      *      ^ remove this one
      */
-    @Test
     public void testCursorRemoveCopy() {
-        final OSet<BadHashCode> set = create();
+        final OSet<BadHashCode> set = create.create();
         for (int i = 0; i < 5; ++i) {
             assertTrue(set.add(new BadHashCode(5)));
         }

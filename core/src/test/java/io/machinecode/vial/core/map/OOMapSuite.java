@@ -1,13 +1,23 @@
 package io.machinecode.vial.core.map;
 
+import com.google.common.collect.testing.AnEnum;
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.TestEnumMapGenerator;
+import com.google.common.collect.testing.TestStringMapGenerator;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.OOCursor;
 import io.machinecode.vial.api.map.OOMap;
 import io.machinecode.vial.core.BadHashCode;
 import io.machinecode.vial.core.TestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import io.machinecode.vial.core.VialSuite;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -16,38 +26,136 @@ import java.util.Map;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OOHashMapExtTest extends Assert {
+public class OOMapSuite extends VialSuite {
 
-    protected <K,V> OOMap<K,V> create(final float factor) {
-        return new OOHashMap<>(factor);
+    public interface CreateMap {
+
+        <K, V> OOMap<K, V> make();
+
+        <K, V> OOMap<K, V> create();
+
+        <K, V> OOMap<K, V> create(final int cap);
+
+        <K, V> OOMap<K, V> create(final float factor);
+
+        <K, V> OOMap<K, V> create(final int cap, final float factor);
+
+        <K, V> OOMap<K, V> create(final int cap, final float factor, final Spread spread);
+
+        <K, V> OOMap<K, V> create(final Map<K,V> map);
     }
 
-    protected <K,V> OOMap<K,V> create() {
-        return new OOHashMap<>();
+    public static void createSuite(final TestSuite suite, final Class<?> clazz, final String name, final CreateMap create) {
+        suite.addTest(enumStringTestsForOOMap(clazz, name, create));
+        suite.addTest(stringStringTestsForOOMap(clazz, name, create));
+        suite.addTest(longLongTestsForOOMap(clazz, name, create));
+        suite.addTest(longStringTestsForOOMap(clazz, name, create));
+
+        for (final Method method : OOMapSuite.class.getDeclaredMethods()) {
+            if (method.getName().startsWith("test") && method.getReturnType().equals(void.class)) {
+                suite.addTest(new OOMapSuite(method.getName(), name, create));
+            }
+        }
+    }
+
+    private static Test enumStringTestsForOOMap(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new TestEnumMapGenerator() {
+                    @Override
+                    protected Map<AnEnum, String> create(final Map.Entry<AnEnum, String>[] entries) {
+                        return TestUtil.populate(create.<AnEnum, String>make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "<AnEnum,String>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_NULL_VALUES,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    private static Test stringStringTestsForOOMap(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new TestStringMapGenerator() {
+                    @Override
+                    protected Map<String, String> create(final Map.Entry<String, String>[] entries) {
+                        return TestUtil.populate(create.<String, String>make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "<String,String>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_NULL_VALUES,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    private static Test longLongTestsForOOMap(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new LLMapGenerator() {
+                    @Override
+                    protected Map<Long, Long> create(final Map.Entry<Long, Long>[] entries) {
+                        return TestUtil.populate(create.<Long, Long>make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "<Long,Long>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_NULL_VALUES,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    private static Test longStringTestsForOOMap(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new LOMapGenerator() {
+                    @Override
+                    protected Map<Long, String> create(final Map.Entry<Long, String>[] entries) {
+                        return TestUtil.populate(create.<Long, String>make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "<Long,String>[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_NULL_KEYS,
+                        MapFeature.ALLOWS_NULL_VALUES,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
+
+    final CreateMap create;
+
+    public OOMapSuite(final String method, final String spreadName, final CreateMap create) {
+        super(method, spreadName);
+        this.create = create;
     }
 
     private <K,V> OOMap<K,V> vmap(final K k, final V v) {
-        final OOMap<K,V> map = create();
+        final OOMap<K,V> map = create.make();
         map.put(k, v);
         return map;
     }
 
-    private <K,V> HashMap<K,V> jmap(final K k, final V v) {
-        final HashMap<K,V> map = new HashMap<>();
-        map.put(k, v);
-        return map;
-    }
-
-    @Test
     public void testConstructors() {
-        doTestConstructors();
-    }
-
-    protected void doTestConstructors() {
-        final OOHashMap<Integer, Integer> a = new OOHashMap<>(4);
-        final OOHashMap<Integer, Integer> b = new OOHashMap<>(0.5f);
-        final OOHashMap<Integer, Integer> c = new OOHashMap<>(4, 0.5f);
-        final OOHashMap<Integer, Integer> d = new OOHashMap<>(4, 0.5f, Spread.MURMUR3);
+        final OOMap<Integer, Integer> a = create.create(4);
+        final OOMap<Integer, Integer> b = create.create(0.5f);
+        final OOMap<Integer, Integer> c = create.create(4, 0.5f);
+        final OOMap<Integer, Integer> d = create.create(4, 0.5f, Spreads.MURMUR3);
         assertEquals(a, b);
         assertEquals(a, c);
         assertEquals(a, d);
@@ -61,7 +169,7 @@ public class OOHashMapExtTest extends Assert {
         a.put(1, 2);
         a.put(2, 3);
         assertEquals(2, a.size());
-        final OOHashMap<Integer, Integer> e = new OOHashMap<>(a);
+        final OOMap<Integer, Integer> e = create.create(a);
         assertEquals(a, e);
         assertEquals(2, e.size());
         assertTrue(e.containsKey(1));
@@ -69,7 +177,7 @@ public class OOHashMapExtTest extends Assert {
         assertTrue(e.containsValue(2));
         assertTrue(e.containsValue(3));
 
-        final OOHashMap<Integer, Integer> f = new OOHashMap<>(new HashMap<Integer,Integer>(){{
+        final OOMap<Integer, Integer> f = create.create(new HashMap<Integer,Integer>(){{
             put(1, 2);
             put(2, 3);
         }});
@@ -79,11 +187,12 @@ public class OOHashMapExtTest extends Assert {
         assertTrue(f.containsKey(2));
         assertTrue(f.containsValue(2));
         assertTrue(f.containsValue(3));
+
+        final OOMap<Integer, Integer> g = create.create(); //TODO
     }
 
-    @Test
     public void testNullKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -104,9 +213,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(new Integer(2), map.get(null));
     }
 
-    @Test
     public void testNullKeyAndValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -127,9 +235,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(new Integer(2), map.get(null));
     }
 
-    @Test
     public void testNullValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(1, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(1));
@@ -148,9 +255,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(null, map.get(1));
     }
 
-    @Test
     public void testValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(1, 2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(1));
@@ -169,9 +275,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(new Integer(3), map.get(1));
     }
 
-    @Test
     public void testPutWithRehash() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
@@ -183,9 +288,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testPutIfAbsentWithRehash() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.putIfAbsent(i, i));
         }
@@ -197,9 +301,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testPutIfAbsentBadHashCode() {
-        final OOMap<BadHashCode,Integer> map = create();
+        final OOMap<BadHashCode,Integer> map = create.make();
         final BadHashCode[] arr = new BadHashCode[10];
         for (int i = 0; i < 10; ++i) {
             assertNull(map.putIfAbsent(arr[i] = new BadHashCode(4), i));
@@ -213,9 +316,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testClear() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
@@ -232,9 +334,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
@@ -252,9 +353,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveKeyNullKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(1));
@@ -266,9 +366,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveKeyNullKeyAndValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
@@ -280,9 +379,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveDefaultKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
@@ -303,9 +401,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveDefaultKeyNullKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(1));
@@ -322,9 +419,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveKeyDefaultNullKeyAndValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
@@ -340,9 +436,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
         }
@@ -370,9 +465,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValueNullKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(1));
@@ -390,9 +484,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValueNullKeyAndValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertTrue(map.containsKey(null));
         assertTrue(map.containsValue(null));
@@ -407,9 +500,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testReplaceNullKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -459,9 +551,8 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.containsValue(3));
     }
 
-    @Test
     public void testReplaceNullKeyAndValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(null));
@@ -510,9 +601,8 @@ public class OOHashMapExtTest extends Assert {
         assertTrue(map.containsValue(2));
     }
 
-    @Test
     public void testReplaceNullValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(1, null));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(1));
@@ -563,9 +653,8 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.containsValue(1));
     }
 
-    @Test
     public void testReplaceValue() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(1, 2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(1));
@@ -607,9 +696,8 @@ public class OOHashMapExtTest extends Assert {
         assertTrue(map.containsValue(3));
     }
 
-    @Test
     public void testReplaceNoKey() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.replace(1, 1));
         assertEquals(0, map.size());
         assertFalse(map.containsKey(1));
@@ -639,9 +727,8 @@ public class OOHashMapExtTest extends Assert {
         assertNull(map.get(1));
     }
 
-    @Test
     public void testReplaceBadHashCode() {
-        final OOMap<BadHashCode,Integer> map = create();
+        final OOMap<BadHashCode,Integer> map = create.make();
         final BadHashCode key = new BadHashCode(4);
 
         assertNull(map.put(new BadHashCode(4), 123));
@@ -686,9 +773,8 @@ public class OOHashMapExtTest extends Assert {
         assertTrue(map.containsValue(3));
     }
 
-    @Test
     public void testGetOrDefault() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.getOrDefault(null, null));
         assertEquals(new Integer(1), map.getOrDefault(null, 1));
 
@@ -711,9 +797,8 @@ public class OOHashMapExtTest extends Assert {
         assertNull(map.getOrDefault(2, 3));
     }
 
-    @Test
     public void testGetOrDefaultBadHashCode() {
-        final OOMap<BadHashCode,Integer> map = create();
+        final OOMap<BadHashCode,Integer> map = create.make();
 
         assertNull(map.getOrDefault(null, null));
         assertEquals(new Integer(1), map.getOrDefault(null, 1));
@@ -739,9 +824,8 @@ public class OOHashMapExtTest extends Assert {
         assertNull(map.getOrDefault(arr[2], 3));
     }
 
-    @Test
     public void testPutAll() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertNull(map.put(1, 2));
         assertNull(map.put(2, 3));
@@ -763,10 +847,10 @@ public class OOHashMapExtTest extends Assert {
             assertNull(put(3, null));
         }};
 
-        final OOMap<Integer,Integer> a = create();
+        final OOMap<Integer,Integer> a = create.make();
         a.putAll(map);
 
-        final OOMap<Integer,Integer> b = create();
+        final OOMap<Integer,Integer> b = create.make();
         b.putAll(jmap);
 
         assertEquals(map, jmap);
@@ -775,9 +859,8 @@ public class OOHashMapExtTest extends Assert {
         assertEquals(a, b);
     }
 
-    @Test
     public void testToArray() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertNull(map.put(1, 2));
         assertNull(map.put(2, 3));
@@ -810,9 +893,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testToArrayT() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, 1));
         assertNull(map.put(1, 2));
         assertNull(map.put(2, 3));
@@ -845,9 +927,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testCursor() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
 
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, i));
@@ -882,9 +963,8 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(c.equals(new Object()));
     }
 
-    @Test
     public void testCursorEquals() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertTrue(map.iterator().next().equals(new Cur(null, null)));
         assertFalse(map.iterator().next().equals(new Cur(null, 1)));
@@ -930,9 +1010,8 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.iterator().next().equals(new Cur(2, 2)));
     }
 
-    @Test
     public void testCursorRemove() {
-        final OOMap<BadHashCode,Integer> map = create();
+        final OOMap<BadHashCode,Integer> map = create.make();
         final BadHashCode[] arr = new BadHashCode[10];
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(arr[i] = new BadHashCode(4), i));
@@ -957,9 +1036,8 @@ public class OOHashMapExtTest extends Assert {
      * 55xxx555
      *      ^ remove this one
      */
-    @Test
     public void testCursorRemoveCopyWrap() {
-        final OOMap<BadHashCode,Integer> map = create();
+        final OOMap<BadHashCode,Integer> map = create.make();
         for (int i = 0; i < 5; ++i) {
             assertNull(map.put(new BadHashCode(5), i));
         }
@@ -972,9 +1050,8 @@ public class OOHashMapExtTest extends Assert {
         }
     }
 
-    @Test
     public void testEntrySetContains() {
-        final OOMap<Integer,Integer> map = create();
+        final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));
         assertFalse(map.entrySet().contains(new En<>(map, 1, 1)));
         assertFalse(map.entrySet().contains(new En<>(map, 1, null)));
@@ -1007,7 +1084,6 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.entrySet().contains(new En<>(map, 2, 1)));
     }
 
-    @Test
     public void testEqualsNullKey() {
         final OOMap<Integer,Integer> map = vmap(null, 1);
         assertFalse(map.equals(jmap(null, null)));
@@ -1018,7 +1094,6 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.equals(jmap(2,2)));
     }
 
-    @Test
     public void testEqualsNullValue() {
         final OOMap<Integer,Integer> map = vmap(1, null);
         assertFalse(map.equals(jmap(null, null)));
@@ -1029,7 +1104,6 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.equals(jmap(2,2)));
     }
 
-    @Test
     public void testEqualsNullKeyValue() {
         final OOMap<Integer,Integer> map = vmap(null, null);
         assertTrue(map.equals(jmap(null, null)));
@@ -1040,7 +1114,6 @@ public class OOHashMapExtTest extends Assert {
         assertFalse(map.equals(jmap(2,2)));
     }
 
-    @Test
     public void testEqualsKeyValue() {
         final OOMap<Integer,Integer> map = vmap(1, 1);
         assertFalse(map.equals(jmap(null, null)));

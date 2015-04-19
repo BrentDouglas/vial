@@ -1,6 +1,7 @@
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.OOCursor;
 import io.machinecode.vial.api.map.OOMap;
 import io.machinecode.vial.core.Hash;
@@ -35,15 +36,15 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     private int _mask;
 
     public OOHashMapF() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public OOHashMapF(final int capacity) {
-        this(capacity, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(capacity, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public OOHashMapF(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spread.QUICK);
+        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
     }
 
     public OOHashMapF(final Map<? extends K, ? extends V> m) {
@@ -61,7 +62,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
             System.arraycopy(x._values, 0, this._values, 0, x._values.length);
         } else {
-            this._spread = Spread.QUICK;
+            this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
             final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
             this._size = 0;
@@ -75,7 +76,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     public OOHashMapF(final int capacity, final float factor) {
-        this(capacity, factor, Spread.QUICK);
+        this(capacity, factor, Spreads.QUICK);
     }
 
     public OOHashMapF(final int _capacity, final float factor, final Spread spread) {
@@ -548,8 +549,10 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 this._keys[index] = key;
                 this._values[index] = value;
                 return;
+            } else if (k.equals(key)) {
+                this._values[index] = value;
+                return;
             }
-            assert !k.equals(key);
             index = (index + 1) & this._mask;
         }
     }

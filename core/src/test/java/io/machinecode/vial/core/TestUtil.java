@@ -1,5 +1,6 @@
 package io.machinecode.vial.core;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,14 @@ public class TestUtil {
 
     @SuppressWarnings("unchecked")
     public static <V, S extends Set<V>> S populate(final S set, Object[] entries) {
+        for (final Object entry : entries) {
+            set.add((V) entry);
+        }
+        return set;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <V, S extends Set<V>> S populate(final S set, Collection<?> entries) {
         for (final Object entry : entries) {
             set.add((V)entry);
         }

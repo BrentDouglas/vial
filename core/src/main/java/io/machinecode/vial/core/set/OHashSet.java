@@ -1,6 +1,7 @@
 package io.machinecode.vial.core.set;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.set.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.Hash;
@@ -32,15 +33,15 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     private int _mask;
 
     public OHashSet() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public OHashSet(final int capacity) {
-        this(capacity, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(capacity, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public OHashSet(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spread.QUICK);
+        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
     }
 
     public OHashSet(final Collection<? extends V> c) {
@@ -55,7 +56,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
             this._keys = new Object[x._keys.length];
             System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
         } else {
-            this._spread = Spread.QUICK;
+            this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
             final int capacity = Math.max((int) (c.size() / this._factor) + 1, DEFAULT_CAPACITY);
             this._size = 0;
@@ -68,12 +69,12 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     public OHashSet(final V[] c) {
-        this(c.length, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(c.length, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
         addAll(c);
     }
 
     public OHashSet(final int capacity, final float factor) {
-        this(capacity, factor, Spread.QUICK);
+        this(capacity, factor, Spreads.QUICK);
     }
 
     public OHashSet(final int _capacity, final float factor, final Spread spread) {

@@ -1,22 +1,75 @@
 delimiters "$", "$"
 
-PHashSetExtTest(I, P, p, hc, X) ::= <<
+PSetSuite(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.set;
 
+import com.google.common.collect.testing.SetTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.SetFeature;
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.$I$Cursor;
 import io.machinecode.vial.api.set.$I$Set;
 import io.machinecode.vial.core.TestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import io.machinecode.vial.core.VialSuite;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $I$HashSetExtTest extends Assert {
+public class $I$SetSuite extends VialSuite {
+
+    public interface CreateSet {
+
+        $I$Set make();
+
+        $I$Set create();
+
+        $I$Set create(final int cap);
+
+        $I$Set create(final float factor);
+
+        $I$Set create(final int cap, final float factor);
+
+        $I$Set create(final int cap, final float factor, final Spread spread);
+
+        $I$Set create(final $p$[] set);
+
+        $I$Set create(final Collection<$P$> set);
+    }
+
+    public static void createSuite(final TestSuite suite, final Class<?> clazz, final String name, final CreateSet create) {
+        suite.addTest(testsFor$I$Set(clazz, name, create));
+        for (final Method method : $I$SetSuite.class.getDeclaredMethods()) {
+            if (method.getName().startsWith("test") && method.getReturnType().equals(void.class)) {
+                suite.addTest(new $I$SetSuite(method.getName(), name, create));
+            }
+        }
+    }
+
+    private static Test testsFor$I$Set(final Class<?> clazz, final String name, final CreateSet create) {
+        return SetTestSuiteBuilder
+                .using(new $I$SetGenerator() {
+                    @Override
+                    public Set<$P$> create(final Object[] elements) {
+                        return TestUtil.populate(create.<$P$>make(), elements);
+                    }
+                })
+                .named(clazz.getSimpleName() + "[" + name + "]")
+                .withFeatures(
+                        SetFeature.GENERAL_PURPOSE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY)
+                .createTestSuite();
+    }
     
     static final $p$ _0 = ($p$)0;
     static final $p$ _1 = ($p$)1;
@@ -24,16 +77,18 @@ public class $I$HashSetExtTest extends Assert {
     static final $p$ _3 = ($p$)3;
     static final $p$ _4 = ($p$)4;
 
-    protected $I$Set create() {
-        return new $I$HashSet();
+    final CreateSet create;
+
+    public $I$SetSuite(final String method, final String spreadName, final CreateSet create) {
+        super(method, spreadName);
+        this.create = create;
     }
 
-    @Test
     public void testConstructors() {
-        final $I$Set a = new $I$HashSet(4);
-        final $I$HashSet b = new $I$HashSet(0.5f);
-        final $I$HashSet c = new $I$HashSet(4, 0.5f);
-        final $I$HashSet d = new $I$HashSet(4, 0.5f, Spread.MURMUR3);
+        final $I$Set a = create.create(4);
+        final $I$Set b = create.create(0.5f);
+        final $I$Set c = create.create(4, 0.5f);
+        final $I$Set d = create.create(4, 0.5f, Spreads.MURMUR3);
         assertEquals(a, b);
         assertEquals(a, c);
         assertEquals(a, d);
@@ -53,28 +108,28 @@ public class $I$HashSetExtTest extends Assert {
         b.xadd(_2);
         assertEquals(3, a.size());
 
-        final $I$HashSet e = new $I$HashSet(a);
+        final $I$Set e = create.create(a);
         assertEquals(a, e);
         assertEquals(3, e.size());
         assertTrue(e.contains(_0));
         assertTrue(e.contains(_1));
         assertTrue(e.contains(_2));
 
-        final $I$HashSet f = new $I$HashSet(new $p$[]{_0, _2, _1});
+        final $I$Set f = create.create(new $p$[]{_0, _2, _1});
         assertEquals(a, f);
         assertEquals(3, f.size());
         assertTrue(f.xcontains(_0));
         assertTrue(f.xcontains(_1));
         assertTrue(f.xcontains(_2));
 
-        final $I$HashSet g = new $I$HashSet(b);
+        final $I$Set g = create.create(b);
         assertEquals(b, g);
         assertEquals(3, g.size());
         assertTrue(g.xcontains(_0));
         assertTrue(g.xcontains(_1));
         assertTrue(g.xcontains(_2));
 
-        final $I$HashSet h = new $I$HashSet(new HashSet<$P$>(){{
+        final $I$Set h = create.create(new HashSet<$P$>(){{
             add(_0);
             add(_1);
             add(_2);
@@ -84,17 +139,20 @@ public class $I$HashSetExtTest extends Assert {
         assertTrue(h.xcontains(_0));
         assertTrue(h.xcontains(_1));
         assertTrue(h.xcontains(_2));
+
+        final $I$Set i = create.create(); //TODO
     }
 
-    @Test(expected = NullPointerException.class)
     public void testNull() {
-        final $I$Set set = create();
-        set.add(null);
+        try {
+            final $I$Set set = create.make();
+            set.add(null);
+            fail();
+        } catch (final NullPointerException e){}
     }
 
-    @Test
     public void testValue() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         assertTrue(set.add(_1));
         assertEquals(1, set.size());
         assertTrue(set.contains(_1));
@@ -104,9 +162,8 @@ public class $I$HashSetExtTest extends Assert {
         assertFalse(set.contains(_1));
     }
 
-    @Test
     public void testAddWithRehash() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         for ($p$ i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
@@ -116,9 +173,8 @@ public class $I$HashSetExtTest extends Assert {
         }
     }
 
-    @Test
     public void testClear() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         for ($p$ i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
@@ -133,9 +189,8 @@ public class $I$HashSetExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveValue() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         for ($p$ i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
@@ -153,9 +208,8 @@ public class $I$HashSetExtTest extends Assert {
     }
 
     /*
-    @Test
     public void testRemoveBadHashCode() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         final $p$[] arr = new $p$[10];
         for (int i = 0; i < 10; ++i) {
             assertTrue(set.add(arr[i] = 4));
@@ -182,9 +236,8 @@ public class $I$HashSetExtTest extends Assert {
     }
     */
 
-    @Test
     public void testRetainAllValue() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         assertTrue(set.add(_0));
         assertTrue(set.add(_1));
         assertTrue(set.add(_2));
@@ -209,9 +262,8 @@ public class $I$HashSetExtTest extends Assert {
         assertEquals(1, set.size());
     }
 
-    @Test
     public void testRemoveAll() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         assertTrue(set.add(_1));
         assertTrue(set.add(_2));
         assertTrue(set.add(_3));
@@ -229,9 +281,8 @@ public class $I$HashSetExtTest extends Assert {
         assertEquals(1, set.size());
     }
 
-    @Test
     public void testContainsAll() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         assertTrue(set.add(_0));
         assertTrue(set.add(_1));
         assertTrue(set.add(_2));
@@ -267,9 +318,8 @@ public class $I$HashSetExtTest extends Assert {
         assertFalse(set.xcontainsAll(_4));
     }
 
-    @Test
     public void testCursor() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
 
         for ($p$ i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
@@ -295,9 +345,8 @@ public class $I$HashSetExtTest extends Assert {
         assertEquals(10, i);
     }
 
-    @Test
     public void testToArray() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         assertTrue(set.add(_0));
         assertTrue(set.add(_1));
         assertTrue(set.add(_2));
@@ -318,9 +367,8 @@ public class $I$HashSetExtTest extends Assert {
         assertEquals(4, array.length);
     }
 
-    @Test
     public void testToArrayT() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         assertTrue(set.add(_0));
         assertTrue(set.add(_1));
         assertTrue(set.add(_2));
@@ -351,9 +399,8 @@ public class $I$HashSetExtTest extends Assert {
      *      ^ remove this one
      */
      /*
-    @Test
     public void testCursorRemoveCopy() {
-        final $I$Set set = create();
+        final $I$Set set = create.make();
         for (int i = 0; i < 5; ++i) {
             assertTrue(set.add(($p$)5));
         }

@@ -4,6 +4,8 @@ POHashMapTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.api.map.$I$OMap;
+import io.machinecode.vial.core.Spreads;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -17,24 +19,44 @@ public class $I$OHashMapTest {
 
     public static Test suite() {
         final TestSuite suite = new TestSuite($I$OHashMap.class.getName());
-        $I$OHashMapSuite.createSuite(suite, "NONE", new $I$OHashMapSuite.CreateMap() {
-            @Override
-            public <V> Map<$P$,V> create() {
-                return new $I$OHashMap<>(4, 0.75f, Spread.NONE);
-            }
-        });
-        $I$OHashMapSuite.createSuite(suite, "QUICK", new $I$OHashMapSuite.CreateMap() {
-            @Override
-            public <V> Map<$P$,V> create() {
-                return new $I$OHashMap<>(4, 0.75f, Spread.QUICK);
-            }
-        });
-        $I$OHashMapSuite.createSuite(suite, "MURMUR3", new $I$OHashMapSuite.CreateMap() {
-            @Override
-            public <V> Map<$P$,V> create() {
-                return new $I$OHashMap<>(4, 0.75f, Spread.MURMUR3);
-            }
-        });
+        for (final Spreads spread : Spreads.values()) {
+            $I$OMapSuite.createSuite(suite, $I$OHashMap.class, spread.name(), new $I$OMapSuite.CreateMap() {
+                @Override
+                public <V> $I$OMap<V> make() {
+                    return new $I$OHashMap<>(4, 0.75f, spread);
+                }
+
+                @Override
+                public <V> $I$OMap<V> create() {
+                    return new $I$OHashMap<>();
+                }
+
+                @Override
+                public <V> $I$OMap<V> create(final int cap) {
+                    return new $I$OHashMap<>(cap);
+                }
+
+                @Override
+                public <V> $I$OMap<V> create(final float factor) {
+                    return new $I$OHashMap<>(factor);
+                }
+
+                @Override
+                public <V> $I$OMap<V> create(final int cap, final float factor) {
+                    return new $I$OHashMap<>(cap, factor);
+                }
+
+                @Override
+                public <V> $I$OMap<V> create(final int cap, final float factor, final Spread spread) {
+                    return new $I$OHashMap<>(cap, factor, spread);
+                }
+
+                @Override
+                public <V> $I$OMap<V> create(final Map<$P$, V> map) {
+                    return new $I$OHashMap<>(map);
+                }
+            });
+        }
         return suite;
     }
 }

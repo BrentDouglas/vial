@@ -4,6 +4,8 @@ PPHashMapTest(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.api.map.$I$$I$Map;
+import io.machinecode.vial.core.Spreads;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -17,24 +19,44 @@ public class $I$$I$HashMapTest {
 
     public static Test suite() {
         final TestSuite suite = new TestSuite($I$$I$HashMap.class.getName());
-        $I$$I$HashMapSuite.createSuite(suite, "NONE", new $I$$I$HashMapSuite.CreateMap() {
-            @Override
-            public Map<$P$,$P$> create() {
-                return new $I$$I$HashMap(4, 0.75f, Spread.NONE);
-            }
-        });
-        $I$$I$HashMapSuite.createSuite(suite, "QUICK", new $I$$I$HashMapSuite.CreateMap() {
-            @Override
-            public Map<$P$,$P$> create() {
-                return new $I$$I$HashMap(4, 0.75f, Spread.QUICK);
-            }
-        });
-        $I$$I$HashMapSuite.createSuite(suite, "MURMUR3", new $I$$I$HashMapSuite.CreateMap() {
-            @Override
-            public Map<$P$,$P$> create() {
-                return new $I$$I$HashMap(4, 0.75f, Spread.MURMUR3);
-            }
-        });
+        for (final Spreads spread : Spreads.values()) {
+            $I$$I$MapSuite.createSuite(suite, $I$$I$HashMap.class, spread.name(), new $I$$I$MapSuite.CreateMap() {
+                @Override
+                public $I$$I$Map make() {
+                    return new $I$$I$HashMap(4, 0.75f, spread);
+                }
+
+                @Override
+                public $I$$I$Map create() {
+                    return new $I$$I$HashMap();
+                }
+
+                @Override
+                public $I$$I$Map create(final int cap) {
+                    return new $I$$I$HashMap(cap);
+                }
+
+                @Override
+                public $I$$I$Map create(final float factor) {
+                    return new $I$$I$HashMap(factor);
+                }
+
+                @Override
+                public $I$$I$Map create(final int cap, final float factor) {
+                    return new $I$$I$HashMap(cap, factor);
+                }
+
+                @Override
+                public $I$$I$Map create(final int cap, final float factor, final Spread spread) {
+                    return new $I$$I$HashMap(cap, factor, spread);
+                }
+
+                @Override
+                public $I$$I$Map create(final Map<$P$, $P$> map) {
+                    return new $I$$I$HashMap(map);
+                }
+            });
+        }
         return suite;
     }
 }

@@ -4,6 +4,7 @@ PHashSet(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.set;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.$I$Cursor;
 import io.machinecode.vial.api.set.$I$Set;
 import io.machinecode.vial.core.Hash;
@@ -37,15 +38,15 @@ public class $I$HashSet extends Hash implements $I$Set {
     private int _mask;
 
     public $I$HashSet() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public $I$HashSet(final int capacity) {
-        this(capacity, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(capacity, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public $I$HashSet(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spread.QUICK);
+        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
     }
 
     public $I$HashSet(final Collection<? extends $P$> c) {
@@ -60,7 +61,7 @@ public class $I$HashSet extends Hash implements $I$Set {
             this._keys = new $p$[x._keys.length];
             System.arraycopy(x._keys, 0, this._keys, 0, x._keys.length);
         } else {
-            this._spread = Spread.QUICK;
+            this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
             final int capacity = Math.max((int) (c.size() / this._factor) + 1, DEFAULT_CAPACITY);
             this._size = 0;
@@ -73,12 +74,12 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     public $I$HashSet(final $p$... c) {
-        this(c.length, DEFAULT_LOAD_FACTOR, Spread.QUICK);
+        this(c.length, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
         xaddAll(c);
     }
 
     public $I$HashSet(final int capacity, final float factor) {
-        this(capacity, factor, Spread.QUICK);
+        this(capacity, factor, Spreads.QUICK);
     }
 
     public $I$HashSet(final int _capacity, final float factor, final Spread spread) {

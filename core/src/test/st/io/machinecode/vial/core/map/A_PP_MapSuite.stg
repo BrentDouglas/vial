@@ -1,67 +1,108 @@
 delimiters "$", "$"
 
-PPHashMapFExtTest(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
+PPMapSuite(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.$Ik$$Iv$Cursor;
 import io.machinecode.vial.api.map.$Ik$$Iv$Map;
 //import io.machinecode.vial.core.BadHashCode;
 import io.machinecode.vial.core.TestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import io.machinecode.vial.core.VialSuite;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $Ik$$Iv$HashMapFExtTest extends Assert {
+public class $Ik$$Iv$MapSuite extends VialSuite {
 
-    protected $Ik$$Iv$Map create(final float factor) {
-        return new $Ik$$Iv$HashMapF(factor);
+    public interface CreateMap {
+
+        $Ik$$Iv$Map make();
+
+        $Ik$$Iv$Map create();
+
+        $Ik$$Iv$Map create(final int cap);
+
+        $Ik$$Iv$Map create(final float factor);
+
+        $Ik$$Iv$Map create(final int cap, final float factor);
+
+        $Ik$$Iv$Map create(final int cap, final float factor, final Spread spread);
+
+        $Ik$$Iv$Map create(final Map<$Pk$, $Pv$> map);
     }
 
-    protected $Ik$$Iv$Map create() {
-        return new $Ik$$Iv$HashMapF();
+    public static void createSuite(final TestSuite suite, final Class<?> clazz, final String name, final CreateMap create) {
+        suite.addTest(testsFor$Ik$$Iv$Map(clazz, name, create));
+
+        for (final Method method : $Ik$$Iv$MapSuite.class.getDeclaredMethods()) {
+            if (method.getName().startsWith("test") && method.getReturnType().equals(void.class)) {
+                suite.addTest(new $Ik$$Iv$MapSuite(method.getName(), name, create));
+            }
+        }
     }
 
-    private $Ik$$Iv$Map vmap(final $pk$ k, final $pv$ v) {
-        final $Ik$$Iv$Map map = create();
-        map.put(k, v);
-        return map;
+    private static Test testsFor$Ik$$Iv$Map(final Class<?> clazz, final String name, final CreateMap create) {
+        return MapTestSuiteBuilder
+                .using(new $Ik$$Iv$MapGenerator() {
+                    @Override
+                    protected Map<$Pk$, $Pv$> create(final Map.Entry<$Pk$,$Pv$>[] entries) {
+                        return TestUtil.populate(create.make(), entries);
+                    }
+                })
+                .named(clazz.getSimpleName() + "[" + name + "]")
+                .withFeatures(
+                        MapFeature.GENERAL_PURPOSE,
+                        MapFeature.ALLOWS_ANY_NULL_QUERIES,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+                        CollectionSize.ANY)
+                .createTestSuite();
     }
 
-    private <K,V> HashMap<K,V> jmap(final K k, final V v) {
-        final HashMap<K,V> map = new HashMap<>();
-        map.put(k, v);
-        return map;
-    }
-
-    @Test
-    public void testConstructors() {
-        doTestConstructors();
-    }
-    
     static final $pk$ k_0 = ($pk$)0;
     static final $pk$ k_1 = ($pk$)1;
     static final $pk$ k_2 = ($pk$)2;
     static final $pk$ k_3 = ($pk$)3;
-    
+
     static final $pv$ v_0 = ($pv$)0;
     static final $pv$ v_1 = ($pv$)1;
     static final $pv$ v_2 = ($pv$)2;
     static final $pv$ v_3 = ($pv$)3;
 
-    protected void doTestConstructors() {
-        final $Ik$$Iv$HashMapF a = new $Ik$$Iv$HashMapF(4);
-        final $Ik$$Iv$HashMapF b = new $Ik$$Iv$HashMapF(0.5f);
-        final $Ik$$Iv$HashMapF c = new $Ik$$Iv$HashMapF(4, 0.5f);
-        final $Ik$$Iv$HashMapF d = new $Ik$$Iv$HashMapF(4, 0.5f, Spread.MURMUR3);
+    final CreateMap create;
+
+    public $Ik$$Iv$MapSuite(final String method, final String spreadName, final CreateMap create) {
+        super(method, spreadName);
+        this.create = create;
+    }
+
+    private $Ik$$Iv$Map vmap(final $pk$ k, final $pv$ v) {
+        final $Ik$$Iv$Map map = create.make();
+        map.put(k, v);
+        return map;
+    }
+
+    public void testConstructors() {
+        final $Ik$$Iv$Map a = create.create(4);
+        final $Ik$$Iv$Map b = create.create(0.5f);
+        final $Ik$$Iv$Map c = create.create(4, 0.5f);
+        final $Ik$$Iv$Map d = create.create(4, 0.5f, Spreads.MURMUR3);
         assertEquals(a, b);
         assertEquals(a, c);
         assertEquals(a, d);
@@ -76,7 +117,7 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         a.xput(k_2, v_3);
         assertEquals(2, a.size());
 
-        final $Ik$$Iv$HashMapF e = new $Ik$$Iv$HashMapF(a);
+        final $Ik$$Iv$Map e = create.create(a);
         assertEquals(a, e);
         assertEquals(2, e.size());
         assertTrue(e.xcontainsKey(k_1));
@@ -84,7 +125,7 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertTrue(e.xcontainsValue(v_2));
         assertTrue(e.xcontainsValue(v_3));
 
-        final $Ik$$Iv$HashMapF f = new $Ik$$Iv$HashMapF(new HashMap<$Pk$,$Pv$>(){{
+        final $Ik$$Iv$Map f = create.create(new HashMap<$Pk$,$Pv$>(){{
             put(k_1, v_2);
             put(k_2, v_3);
         }});
@@ -94,11 +135,12 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertTrue(f.xcontainsKey(k_2));
         assertTrue(f.xcontainsValue(v_2));
         assertTrue(f.xcontainsValue(v_3));
+
+        final $Ik$$Iv$Map g = create.create(); //TODO
     }
 
-    @Test
     public void testNoKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -119,9 +161,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(v_2, map.xget(k_0));
     }
 
-    @Test
     public void testBoxedNoKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(null, map.put(k_0, v_1));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(k_0));
@@ -142,9 +183,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(($Pv$)v_2, map.get(k_0));
     }
 
-    @Test
     public void testNoKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -165,9 +205,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(v_2, map.xget(k_0));
     }
 
-    @Test
     public void testBoxedNoKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(null, map.put(k_0, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(k_0));
@@ -188,9 +227,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(($Pv$)v_2, map.get(k_0));
     }
 
-    @Test
     public void testNoValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_1));
@@ -209,9 +247,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(map.nv(), map.xget(k_1));
     }
 
-    @Test
     public void testBoxedNoValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(null, map.put(k_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(k_1));
@@ -230,9 +267,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(($Pv$)map.nv(), map.get(k_1));
     }
 
-    @Test
     public void testValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_1, v_2));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_1));
@@ -254,9 +290,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(v_3, map.xget(k_1));
     }
 
-    @Test
     public void testBoxedValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(null, map.put(k_1, v_2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(k_1));
@@ -275,9 +310,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(($Pv$)v_3, map.get(k_1));
     }
 
-    @Test
     public void testPutWithRehash() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($pk$)i, ($pv$)i));
         }
@@ -289,9 +323,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testBoxedPutWithRehash() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(null, map.put(($pk$)i, ($pv$)i));
         }
@@ -303,9 +336,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testPutIfAbsentWithRehash() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xputIfAbsent(($pk$)i, ($pv$)i));
         }
@@ -317,9 +349,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testBoxedPutIfAbsentWithRehash() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(null, map.putIfAbsent(($pk$)i, ($pv$)i));
         }
@@ -331,9 +362,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testClear() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($pk$)i, ($pv$)i));
         }
@@ -350,9 +380,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($pk$)i, ($pv$)i));
         }
@@ -370,9 +399,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveKeyNoKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertTrue(map.xcontainsKey(k_0));
         assertTrue(map.xcontainsValue(v_1));
@@ -384,9 +412,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveKeyNullKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertTrue(map.xcontainsKey(k_0));
         assertTrue(map.xcontainsValue(map.nv()));
@@ -398,9 +425,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveDefaultKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($pk$)i, ($pv$)i));
         }
@@ -421,9 +447,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testRemoveDefaultKeyNullKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertTrue(map.xcontainsKey(k_0));
         assertTrue(map.xcontainsValue(v_1));
@@ -440,9 +465,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveKeyDefaultNullKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertTrue(map.xcontainsKey(k_0));
         assertTrue(map.xcontainsValue(map.nv()));
@@ -458,9 +482,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($pk$)i, ($pv$)i));
         }
@@ -487,9 +510,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValueNullKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertTrue(map.xcontainsKey(k_0));
         assertTrue(map.xcontainsValue(v_1));
@@ -507,9 +529,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testRemoveValueNullKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertTrue(map.xcontainsKey(k_0));
         assertTrue(map.xcontainsValue(map.nv()));
@@ -524,9 +545,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(0, map.size());
     }
 
-    @Test
     public void testXReplaceNullKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -538,7 +558,7 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
 
         assertFalse(map.xreplace(k_0, map.nv(), v_3));
         assertEquals(v_1, map.xget(k_0));
-        
+
         assertEquals(v_1, map.xreplace(k_0, v_2));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -576,9 +596,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.xcontainsValue(v_3));
     }
 
-    @Test
     public void testReplaceNullKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -590,7 +609,7 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
 
         assertFalse(map.replace(k_0, map.nv(), v_3));
         assertEquals(v_1, map.xget(k_0));
-        
+
         assertEquals(($Pv$)v_1, map.replace(k_0, v_2));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -628,9 +647,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.xcontainsValue(v_3));
     }
 
-    @Test
     public void testXReplaceNullKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -679,9 +697,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertTrue(map.xcontainsValue(v_2));
     }
 
-    @Test
     public void testReplaceNullKeyAndValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_0));
@@ -730,9 +747,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertTrue(map.xcontainsValue(v_2));
     }
 
-    @Test
     public void testXReplaceNullValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_1));
@@ -783,9 +799,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.xcontainsValue(v_1));
     }
 
-    @Test
     public void testReplaceNullValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_1, map.nv()));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_1));
@@ -836,9 +851,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.xcontainsValue(v_1));
     }
 
-    @Test
     public void testXReplaceValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_1, v_2));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_1));
@@ -880,9 +894,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertTrue(map.xcontainsValue(v_3));
     }
 
-    @Test
     public void testReplaceValue() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_1, v_2));
         assertEquals(1, map.size());
         assertTrue(map.xcontainsKey(k_1));
@@ -924,9 +937,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertTrue(map.xcontainsValue(v_3));
     }
 
-    @Test
     public void testXReplaceNoKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xreplace(k_1, v_1));
         assertEquals(0, map.size());
         assertFalse(map.xcontainsKey(k_1));
@@ -956,9 +968,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(map.nv(), map.xget(k_1));
     }
 
-    @Test
     public void testReplaceNoKey() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertNull(map.replace(k_1, v_1));
         assertEquals(0, map.size());
         assertFalse(map.xcontainsKey(k_1));
@@ -989,9 +1000,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
     }
 
     /*
-    @Test
     public void testReplaceBadHashCode() {
-        final $Ik$$Iv$Map<BadHashCode> map = create();
+        final $Ik$$Iv$Map<BadHashCode> map = create.make();
         final BadHashCode key = new BadHashCode(4);
 
         assertEquals(map.nv(), map.put(new BadHashCode(4), v_123));
@@ -1037,9 +1047,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
     }
     */
 
-    @Test
     public void testXGetOrDefault() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(v_0, map.xgetOrDefault(k_0, v_0));
         assertEquals(v_1, map.xgetOrDefault(k_0, v_1));
 
@@ -1062,9 +1071,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(v_0, map.xgetOrDefault(k_2, v_3));
     }
 
-    @Test
     public void testGetOrDefault() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
 
         assertEquals(($Pv$)v_0, map.getOrDefault(null, v_0));
         assertEquals(($Pv$)v_1, map.getOrDefault(k_0, v_1));
@@ -1088,9 +1096,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(($Pv$)map.nv(), map.getOrDefault(k_2, v_3));
     }
 
-    @Test
     public void testPutAll() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertNull(map.put(k_0, v_1));
         assertNull(map.put(k_1, v_2));
         assertNull(map.put(k_2, v_3));
@@ -1108,10 +1115,10 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
             assertNull(put(k_2, v_3));
         }};
 
-        final $Ik$$Iv$Map a = create();
+        final $Ik$$Iv$Map a = create.make();
         a.putAll(map);
 
-        final $Ik$$Iv$Map b = create();
+        final $Ik$$Iv$Map b = create.make();
         b.putAll(jmap);
 
         assertEquals(map, jmap);
@@ -1120,9 +1127,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertEquals(a, b);
     }
 
-    @Test
     public void testKeySetRemove() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertNull(map.put(k_0, v_1));
         assertNull(map.put(k_1, v_2));
         assertNull(map.put(k_2, v_3));
@@ -1141,9 +1147,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(keys.remove(k_0));
     }
 
-    @Test
     public void testToArray() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertEquals(map.nv(), map.xput(k_1, v_2));
         assertEquals(map.nv(), map.xput(k_2, v_3));
@@ -1176,9 +1181,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testToArrayT() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
         assertEquals(map.nv(), map.xput(k_1, v_2));
         assertEquals(map.nv(), map.xput(k_2, v_3));
@@ -1211,9 +1215,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         }
     }
 
-    @Test
     public void testCursor() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
 
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(($pk$)i, ($pv$)i));
@@ -1248,9 +1251,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(c.equals(new Object()));
     }
 
-    @Test
     public void testCursorEquals() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertTrue(map.iterator().next().equals(new Cur(k_0, map.nv())));
         assertFalse(map.iterator().next().equals(new Cur(k_0, v_1)));
@@ -1297,9 +1299,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
     }
 
     /*
-    @Test
     public void testCursorRemove() {
-        final $Ik$$Iv$Map<BadHashCode> map = create();
+        final $Ik$$Iv$Map<BadHashCode> map = create.make();
         final BadHashCode[] arr = new BadHashCode[10];
         for (int i = 0; i < 10; ++i) {
             assertEquals(map.nv(), map.xput(arr[i] = new BadHashCode(4), ($pv$)i));
@@ -1326,9 +1327,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
      *      ^ remove this one
      */
     /*
-    @Test
     public void testCursorRemoveCopyWrap() {
-        final $Ik$$Iv$Map<BadHashCode> map = create();
+        final $Ik$$Iv$Map<BadHashCode> map = create.make();
         for (int i = 0; i < 5; ++i) {
             assertEquals(map.nv(), map.xput(new BadHashCode(5), ($pv$)i));
         }
@@ -1342,9 +1342,8 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
     }
     */
 
-    @Test
     public void testEntrySetContains() {
-        final $Ik$$Iv$Map map = create();
+        final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));
         assertFalse(map.entrySet().contains(new En<>(map, null, v_1)));
         assertFalse(map.entrySet().contains(new En<>(map, null, null)));
@@ -1390,7 +1389,6 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.entrySet().contains(new En<>(map, k_2, v_1)));
     }
 
-    @Test
     public void testEqualsNullKey() {
         final $Ik$$Iv$Map map = vmap(k_0, v_1);
         assertFalse(map.equals(jmap(null, null)));
@@ -1405,7 +1403,6 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.equals(jmap(k_2,v_2)));
     }
 
-    @Test
     public void testEqualsNullValue() {
         final $Ik$$Iv$Map map = vmap(k_1, v_0);
         assertFalse(map.equals(jmap(null, null)));
@@ -1417,7 +1414,6 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.equals(jmap(k_2,v_2)));
     }
 
-    @Test
     public void testEqualsNullKeyValue() {
         final $Ik$$Iv$Map map = vmap(k_0, v_0);
         assertFalse(map.equals(jmap(null, null)));
@@ -1433,7 +1429,6 @@ public class $Ik$$Iv$HashMapFExtTest extends Assert {
         assertFalse(map.equals(jmap(k_2,v_2)));
     }
 
-    @Test
     public void testEqualsKeyValue() {
         final $Ik$$Iv$Map map = vmap(k_1, v_1);
         assertFalse(map.equals(jmap(null, null)));
