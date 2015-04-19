@@ -106,16 +106,18 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         if (key == null) {
             return this._haveNoValue;
         }
+        final Object[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread(key.hashCode());
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final Object k = this._keys[index];
+            final Object k = keys[index];
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -128,21 +130,22 @@ public class OHashSet<V> extends Hash implements OSet<V> {
             this._size++;
             return this._haveNoValue = true;
         }
+        final Object[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread(key.hashCode());
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final Object k = this._keys[index];
+            final Object k = keys[index];
             if (k == null) {
-                this._keys[index] = key;
-                this._size++;
-                if (this._size >= this._threshold) {
+                keys[index] = key;
+                if (++this._size >= this._threshold) {
                     _rehash();
                 }
                 return true;
             } else if (k.equals(key)) {
                 return false;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -180,38 +183,43 @@ public class OHashSet<V> extends Hash implements OSet<V> {
                 return false;
             }
         }
+        final Object[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread(key.hashCode());
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final Object k = this._keys[index];
+            final Object k = keys[index];
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
                 _remove(index);
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
     private void _remove(int index) {
         this._size--;
-        int next = (index + 1) & this._mask;
+        final Object[] keys = this._keys;
+        final Spread spread = this._spread;
+        final int mask = this._mask;
+        int next = (index + 1) & mask;
         for (;;) {
-            final Object key = this._keys[next];
+            final Object key = keys[next];
             if (key == null) {
-                this._keys[index] = null;
+                keys[index] = null;
                 return;
             }
-            final int hash = _spread.spread(key.hashCode());
-            int slot = hash & this._mask;
+            final int hash = spread.spread(key.hashCode());
+            int slot = hash & mask;
             if (index <= next
                     ? index >= slot || slot > next
                     : index >= slot && slot > next) {
-                this._keys[index] = key;
+                keys[index] = key;
                 index = next;
             }
-            next = (next + 1) & this._mask;
+            next = (next + 1) & mask;
         }
     }
 
@@ -242,16 +250,18 @@ public class OHashSet<V> extends Hash implements OSet<V> {
 
     private void _addNoResize(final Object key) {
         assert key != null;
+        final Object[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread(key.hashCode());
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final Object k = this._keys[index];
+            final Object k = keys[index];
             if (k == null) {
-                this._keys[index] = key;
+                keys[index] = key;
                 return;
             }
             assert !k.equals(key);
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -429,10 +439,12 @@ public class OHashSet<V> extends Hash implements OSet<V> {
                     ++index;
                     break;
             }
-            for (; index < keys.length; ++index) {
-                if (keys[index] == null) {
+            final Object[] keys = this.keys;
+            for (int i = index, len = keys.length; i < len; ++i) {
+                if (keys[i] == null) {
                     continue;
                 }
+                index = i;
                 found = true;
                 return;
             }
@@ -488,30 +500,34 @@ public class OHashSet<V> extends Hash implements OSet<V> {
 
         private void _removeAndCopy(final int remove) {
             set._size--;
+            final Object[] setKeys = set._keys;
+            Object[] keys = setKeys;
+            final Spread spread = set._spread;
+            final int mask = set._mask;
             int index = remove;
-            int next = (index + 1) & set._mask;
+            int next = (index + 1) & mask;
             for (;;) {
-                final Object key = set._keys[next];
+                final Object key = setKeys[next];
                 if (key == null) {
-                    set._keys[index] = null;
+                    setKeys[index] = null;
                     return;
                 }
-                final int hash = set._spread.spread(key.hashCode());
-                int slot = hash & set._mask;
+                final int hash = spread.spread(key.hashCode());
+                int slot = hash & mask;
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (next < remove && index >= remove && this.keys == set._keys) {
-                        set._keys[index] = null;
-                        this.keys = new Object[set._keys.length - remove];
-                        System.arraycopy(set._keys, remove, this.keys, 0, this.keys.length);
+                    if (next < remove && index >= remove && keys == setKeys) {
+                        setKeys[index] = null;
+                        this.keys = keys = new Object[setKeys.length - remove];
+                        System.arraycopy(setKeys, remove, keys, 0, keys.length);
                     }
-                    set._keys[index] = key;
-                    this.index = this.keys == set._keys ? remove : 0;
-                    this.found = this.keys[this.index] != null;
+                    setKeys[index] = key;
+                    int i = this.index = keys == setKeys ? remove : 0;
+                    this.found = keys[i] != null;
                     index = next;
                 }
-                next = (next + 1) & set._mask;
+                next = (next + 1) & mask;
             }
         }
 

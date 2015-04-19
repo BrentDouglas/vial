@@ -121,16 +121,18 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         if (key == NO_KEY) {
             return this._haveNoValue;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -139,9 +141,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         if (_haveNoValue && (_noValue == null ? value == null : _noValue.equals(value))) {
             return true;
         }
-        for (int i = 0; i < this._keys.length; ++i) {
-            final $p$ k = this._keys[i];
-            final Object v = this._values[i];
+        final $p$[] keys = this._keys;
+        final Object[] values = this._values;
+        for (int i = 0, len = keys.length; i < len; ++i) {
+            final $p$ k = keys[i];
+            final Object v = values[i];
             if (k != NO_KEY && (v == null ? value == null : v.equals(value))) {
                 return true;
             }
@@ -164,16 +168,18 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                             ? this._noValue
                             : null;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return null;
             } else if (k == key) {
                 return (V)this._values[index];
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -192,16 +198,18 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                             ? this._noValue
                             : defaultValue;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return defaultValue;
             } else if (k == key) {
                 return (V)this._values[index];
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -224,25 +232,27 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             this._haveNoValue = true;
             return old;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
-                this._keys[index] = key;
+                keys[index] = key;
                 this._values[index] = value;
-                this._size++;
-                if (this._size >= this._threshold) {
+                if (++this._size >= this._threshold) {
                     _rehash();
                 }
                 return null;
             } else if (k == key) {
+            final Object[] values = this._values;
                 @SuppressWarnings("unchecked")
-                final V old = (V)this._values[index];
-                this._values[index] = value;
+                final V old = (V)values[index];
+                values[index] = value;
                 return old;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -263,22 +273,23 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             this._haveNoValue = true;
             return null;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
-                this._keys[index] = key;
+                keys[index] = key;
                 this._values[index] = value;
-                this._size++;
-                if (this._size >= this._threshold) {
+                if (++this._size >= this._threshold) {
                     _rehash();
                 }
                 return null;
             } else if (k == key) {
                 return (V)this._values[index];
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -331,10 +342,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 return null;
             }
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return null;
             } else if (k == key) {
@@ -343,7 +356,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 _remove(index);
                 return old;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -364,10 +377,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 return false;
             }
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
@@ -377,7 +392,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 _remove(index);
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -392,40 +407,46 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 return false;
             }
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
                 _remove(index);
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
     private void _remove(int index) {
         this._size--;
-        int next = (index + 1) & this._mask;
+        final $p$[] keys = this._keys;
+        final Object[] values = this._values;
+        final Spread spread = this._spread;
+        final int mask = this._mask;
+        int next = (index + 1) & mask;
         for (;;) {
-            final $p$ key = this._keys[next];
+            final $p$ key = keys[next];
             if (key == NO_KEY) {
-                this._keys[index] = NO_KEY;
-                this._values[index] = null;
+                keys[index] = NO_KEY;
+                values[index] = null;
                 return;
             }
-            final int hash = _spread.spread($hc$);
-            int slot = hash & this._mask;
+            final int hash = spread.spread($hc$);
+            int slot = hash & mask;
             if (index <= next
                     ? index >= slot || slot > next
                     : index >= slot && slot > next) {
-                this._keys[index] = key;
-                this._values[index] = this._values[next];
+                keys[index] = key;
+                values[index] = values[next];
                 index = next;
             }
-            next = (next + 1) & this._mask;
+            next = (next + 1) & mask;
         }
     }
 
@@ -437,9 +458,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             --_size;
             return true;
         }
-        for (int i = 0; i < this._keys.length; ++i) {
-            final $p$ k = this._keys[i];
-            final Object v = this._values[i];
+        final $p$[] keys = this._keys;
+        final Object[] values = this._values;
+        for (int i = 0, len = keys.length; i < len; ++i) {
+            final $p$ k = keys[i];
+            final Object v = values[i];
             if (k != NO_KEY && (value == null ? v == null : value.equals(v))) {
                 _remove(i);
                 return true;
@@ -463,20 +486,23 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             this._haveNoValue = true;
             return true;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
-                if (oldValue == null ? this._values[index] != null : !oldValue.equals(this._values[index])) {
+                final Object[] values = this._values;
+                if (oldValue == null ? values[index] != null : !oldValue.equals(values[index])) {
                     return false;
                 }
-                this._values[index] = newValue;
+                values[index] = newValue;
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -496,19 +522,22 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             this._haveNoValue = true;
             return old;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return null;
             } else if (k == key) {
+                final Object[] values = this._values;
                 @SuppressWarnings("unchecked")
-                final V old = (V)this._values[index];
-                this._values[index] = value;
+                final V old = (V)values[index];
+                values[index] = value;
                 return old;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -517,8 +546,9 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         this._haveNoValue = false;
         this._noValue = null;
         this._size = 0;
-        for (int i = 0, len = this._keys.length; i < len; i++) {
-            this._keys[i] = NO_KEY;
+        final $p$[] keys = this._keys;
+        for (int i = 0, len = keys.length; i < len; i++) {
+            keys[i] = NO_KEY;
         }
         fill(this._values, 0, this._values.length, null);
     }
@@ -603,19 +633,21 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     private void _putNoResize(final $p$ key, final Object value) {
         assert key != NO_KEY;
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
-                this._keys[index] = key;
+                keys[index] = key;
                 this._values[index] = value;
                 return;
             } else if (k == key) {
                 this._values[index] = value;
                 return;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -653,10 +685,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                     ++index;
                     break;
             }
-            for (; index < keys.length; ++index) {
-                if (keys[index] == NO_KEY) {
+            final $p$[] keys = this.keys;
+            for (int i = index, len = keys.length; i < len; ++i) {
+                if (keys[i] == NO_KEY) {
                     continue;
                 }
+                index = i;
                 found = true;
                 return;
             }
@@ -715,32 +749,37 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         private void _removeAndCopy(final int remove) {
             assert this.keys == map._keys;
             map._size--;
+            final $p$[] mapKeys = map._keys;
+            $p$[] keys = mapKeys;
+            final Object[] mapValues = map._values;
+            final Spread spread = map._spread;
+            final int mask = map._mask;
             int index = remove;
-            int next = (index + 1) & map._mask;
+            int next = (index + 1) & mask;
             for (;;) {
-                final $p$ key = map._keys[next];
+                final $p$ key = mapKeys[next];
                 if (key == NO_KEY) {
-                    map._keys[index] = NO_KEY;
-                    map._values[index] = null;
+                    mapKeys[index] = NO_KEY;
+                    mapValues[index] = null;
                     return;
                 }
-                final int hash = map._spread.spread($hc$);
-                int slot = hash & map._mask;
+                final int hash = spread.spread($hc$);
+                int slot = hash & mask;
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (next < remove && index >= remove && this.keys == map._keys) {
-                        map._keys[index] = NO_KEY;
-                        this.keys = new $p$[map._keys.length - remove];
-                        System.arraycopy(map._keys, remove, this.keys, 0, this.keys.length);
+                    if (next < remove && index >= remove && keys == mapKeys) {
+                        mapKeys[index] = NO_KEY;
+                        this.keys = keys = new $p$[mapKeys.length - remove];
+                        System.arraycopy(mapKeys, remove, keys, 0, keys.length);
                     }
-                    map._keys[index] = key;
-                    map._values[index] = map._values[next];
-                    this.index = this.keys == map._keys ? remove : 0;
-                    this.found = this.keys[this.index] != NO_KEY;
+                    mapKeys[index] = key;
+                    mapValues[index] = mapValues[next];
+                    int i = this.index = keys == mapKeys ? remove : 0;
+                    this.found = keys[i] != NO_KEY;
                     index = next;
                 }
-                next = (next + 1) & map._mask;
+                next = (next + 1) & mask;
             }
         }
 

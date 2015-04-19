@@ -116,16 +116,18 @@ public class $I$HashSet extends Hash implements $I$Set {
         if (key == NO_KEY) {
             return this._haveNoValue;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -143,21 +145,22 @@ public class $I$HashSet extends Hash implements $I$Set {
             this._size++;
             return this._haveNoValue = true;
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
-                this._keys[index] = key;
-                this._size++;
-                if (this._size >= this._threshold) {
+                keys[index] = key;
+                if (++this._size >= this._threshold) {
                     _rehash();
                 }
                 return true;
             } else if (k == key) {
                 return false;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -200,38 +203,43 @@ public class $I$HashSet extends Hash implements $I$Set {
                 return false;
             }
         }
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
                 return false;
             } else if (k == key) {
                 _remove(index);
                 return true;
             }
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
     private void _remove(int index) {
         this._size--;
-        int next = (index + 1) & this._mask;
+        final $p$[] keys = this._keys;
+        final Spread spread = this._spread;
+        final int mask = this._mask;
+        int next = (index + 1) & mask;
         for (;;) {
-            final $p$ key = this._keys[next];
+            final $p$ key = keys[next];
             if (key == NO_KEY) {
-                this._keys[index] = NO_KEY;
+                keys[index] = NO_KEY;
                 return;
             }
-            final int hash = _spread.spread($hc$);
-            int slot = hash & this._mask;
+            final int hash = spread.spread($hc$);
+            int slot = hash & mask;
             if (index <= next
                     ? index >= slot || slot > next
                     : index >= slot && slot > next) {
-                this._keys[index] = key;
+                keys[index] = key;
                 index = next;
             }
-            next = (next + 1) & this._mask;
+            next = (next + 1) & mask;
         }
     }
 
@@ -239,8 +247,9 @@ public class $I$HashSet extends Hash implements $I$Set {
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        for (int i = 0, len = this._keys.length; i < len; i++) {
-            this._keys[i] = NO_KEY;
+        final $p$[] keys = this._keys;
+        for (int i = 0, len = keys.length; i < len; i++) {
+            keys[i] = NO_KEY;
         }
     }
 
@@ -264,16 +273,18 @@ public class $I$HashSet extends Hash implements $I$Set {
 
     private void _addNoResize(final $p$ key) {
         assert key != NO_KEY;
+        final $p$[] keys = this._keys;
+        final int mask = this._mask;
         final int hash = _spread.spread($hc$);
-        int index = hash & this._mask;
+        int index = hash & mask;
         for (;;) {
-            final $p$ k = this._keys[index];
+            final $p$ k = keys[index];
             if (k == NO_KEY) {
-                this._keys[index] = key;
+                keys[index] = key;
                 return;
             }
             assert k != key;
-            index = (index + 1) & this._mask;
+            index = (index + 1) & mask;
         }
     }
 
@@ -459,18 +470,16 @@ public class $I$HashSet extends Hash implements $I$Set {
                     ++index;
                     break;
             }
-            for (; index < keys.length; ++index) {
-                if (keys[index] == NO_KEY) {
+            final $p$[] keys = this.keys;
+            for (int i = index, len = keys.length; i < len; ++i) {
+                if (keys[i] == NO_KEY) {
                     continue;
                 }
+                index = i;
                 found = true;
                 return;
             }
-            if (set._haveNoValue) {
-                index = INDEX_NO_KEY;
-            } else {
-                index = INDEX_FINISHED;
-            }
+            index = set._haveNoValue ? INDEX_NO_KEY : INDEX_FINISHED;
             found = true;
         }
 
@@ -523,30 +532,34 @@ public class $I$HashSet extends Hash implements $I$Set {
         private void _removeAndCopy(final int remove) {
             assert this.keys == set._keys;
             set._size--;
+            final $p$[] setKeys = set._keys;
+            $p$[] keys = setKeys;
+            final Spread spread = set._spread;
+            final int mask = set._mask;
             int index = remove;
-            int next = (index + 1) & set._mask;
+            int next = (index + 1) & mask;
             for (;;) {
-                final $p$ key = set._keys[next];
+                final $p$ key = setKeys[next];
                 if (key == NO_KEY) {
-                    set._keys[index] = NO_KEY;
+                    setKeys[index] = NO_KEY;
                     return;
                 }
-                final int hash = set._spread.spread($hc$);
-                int slot = hash & set._mask;
+                final int hash = spread.spread($hc$);
+                int slot = hash & mask;
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (next < remove && index >= remove && this.keys == set._keys) {
-                        set._keys[index] = NO_KEY;
-                        this.keys = new $p$[set._keys.length - remove];
-                        System.arraycopy(set._keys, remove, this.keys, 0, this.keys.length);
+                    if (next < remove && index >= remove && keys == setKeys) {
+                        setKeys[index] = NO_KEY;
+                        this.keys = keys = new $p$[setKeys.length - remove];
+                        System.arraycopy(setKeys, remove, keys, 0, keys.length);
                     }
-                    set._keys[index] = key;
-                    this.index = this.keys == set._keys ? remove : 0;
-                    this.found = this.keys[this.index] != NO_KEY;
+                    setKeys[index] = key;
+                    int i = this.index = keys == setKeys ? remove : 0;
+                    this.found = keys[i] != NO_KEY;
                     index = next;
                 }
-                next = (next + 1) & set._mask;
+                next = (next + 1) & mask;
             }
         }
 

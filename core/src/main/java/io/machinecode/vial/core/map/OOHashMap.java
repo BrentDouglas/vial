@@ -111,16 +111,18 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
         if (key == null) {
             return this._haveNoValue;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
                 return true;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -129,9 +131,10 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
         if (_haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
             return true;
         }
-        for (int i = 0; i < this._data.length; i+=2) {
-            final Object k = this._data[i];
-            final Object v = this._data[i+1];
+        final Object[] data = this._data;
+        for (int i = 0; i < data.length; i+=2) {
+            final Object k = data[i];
+            final Object v = data[i+1];
             if (k != null && (value == null ? v == null : value.equals(v))) {
                 return true;
             }
@@ -147,16 +150,18 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
                             ? this._noValue
                             : null;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
-                return (V)this._data[index+1];
+                return (V)data[index+1];
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -168,16 +173,18 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
                             ? this._noValue
                             : defaultValue;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return defaultValue;
             } else if (k.equals(key)) {
-                return (V)this._data[index+1];
+                return (V)data[index+1];
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -195,26 +202,27 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             this._haveNoValue = true;
             return old;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
-                this._data[index] = key;
-                this._data[index+1] = value;
-                this._size++;
-                if (this._size >= this._threshold) {
+                data[index] = key;
+                data[index+1] = value;
+                if (++this._size >= this._threshold) {
                     _rehash();
                 }
                 return null;
             } else if (k.equals(key)) {
                 final int vi = index+1;
                 @SuppressWarnings("unchecked")
-                final V old = (V)this._data[vi];
-                this._data[vi] = value;
+                final V old = (V)data[vi];
+                data[vi] = value;
                 return old;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -230,22 +238,23 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             this._haveNoValue = true;
             return null;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
-                this._data[index] = key;
-                this._data[index+1] = value;
-                this._size++;
-                if (this._size >= this._threshold) {
+                data[index] = key;
+                data[index+1] = value;
+                if (++this._size >= this._threshold) {
                     _rehash();
                 }
                 return null;
             } else if (k.equals(key)) {
-                return (V)this._data[index+1];
+                return (V)data[index+1];
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -292,19 +301,21 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
                 return null;
             }
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
                 @SuppressWarnings("unchecked")
-                final V old = (V)this._data[index+1];
+                final V old = (V)data[index+1];
                 _remove(index);
                 return old;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -316,9 +327,10 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             --_size;
             return true;
         }
-        for (int i = 0; i < this._data.length; i+=2) {
-            final Object k = this._data[i];
-            final Object v = this._data[i+1];
+        final Object[] data = this._data;
+        for (int i = 0; i < data.length; i+=2) {
+            final Object k = data[i];
+            final Object v = data[i+1];
             if (k != null && (value == null ? v == null : value.equals(v))) {
                 _remove(i);
                 return true;
@@ -339,20 +351,22 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
                 return false;
             }
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
-                if (!value.equals(this._data[index+1])) {
+                if (!value.equals(data[index+1])) {
                     return false;
                 }
                 _remove(index);
                 return true;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -367,40 +381,46 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
                 return false;
             }
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
                 _remove(index);
                 return true;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
     private void _remove(int index) {
         this._size--;
-        int next = (index + 2) & this._nextMask;
+        final Object[] data = this._data;
+        final Spread spread = this._spread;
+        final int im = this._initialMask;
+        final int nm = this._nextMask;
+        int next = (index + 2) & nm;
         for (;;) {
-            final Object key = this._data[next];
+            final Object key = data[next];
             if (key == null) {
-                this._data[index] = null;
-                this._data[index+1] = null;
+                data[index] = null;
+                data[index+1] = null;
                 return;
             }
-            final int hash = _spread.spread(key.hashCode());
-            int slot = (hash & this._initialMask) << 1;
+            final int hash = spread.spread(key.hashCode());
+            int slot = (hash & im) << 1;
             if (index <= next
                     ? index >= slot || slot > next
                     : index >= slot && slot > next) {
-                this._data[index] = key;
-                this._data[index+1] = this._data[next+1];
+                data[index] = key;
+                data[index+1] = data[next+1];
                 index = next;
             }
-            next = (next + 2) & this._nextMask;
+            next = (next + 2) & nm;
         }
     }
 
@@ -414,21 +434,23 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             this._haveNoValue = true;
             return true;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return false;
             } else if (k.equals(key)) {
                 final int vi = index+1;
-                if (oldValue == null ? this._data[vi] != null : !oldValue.equals(this._data[vi])) {
+                if (oldValue == null ? data[vi] != null : !oldValue.equals(data[vi])) {
                     return false;
                 }
-                this._data[vi] = newValue;
+                data[vi] = newValue;
                 return true;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -443,20 +465,22 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             this._haveNoValue = true;
             return old;
         }
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
                 final int vi = index+1;
                 @SuppressWarnings("unchecked")
-                final V old = (V)this._data[vi];
-                this._data[vi] = value;
+                final V old = (V)data[vi];
+                data[vi] = value;
                 return old;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -549,19 +573,21 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
 
     private void _putNoResize(final Object key, final Object value) {
         assert key != null;
+        final Object[] data = this._data;
+        final int nm = this._nextMask;
         final int hash = _spread.spread(key.hashCode());
         int index = (hash & this._initialMask) << 1;
         for (;;) {
-            final Object k = this._data[index];
+            final Object k = data[index];
             if (k == null) {
-                this._data[index] = key;
-                this._data[index+1] = value;
+                data[index] = key;
+                data[index+1] = value;
                 return;
             } else if (k.equals(key)) {
-                this._data[index+1] = value;
+                data[index+1] = value;
                 return;
             }
-            index = (index + 2) & this._nextMask;
+            index = (index + 2) & nm;
         }
     }
 
@@ -597,10 +623,12 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
                     index+=2;
                     break;
             }
-            for (; index < data.length; index+=2) {
-                if (data[index] == null) {
+            Object[] data = this.data;
+            for (int i = index, len = data.length; i < len; i+=2) {
+                if (data[i] == null) {
                     continue;
                 }
+                index = i;
                 found = true;
                 return;
             }
@@ -660,33 +688,38 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
         private void _removeAndCopy(final int remove) {
             assert this.data == map._data;
             map._size--;
+            final Object[] mapData = map._data;
+            Object[] data = mapData;
+            final Spread spread = map._spread;
+            final int im = map._initialMask;
+            final int nm = map._nextMask;
             int index = remove;
-            int next = (index + 2) & map._nextMask;
+            int next = (index + 2) & nm;
             for (;;) {
-                final Object key = map._data[next];
+                final Object key = mapData[next];
                 if (key == null) {
-                    map._data[index] = null;
-                    map._data[index+1] = null;
+                    mapData[index] = null;
+                    mapData[index+1] = null;
                     return;
                 }
-                final int hash = map._spread.spread(key.hashCode());
-                int slot = (hash & map._initialMask) << 1;
+                final int hash = spread.spread(key.hashCode());
+                int slot = (hash & im) << 1;
                 if (index <= next
                         ? index >= slot || slot > next
                         : index >= slot && slot > next) {
-                    if (next < remove && index >= remove && this.data == map._data) {
-                        map._data[index] = null;
-                        map._data[index+1] = null;
-                        this.data = new Object[map._data.length - remove];
-                        System.arraycopy(map._data, remove, this.data, 0, this.data.length);
+                    if (next < remove && index >= remove && data == mapData) {
+                        mapData[index] = null;
+                        mapData[index+1] = null;
+                        this.data = data = new Object[mapData.length - remove];
+                        System.arraycopy(mapData, remove, data, 0, data.length);
                     }
-                    map._data[index] = key;
-                    map._data[index+1] = map._data[next+1];
-                    this.index = this.data == map._data ? remove : 0;
-                    this.found = this.data[this.index] != null;
+                    mapData[index] = key;
+                    mapData[index+1] = mapData[next+1];
+                    int i = this.index = data == mapData ? remove : 0;
+                    this.found = data[i] != null;
                     index = next;
                 }
-                next = (next + 2) & map._nextMask;
+                next = (next + 2) & nm;
             }
         }
 
@@ -859,8 +892,9 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             if (map._haveNoValue) {
                 ret[ri++] = _get(null);
             }
-            for (int i = 0; i < map._data.length; i+=2) {
-                final Object key = map._data[i];
+            final Object[] data = map._data;
+            for (int i = 0, len = data.length; i < len; i+=2) {
+                final Object key = data[i];
                 if (key == null) {
                     continue;
                 }
@@ -885,8 +919,9 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
             if (map._haveNoValue) {
                 ret[ri++] = (T)_get(null);
             }
-            for (int i = 0; i < map._data.length; i+=2) {
-                final Object key = map._data[i];
+            final Object[] data = map._data;
+            for (int i = 0, len = data.length; i < len; i+=2) {
+                final Object key = data[i];
                 if (key == null) {
                     continue;
                 }
