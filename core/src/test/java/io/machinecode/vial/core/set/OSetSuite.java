@@ -120,6 +120,29 @@ public class OSetSuite extends VialSuite {
         assertTrue(g.contains(2L));
     }
 
+    public void testWith() {
+        final OSet<Integer> set = create.<Integer>make()
+                .with(1)
+                .with(2)
+                .with(null);
+        assertTrue(set.contains(null));
+        assertTrue(set.contains(1));
+        assertTrue(set.contains(2));
+        assertEquals(3, set.size());
+    }
+
+    public void testCapacity() {
+        final OSet<Integer> set = create.create();
+        set.capacity(50);
+        set.capacity(0);
+        for (int i = 0; i < 20; ++i) {
+            set.add(i);
+        }
+        set.capacity(0);
+        set.capacity(30);
+        set.capacity(50);
+    }
+
     public void testNull() {
         final OSet<Long> set = create.create();
         assertTrue(set.add(null));
@@ -235,20 +258,20 @@ public class OSetSuite extends VialSuite {
         assertTrue(set.contains(2L));
         assertEquals(3, set.size());
 
-        assertTrue(set.retainAll(null, 2L));
+        assertTrue(set.xretainAll(null, 2L));
         assertFalse(set.contains(1L));
         assertTrue(set.contains(null));
         assertTrue(set.contains(2L));
         assertEquals(2, set.size());
 
-        assertTrue(set.retainAll(null, 3L));
+        assertTrue(set.xretainAll(null, 3L));
         assertFalse(set.contains(1L));
         assertFalse(set.contains(2L));
         assertTrue(set.contains(null));
         assertEquals(1, set.size());
 
         try {
-            set.retainAll((Object[])null);
+            set.xretainAll((Object[]) null);
             fail();
         } catch (final NullPointerException e) {}
     }
@@ -263,13 +286,13 @@ public class OSetSuite extends VialSuite {
         assertTrue(set.contains(2L));
         assertEquals(3, set.size());
 
-        assertTrue(set.retainAll(1L, 2L));
+        assertTrue(set.xretainAll(1L, 2L));
         assertTrue(set.contains(1L));
         assertFalse(set.contains(null));
         assertTrue(set.contains(2L));
         assertEquals(2, set.size());
 
-        assertTrue(set.retainAll(1L, 3L));
+        assertTrue(set.xretainAll(1L, 3L));
         assertTrue(set.contains(1L));
         assertFalse(set.contains(2L));
         assertFalse(set.contains(null));
@@ -288,14 +311,14 @@ public class OSetSuite extends VialSuite {
         assertTrue(set.contains(3L));
         assertEquals(4, set.size());
 
-        assertTrue(set.removeAll(null, 2L));
+        assertTrue(set.xremoveAll(null, 2L));
         assertFalse(set.contains(null));
         assertTrue(set.contains(1L));
         assertFalse(set.contains(2L));
         assertTrue(set.contains(3L));
         assertEquals(2, set.size());
 
-        assertTrue(set.removeAll(3L));
+        assertTrue(set.xremoveAll(3L));
         assertFalse(set.contains(null));
         assertTrue(set.contains(1L));
         assertFalse(set.contains(2L));
@@ -315,25 +338,40 @@ public class OSetSuite extends VialSuite {
         assertTrue(set.contains(3L));
         assertEquals(4, set.size());
 
-        assertTrue(set.containsAll(null, 1L, 2L, 3L));
-        assertTrue(set.containsAll(1L, 2L, 3L));
-        assertTrue(set.containsAll(null, 1L, 2L));
-        assertTrue(set.containsAll(null, 2L, 3L));
-        assertTrue(set.containsAll(null, 1L, 3L));
-        assertTrue(set.containsAll(null, 1L));
-        assertTrue(set.containsAll(null, 2L));
-        assertTrue(set.containsAll(null, 3L));
-        assertTrue(set.containsAll(1L, 2L));
-        assertTrue(set.containsAll(1L, 3L));
-        assertTrue(set.containsAll(2L, 3L));
-        assertTrue(set.containsAll(new Object[]{null}));
-        assertTrue(set.containsAll(1L));
-        assertTrue(set.containsAll(2L));
-        assertTrue(set.containsAll(3L));
+        assertTrue(set.xcontainsAll(null, 1L, 2L, 3L));
+        assertTrue(set.xcontainsAll(1L, 2L, 3L));
+        assertTrue(set.xcontainsAll(null, 1L, 2L));
+        assertTrue(set.xcontainsAll(null, 2L, 3L));
+        assertTrue(set.xcontainsAll(null, 1L, 3L));
+        assertTrue(set.xcontainsAll(null, 1L));
+        assertTrue(set.xcontainsAll(null, 2L));
+        assertTrue(set.xcontainsAll(null, 3L));
+        assertTrue(set.xcontainsAll(1L, 2L));
+        assertTrue(set.xcontainsAll(1L, 3L));
+        assertTrue(set.xcontainsAll(2L, 3L));
+        assertTrue(set.xcontainsAll(new Object[]{null}));
+        assertTrue(set.xcontainsAll(1L));
+        assertTrue(set.xcontainsAll(2L));
+        assertTrue(set.xcontainsAll(3L));
 
-        assertFalse(set.containsAll(null, 1L, 2L, 3L, 4L));
-        assertFalse(set.containsAll(null, 1L, 2L, 4L));
-        assertFalse(set.containsAll(4L));
+        assertFalse(set.xcontainsAll(null, 1L, 2L, 3L, 4L));
+        assertFalse(set.xcontainsAll(null, 1L, 2L, 4L));
+        assertFalse(set.xcontainsAll(4L));
+    }
+
+    public void testAddAll() {
+        final OSet<Integer> set = create.create();
+        set.addAll(new HashSet<Integer>());
+
+        final Set<Integer> jset = new HashSet<>();
+        for (int i = 0; i < 8; ++i) {
+            jset.add(i);
+        }
+        set.addAll(jset);
+        for (int i = 0; i < 20; ++i) {
+            jset.add(i);
+        }
+        set.addAll(jset);
     }
 
     public void testCursor() {

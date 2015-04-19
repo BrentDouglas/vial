@@ -19,6 +19,7 @@ import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -189,6 +190,33 @@ public class OOMapSuite extends VialSuite {
         assertTrue(f.containsValue(3));
 
         final OOMap<Integer, Integer> g = create.create(); //TODO
+    }
+
+    public void testWith() {
+        final OOMap<Integer,Integer> map = create.<Integer,Integer>make()
+                .with(1, 2)
+                .with(2, 3)
+                .with(null, 1);
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(1));
+        assertTrue(map.containsKey(2));
+        assertTrue(map.containsValue(1));
+        assertTrue(map.containsValue(2));
+        assertTrue(map.containsValue(3));
+        assertEquals(3, map.size());
+    }
+
+    public void testCapacity() {
+        //TODO Work out some way to better test this
+        final OOMap<Integer,Integer> map = create.make();
+        map.capacity(50);
+        map.capacity(0);
+        for (int i = 0; i < 20; ++i) {
+            map.put(i, i);
+        }
+        map.capacity(0);
+        map.capacity(30);
+        map.capacity(50);
     }
 
     public void testNullKey() {
@@ -857,6 +885,20 @@ public class OOMapSuite extends VialSuite {
         assertEquals(a, map);
         assertEquals(b, jmap);
         assertEquals(a, b);
+
+        final Map<Integer,Integer> big = new HashMap<>();
+        for (int i = 0; i < 8; ++i) {
+            big.put(i, i);
+        }
+        final OOMap<Integer,Integer> c = create.make();
+        c.putAll(new HashMap<Integer, Integer>());
+        c.putAll(big);
+
+        for (int i = 0; i < 64; ++i) {
+            big.put(i, i);
+        }
+        final OOMap<Integer,Integer> d = create.make();
+        d.putAll(big);
     }
 
     public void testToArray() {

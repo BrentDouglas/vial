@@ -154,6 +154,32 @@ public class O$I$MapSuite extends VialSuite {
         final O$I$Map<$P$> g = create.create(); //TODO
     }
 
+    public void testWith() {
+        final O$I$Map<$P$> map = create.<$P$>make()
+                .with(_1, _2)
+                .with(_2, _3)
+                .with(null, _1);
+        assertTrue(map.containsKey(null));
+        assertTrue(map.containsKey(_1));
+        assertTrue(map.containsKey(_2));
+        assertTrue(map.containsValue(_1));
+        assertTrue(map.containsValue(_2));
+        assertTrue(map.containsValue(_3));
+        assertEquals(3, map.size());
+    }
+
+    public void testCapacity() {
+        final O$I$Map<$P$> map = create.make();
+        map.capacity(50);
+        map.capacity(0);
+        for (int i = 0; i < 20; ++i) {
+            map.put(($p$)i, ($p$)i);
+        }
+        map.capacity(0);
+        map.capacity(30);
+        map.capacity(50);
+    }
+
     public void testXNullKey() {
         final O$I$Map<$P$> map = create.make();
         assertEquals(map.nv(), map.xput(null, _1));
@@ -1299,6 +1325,20 @@ public class O$I$MapSuite extends VialSuite {
         assertEquals(a, map);
         assertEquals(b, jmap);
         assertEquals(a, b);
+
+        final Map<$P$,$P$> big = new HashMap<>();
+        for (int i = 0; i < 8; ++i) {
+            big.put(($p$)i, ($p$)i);
+        }
+        final O$I$Map<$P$> c = create.make();
+        c.putAll(new HashMap<$P$, $P$>());
+        c.putAll(big);
+
+        for (int i = 0; i < 64; ++i) {
+            big.put(($p$)i, ($p$)i);
+        }
+        final O$I$Map<$P$> d = create.make();
+        d.putAll(big);
     }
 
     public void testToArray() {

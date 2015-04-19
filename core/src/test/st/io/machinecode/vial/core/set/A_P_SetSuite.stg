@@ -143,6 +143,27 @@ public class $I$SetSuite extends VialSuite {
         final $I$Set i = create.create(); //TODO
     }
 
+    public void testWith() {
+        final $I$Set set = create.make()
+                .with(_1)
+                .with(_2);
+        assertTrue(set.contains(_1));
+        assertTrue(set.contains(_2));
+        assertEquals(2, set.size());
+    }
+
+    public void testCapacity() {
+        final $I$Set set = create.make();
+        set.capacity(50);
+        set.capacity(0);
+        for (int i = 0; i < 20; ++i) {
+            set.add(($p$)i);
+        }
+        set.capacity(0);
+        set.capacity(30);
+        set.capacity(50);
+    }
+
     public void testNull() {
         try {
             final $I$Set set = create.make();
@@ -324,6 +345,21 @@ public class $I$SetSuite extends VialSuite {
         assertFalse(set.xcontainsAll(_1, _2, _4));
         assertFalse(set.xcontainsAll(_0, _4));
         assertFalse(set.xcontainsAll(_4));
+    }
+
+    public void testAddAll() {
+        final $I$Set set = create.create();
+        set.addAll(new HashSet<$P$>());
+
+        final Set<$P$> jset = new HashSet<>();
+        for (int i = 0; i < 8; ++i) {
+            jset.add(($p$)i);
+        }
+        set.addAll(jset);
+        for (int i = 0; i < 20; ++i) {
+            jset.add(($p$)i);
+        }
+        set.addAll(jset);
     }
 
     public void testCursor() {

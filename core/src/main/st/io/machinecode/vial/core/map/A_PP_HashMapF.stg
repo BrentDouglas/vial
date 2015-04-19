@@ -243,6 +243,12 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     @Override
+    public $Ik$$Iv$HashMapF with(final $pk$ key, final $pv$ value) {
+        xput(key, value);
+        return this;
+    }
+
+    @Override
     public $Pv$ put(final $Pk$ _key, final $Pv$ _value) {
         final $pk$ key = _key;
         final $pv$ value = _value;
@@ -268,7 +274,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
                 keys[index] = key;
                 this._values[index] = value;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(keys.length, this._factor, MAX_CAPACITY));
                 }
                 return null;
             } else if (k == key) {
@@ -305,7 +311,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
                 keys[index] = key;
                 this._values[index] = value;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(keys.length, this._factor, MAX_CAPACITY));
                 }
                 return NO_VALUE;
             } else if (k == key) {
@@ -341,7 +347,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
                 keys[index] = key;
                 this._values[index] = value;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(keys.length, this._factor, MAX_CAPACITY));
                 }
                 return null;
             } else if (k == key) {
@@ -372,7 +378,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
                 keys[index] = key;
                 this._values[index] = value;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(keys.length, this._factor, MAX_CAPACITY));
                 }
                 return NO_VALUE;
             } else if (k == key) {
@@ -384,6 +390,11 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
 
     @Override
     public void putAll(final Map<? extends $Pk$, ? extends $Pv$> m) {
+        final int s = m.size();
+        if (s == 0) {
+            return;
+        }
+        _expand(this._size + s);
         // TODO
         //if (m instanceof $Ik$$Iv$Map) {
         //    @SuppressWarnings("unchecked")
@@ -749,39 +760,62 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
         return sb.append('}').toString();
     }
 
-    private void _rehash() {
-        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
-        final $pk$[] keys = this._keys;
-        final $pv$[] values = this._values;
-        this._threshold = (int)(cap * this._factor);
-        this._mask = cap - 1;
-        this._keys = new $pk$[cap];
-        this._values = new $pv$[cap];
-        for (int i = 0, len = keys.length; i < len; i++) {
-            final $pk$ k = keys[i];
-            if (k != NO_KEY) {
-                _putNoResize(k, values[i]);
-            }
+    @Override
+    public $Ik$$Iv$HashMapF capacity(final int desired) {
+        final int size = Math.max(this._size, MIN_CAPACITY);
+        if (desired <= size) {
+            return this;
         }
+        final float factor = this._factor;
+        final int pow2desired = Util.capacity(desired, factor, MAX_CAPACITY);
+        final int current = this._keys.length;
+        if (pow2desired == current || size >= pow2desired) {
+            return this;
+        }
+        final int pow2min = Util.capacity(size, factor, MAX_CAPACITY);
+        if (pow2desired < pow2min) {
+            return this;
+        }
+        _rehash(pow2desired);
+        return this;
     }
 
-    private void _putNoResize(final $pk$ key, final $pv$ value) {
-        assert key != NO_KEY;
+    private void _expand(final int desired) {
+        final int len = this._keys.length;
+        if (desired <= len) {
+            return;
+        }
+        _rehash(Util.capacity(desired, this._factor, MAX_CAPACITY));
+    }
+
+    private void _rehash(final int capacity) {
+        this._threshold = (int)(capacity * this._factor);
+        final int mask = this._mask = capacity - 1;
         final $pk$[] keys = this._keys;
-        final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
-        int index = hash & mask;
-        for (;;) {
-            final $pk$ k = keys[index];
-            if (k == NO_KEY) {
-                keys[index] = key;
-                this._values[index] = value;
-                return;
-            } else if (k == key) {
-                this._values[index] = value;
-                return;
+        final $pv$[] values = this._values;
+        final $pk$[] newKeys = this._keys = new $pk$[capacity];
+        final $pv$[] newValues = this._values = new $pv$[capacity];
+        final Spread spread = this._spread;
+        outer: for (int i = 0, len = keys.length; i < len; i++) {
+            final $pk$ key = keys[i];
+            if (key == NO_KEY) {
+                continue;
             }
-            index = (index + 1) & mask;
+            final $pv$ value = values[i];
+            final int hash = spread.spread($hc$);
+            int index = hash & mask;
+            for (;;) {
+                final $pk$ k = newKeys[index];
+                if (k == NO_KEY) {
+                    newKeys[index] = key;
+                    newValues[index] = value;
+                    continue outer;
+                } else if (k == key) {
+                    newValues[index] = value;
+                    continue outer;
+                }
+                index = (index + 1) & mask;
+            }
         }
     }
 

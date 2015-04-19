@@ -194,6 +194,12 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
     }
 
     @Override
+    public OOHashMap<K,V> with(K key, V value) {
+        put(key, value);
+        return this;
+    }
+
+    @Override
     public V put(final K key, final V value) {
         if (key == null) {
             final V old;
@@ -217,7 +223,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
                 data[index] = key;
                 data[index+1] = value;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(data.length / 2, this._factor, MAX_CAPACITY));
                 }
                 return null;
             } else if (k.equals(key)) {
@@ -253,7 +259,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
                 data[index] = key;
                 data[index+1] = value;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(data.length / 2, this._factor, MAX_CAPACITY));
                 }
                 return null;
             } else if (k.equals(key)) {
@@ -265,6 +271,11 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
 
     @Override
     public void putAll(final Map<? extends K, ? extends V> m) {
+        final int s = m.size();
+        if (s == 0) {
+            return;
+        }
+        _expand(this._size + s);
         // TODO
         //if (m instanceof OOHashMap) {
         //    @SuppressWarnings("unchecked")
@@ -559,40 +570,62 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
         return sb.append('}').toString();
     }
 
-    private void _rehash() {
-        final int capacity = this._data.length / 2;
-        final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
-        final Object[] data = this._data;
-        final int length = cap * 2;
-        this._threshold = (int)(cap * this._factor);
-        this._initialMask = cap - 1;
-        this._nextMask = length - 1;
-        this._data = new Object[length];
-        for (int i = 0, len = data.length; i < len; i+=2) {
-            final Object k = data[i];
-            if (k != null) {
-                _putNoResize(k, data[i+1]);
-            }
+    @Override
+    public OOHashMap<K,V> capacity(int desired) {
+        final int size = Math.max(this._size, MIN_CAPACITY);
+        if (desired <= size) {
+            return this;
         }
+        final float factor = this._factor;
+        final int pow2desired = Util.capacity(desired, factor, MAX_CAPACITY);
+        final int current = this._data.length / 2;
+        if (pow2desired == current || size >= pow2desired) {
+            return this;
+        }
+        final int pow2min = Util.capacity(size, factor, MAX_CAPACITY);
+        if (pow2desired < pow2min) {
+            return this;
+        }
+        _rehash(pow2desired);
+        return this;
     }
 
-    private void _putNoResize(final Object key, final Object value) {
-        assert key != null;
+    private void _expand(final int desired) {
+        final int len = this._data.length / 2;
+        if (desired <= len) {
+            return;
+        }
+        _rehash(Util.capacity(desired, this._factor, MAX_CAPACITY));
+    }
+
+    private void _rehash(final int capacity) {
+        final int length = capacity * 2;
+        this._threshold = (int)(capacity * this._factor);
+        final int im = this._initialMask = capacity - 1;
+        final int nm = this._nextMask = length - 1;
         final Object[] data = this._data;
-        final int nm = this._nextMask;
-        final int hash = _spread.spread(key.hashCode());
-        int index = (hash & this._initialMask) << 1;
-        for (;;) {
-            final Object k = data[index];
-            if (k == null) {
-                data[index] = key;
-                data[index+1] = value;
-                return;
-            } else if (k.equals(key)) {
-                data[index+1] = value;
-                return;
+        final Object[] newData = this._data = new Object[length];
+        final Spread spread = this._spread;
+        outer: for (int i = 0, len = data.length; i < len; i+=2) {
+            final Object key = data[i];
+            if (key == null) {
+                continue;
             }
-            index = (index + 2) & nm;
+            final Object value = data[i+1];
+            final int hash = spread.spread(key.hashCode());
+            int index = (hash & im) << 1;
+            for (;;) {
+                final Object k = newData[index];
+                if (k == null) {
+                    newData[index] = key;
+                    newData[index+1] = value;
+                    continue outer;
+                } else if (k.equals(key)) {
+                    newData[index+1] = value;
+                    continue outer;
+                }
+                index = (index + 2) & nm;
+            }
         }
     }
 

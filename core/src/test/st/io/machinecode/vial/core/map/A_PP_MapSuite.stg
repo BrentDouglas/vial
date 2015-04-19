@@ -139,6 +139,32 @@ public class $Ik$$Iv$MapSuite extends VialSuite {
         final $Ik$$Iv$Map g = create.create(); //TODO
     }
 
+    public void testWith() {
+        final $Ik$$Iv$Map map = create.make()
+                .with(k_1, v_2)
+                .with(k_2, v_3)
+                .with(k_0, v_1);
+        assertTrue(map.containsKey(k_0));
+        assertTrue(map.containsKey(k_1));
+        assertTrue(map.containsKey(k_2));
+        assertTrue(map.containsValue(v_1));
+        assertTrue(map.containsValue(v_2));
+        assertTrue(map.containsValue(v_3));
+        assertEquals(3, map.size());
+    }
+
+    public void testCapacity() {
+        final $Ik$$Iv$Map map = create.make();
+        map.capacity(50);
+        map.capacity(0);
+        for (int i = 0; i < 20; ++i) {
+            map.put(($pk$)i, ($pv$)i);
+        }
+        map.capacity(0);
+        map.capacity(30);
+        map.capacity(50);
+    }
+
     public void testNoKey() {
         final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, v_1));
@@ -1135,6 +1161,20 @@ public class $Ik$$Iv$MapSuite extends VialSuite {
         assertEquals(a, map);
         assertEquals(b, jmap);
         assertEquals(a, b);
+
+        final Map<$Pk$,$Pv$> big = new HashMap<>();
+        for (int i = 0; i < 8; ++i) {
+            big.put(($pk$)i, ($pv$)i);
+        }
+        final $Ik$$Iv$Map c = create.make();
+        c.putAll(new HashMap<$Pk$, $Pv$>());
+        c.putAll(big);
+
+        for (int i = 0; i < 64; ++i) {
+            big.put(($pk$)i, ($pv$)i);
+        }
+        final $Ik$$Iv$Map d = create.make();
+        d.putAll(big);
     }
 
     public void testKeySetRemove() {

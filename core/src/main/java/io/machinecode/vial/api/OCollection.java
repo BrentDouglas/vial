@@ -10,13 +10,17 @@ import java.util.Collection;
  */
 public interface OCollection<V> extends Collection<V> {
 
-    boolean containsAll(final Object... c);
+    boolean xcontainsAll(final Object... c);
 
-    boolean addAll(final V[] c);
+    boolean xaddAll(final V[] c);
 
-    boolean removeAll(final Object... c);
+    boolean xremoveAll(final Object... c);
 
-    boolean retainAll(final Object... c);
+    boolean xretainAll(final Object... c);
+
+    OCollection<V> with(final V value);
+
+    OCollection<V> capacity(final int desired);
 
     OCursor<V> cursor();
 }

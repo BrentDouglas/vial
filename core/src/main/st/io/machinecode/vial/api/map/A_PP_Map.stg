@@ -21,6 +21,8 @@ public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
 
     $pv$ xgetOrDefault(final $pk$ key, final $pv$ defaultValue);
 
+    $Ik$$Iv$Map with(final $pk$ key, final $pv$ value);
+
     $pv$ xput(final $pk$ key, final $pv$ value);
 
     $pv$ xputIfAbsent(final $pk$ key, final $pv$ value);
@@ -34,6 +36,8 @@ public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
     boolean xreplace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue);
 
     $pv$ xreplace(final $pk$ key, final $pv$ value);
+
+    $Ik$$Iv$Map capacity(final int desired);
 
     $Ik$$Iv$Cursor iterator();
 }

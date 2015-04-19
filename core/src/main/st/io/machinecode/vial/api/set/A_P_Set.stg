@@ -12,5 +12,9 @@ import java.util.Set;
  * @since 1.0
  */
 public interface $I$Set extends $I$Collection, Set<$P$> {
+
+    $I$Set with(final $p$ value);
+
+    $I$Set capacity(final int desired);
 }
 >>

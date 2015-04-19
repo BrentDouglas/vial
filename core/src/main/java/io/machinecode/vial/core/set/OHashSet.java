@@ -75,7 +75,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
 
     public OHashSet(final V[] c) {
         this(c.length, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
-        addAll(c);
+        xaddAll(c);
     }
 
     public OHashSet(final int capacity, final float factor) {
@@ -127,6 +127,12 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
+    public OHashSet<V> with(V value) {
+        add(value);
+        return this;
+    }
+
+    @Override
     public boolean add(final V key) {
         if (key == null) {
             if (this._haveNoValue) {
@@ -144,7 +150,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
             if (k == null) {
                 keys[index] = key;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(keys.length, this._factor, MAX_CAPACITY));
                 }
                 return true;
             } else if (k.equals(key)) {
@@ -156,6 +162,11 @@ public class OHashSet<V> implements OSet<V>, Serializable {
 
     @Override
     public boolean addAll(final Collection<? extends V> c) {
+        final int s = c.size();
+        if (s == 0) {
+            return false;
+        }
+        _expand(this._size + s);
         boolean ret = false;
         for (final V key : c) {
             ret |= add(key);
@@ -164,7 +175,12 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean addAll(final V[] c) {
+    public boolean xaddAll(final V[] c) {
+        final int s = c.length;
+        if (s == 0) {
+            return false;
+        }
+        _expand(this._size + s);
         boolean ret = false;
         for (final V key : c) {
             ret |= add(key);
@@ -240,38 +256,61 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         return new ValueIt<>(this);
     }
 
-    private void _rehash() {
-        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
-        final Object[] keys = this._keys;
-        this._threshold = (int)(cap * this._factor);
-        this._mask = cap - 1;
-        this._keys = new Object[cap];
-        for (final Object k : keys) {
-            if (k != null) {
-                _addNoResize(k);
-            }
+    @Override
+    public OHashSet<V> capacity(int desired) {
+        final int size = Math.max(this._size, MIN_CAPACITY);
+        if (desired <= size) {
+            return this;
         }
+        final float factor = this._factor;
+        final int pow2desired = Util.capacity(desired, factor, MAX_CAPACITY);
+        final int current = this._keys.length;
+        if (pow2desired == current || size >= pow2desired) {
+            return this;
+        }
+        final int pow2min = Util.capacity(size, factor, MAX_CAPACITY);
+        if (pow2desired < pow2min) {
+            return this;
+        }
+        _rehash(pow2desired);
+        return this;
     }
 
-    private void _addNoResize(final Object key) {
-        assert key != null;
+    private void _expand(final int desired) {
+        final int len = this._keys.length;
+        if (desired <= len) {
+            return;
+        }
+        _rehash(Util.capacity(desired, this._factor, MAX_CAPACITY));
+    }
+
+    private void _rehash(final int capacity) {
         final Object[] keys = this._keys;
-        final int mask = this._mask;
-        final int hash = _spread.spread(key.hashCode());
-        int index = hash & mask;
-        for (;;) {
-            final Object k = keys[index];
-            if (k == null) {
-                keys[index] = key;
-                return;
+        this._threshold = (int)(capacity * this._factor);
+        final int mask = this._mask = capacity - 1;
+        final Object[] newKeys = this._keys = new Object[capacity];
+        final Spread spread = this._spread;
+        outer: for (final Object key : keys) {
+            if (key == null) {
+                continue;
             }
-            assert !k.equals(key);
-            index = (index + 1) & mask;
+            final int hash = spread.spread(key.hashCode());
+            int index = hash & mask;
+            for (;;) {
+                final Object k = newKeys[index];
+                if (k == null) {
+                    newKeys[index] = key;
+                    continue outer;
+                } else if (k.equals(key)) {
+                    continue outer;
+                }
+                index = (index + 1) & mask;
+            }
         }
     }
 
     @Override
-    public boolean containsAll(final Object... c) {
+    public boolean xcontainsAll(final Object... c) {
         for (final Object o : c) {
             if (!contains(o)) {
                 return false;
@@ -291,7 +330,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean removeAll(final Object... c) {
+    public boolean xremoveAll(final Object... c) {
         boolean ret = false;
         for (final Object o : c) {
             ret |= remove(o);
@@ -323,7 +362,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean retainAll(final Object... c) {
+    public boolean xretainAll(final Object... c) {
         if (c == null) throw new NullPointerException(); //TODO Message
         final Iterator<V> it = iterator();
         boolean ret = false;

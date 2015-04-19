@@ -9,4 +9,8 @@ import java.util.Set;
  * @since 1.0
  */
 public interface OSet<V> extends OCollection<V>, Set<V> {
+
+    OSet<V> with(final V value);
+
+    OSet<V> capacity(final int desired);
 }

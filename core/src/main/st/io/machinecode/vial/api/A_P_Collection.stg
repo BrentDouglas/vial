@@ -25,6 +25,10 @@ public interface $I$Collection extends Collection<$P$> {
 
     boolean xretainAll(final $p$... c);
 
+    $I$Collection with(final $p$ value);
+
+    $I$Collection capacity(final int desired);
+
     $I$Cursor cursor();
 }
 >>

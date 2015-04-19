@@ -8,6 +8,8 @@ import java.util.Map;
  */
 public interface OOMap<K,V> extends Map<K,V>, Iterable<OOCursor<K,V>> {
 
+    OOMap<K,V> with(final K key, final V value);
+
     /**
      * Remove a single mapping of the provided value.
      *
@@ -15,6 +17,8 @@ public interface OOMap<K,V> extends Map<K,V>, Iterable<OOCursor<K,V>> {
      * @return true if the map was modified as a result of this operation.
      */
     boolean xremoveValue(final Object value);
+
+    OOMap<K,V> capacity(final int desired);
 
     @Override
     OOCursor<K,V> iterator();

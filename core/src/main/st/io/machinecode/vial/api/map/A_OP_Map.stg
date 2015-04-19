@@ -19,6 +19,8 @@ public interface O$I$Map<K> extends Map<K,$P$>, Iterable<O$I$Cursor<K$X$ {
 
     $p$ xgetOrDefault(final K key, final $p$ defaultValue);
 
+    O$I$Map<K> with(final K key, final $p$ value);
+
     $p$ xput(final K key, final $p$ value);
 
     $p$ xputIfAbsent(final K key, final $p$ value);
@@ -30,6 +32,8 @@ public interface O$I$Map<K> extends Map<K,$P$>, Iterable<O$I$Cursor<K$X$ {
     boolean xreplace(final K key, final $p$ oldValue, final $p$ newValue);
 
     $p$ xreplace(final K key, final $p$ value);
+
+    O$I$Map<K> capacity(final int desired);
 
     O$I$Cursor<K> iterator();
 }

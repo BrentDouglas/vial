@@ -134,8 +134,14 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
+    public $I$HashSet with(final $p$ key) {
+        xadd(key);
+        return this;
+    }
+
+    @Override
     public boolean add(final $P$ key) {
-        return xadd(($p$)key);
+        return xadd(key);
     }
 
     @Override
@@ -156,7 +162,7 @@ public class $I$HashSet implements $I$Set, Serializable {
             if (k == NO_KEY) {
                 keys[index] = key;
                 if (++this._size >= this._threshold) {
-                    _rehash();
+                    _rehash(Util.capacity(keys.length, this._factor, MAX_CAPACITY));
                 }
                 return true;
             } else if (k == key) {
@@ -168,6 +174,11 @@ public class $I$HashSet implements $I$Set, Serializable {
 
     @Override
     public boolean xaddAll(final $p$... c) {
+        final int s = c.length;
+        if (s == 0) {
+            return false;
+        }
+        _expand(this._size + s);
         boolean ret = false;
         for (final $p$ key : c) {
             ret |= xadd(key);
@@ -177,6 +188,11 @@ public class $I$HashSet implements $I$Set, Serializable {
 
     @Override
     public boolean addAll(final Collection<? extends $P$> c) {
+        final int s = c.size();
+        if (s == 0) {
+            return false;
+        }
+        _expand(this._size + s);
         boolean ret = false;
         for (final $P$ key : c) {
             ret |= xadd(($p$)key);
@@ -260,33 +276,56 @@ public class $I$HashSet implements $I$Set, Serializable {
         return new ValueIt(this);
     }
 
-    private void _rehash() {
-        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
-        final $p$[] keys = this._keys;
-        this._threshold = (int)(cap * this._factor);
-        this._mask = cap - 1;
-        this._keys = new $p$[cap];
-        for (final $p$ k : keys) {
-            if (k != NO_KEY) {
-                _addNoResize(k);
-            }
+    @Override
+    public $I$HashSet capacity(final int desired) {
+        final int size = Math.max(this._size, MIN_CAPACITY);
+        if (desired <= size) {
+            return this;
         }
+        final float factor = this._factor;
+        final int pow2desired = Util.capacity(desired, factor, MAX_CAPACITY);
+        final int current = this._keys.length;
+        if (pow2desired == current || size >= pow2desired) {
+            return this;
+        }
+        final int pow2min = Util.capacity(size, factor, MAX_CAPACITY);
+        if (pow2desired < pow2min) {
+            return this;
+        }
+        _rehash(pow2desired);
+        return this;
     }
 
-    private void _addNoResize(final $p$ key) {
-        assert key != NO_KEY;
+    private void _expand(final int desired) {
+        final int len = this._keys.length;
+        if (desired <= len) {
+            return;
+        }
+        _rehash(Util.capacity(desired, this._factor, MAX_CAPACITY));
+    }
+
+    private void _rehash(final int capacity) {
+        this._threshold = (int)(capacity * this._factor);
+        final int mask = this._mask = capacity - 1;
         final $p$[] keys = this._keys;
-        final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
-        int index = hash & mask;
-        for (;;) {
-            final $p$ k = keys[index];
-            if (k == NO_KEY) {
-                keys[index] = key;
-                return;
+        final $p$[] newKeys = this._keys = new $p$[capacity];
+        final Spread spread = this._spread;
+        outer: for (final $p$ key : keys) {
+            if (key == NO_KEY) {
+                continue;
             }
-            assert k != key;
-            index = (index + 1) & mask;
+            final int hash = spread.spread($hc$);
+            int index = hash & mask;
+            for (;;) {
+                final $p$ k = newKeys[index];
+                if (k == NO_KEY) {
+                    newKeys[index] = key;
+                    continue outer;
+                } else if (k == key) {
+                    continue outer;
+                }
+                index = (index + 1) & mask;
+            }
         }
     }
 

@@ -10,6 +10,16 @@ public class Util {
 
     private static final int LINE_SIZE = 1024; //Integer.decode(System.getProperty("io.machinecode.vial.line.size","1024"));
 
+    /**
+     * Fill the specified segment of an array with the provided value. Initializes a small amount of values
+     * directly, larger values are them copied using {@link System#arraycopy(Object, int, Object, int, int)}
+     * on the previous section in order to make sure the accessed values are in the L1 cache.
+     *
+     * @param array The array to fill. Must not be null.
+     * @param start The first index of the array to be set to value inclusive.
+     * @param end The last index of the array to be set to value exclusive.
+     * @param value The value to put in the array.
+     */
     public static void fill(final Object[] array, final int start, final int end, final Object value) {
         assert start >= 0 && start <= end;
         assert end <= array.length;
@@ -23,6 +33,14 @@ public class Util {
         }
     }
 
+    /**
+     * Compute an acceptable size for the backing array of a hash collection.
+     *
+     * @param size The amount items required to fit in the array before rehashing. Must be larger than 0.
+     * @param factor The load factor of the array.
+     * @param max The largest acceptable array size. Must be a power of two.
+     * @return The lesser of next power of two greater than or equal to size / factor or max.
+     */
     public static int capacity(final int size, final float factor, final int max) {
         assert size > 0;
         int c = (int) Math.ceil(size / factor);
