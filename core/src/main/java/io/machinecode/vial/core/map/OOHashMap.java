@@ -1,11 +1,13 @@
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.IllegalKey;
 import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.OOCursor;
 import io.machinecode.vial.api.map.OOMap;
-import io.machinecode.vial.core.Hash;
+import io.machinecode.vial.core.Util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,11 +19,14 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
+public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
     private static final long serialVersionUID = 0L;
 
+    private static final Object ILLEGAL = new IllegalKey();
+
     private static final int MAX_CAPACITY = 1 << 29;
-    private static final int DEFAULT_CAPACITY = 4;
+    private static final int MIN_CAPACITY = 4;
+    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     private Object[] _data;
     private boolean _haveNoValue;
@@ -36,7 +41,7 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     private int _nextMask;
 
     public OOHashMap() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
+        this(MIN_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public OOHashMap(final int capacity) {
@@ -44,7 +49,7 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
     }
 
     public OOHashMap(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
+        this(MIN_CAPACITY, factor, Spreads.QUICK);
     }
 
     public OOHashMap(final Map<? extends K, ? extends V> m) {
@@ -64,9 +69,9 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
         } else {
             this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
-            final int capacity = Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_CAPACITY);
+            final int capacity = Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, MIN_CAPACITY);
             this._size = 0;
-            final int cap = capacity(capacity, DEFAULT_LOAD_FACTOR, MAX_CAPACITY);
+            final int cap = Util.capacity(capacity, DEFAULT_LOAD_FACTOR, MAX_CAPACITY);
             this._threshold = (int)(cap * DEFAULT_LOAD_FACTOR);
             final int length = cap * 2;
             this._initialMask = cap - 1;
@@ -86,9 +91,9 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
         assert _capacity >= 0;
         this._spread = spread;
         this._factor = factor;
-        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
+        final int capacity = Math.max((int) (_capacity / factor) + 1, MIN_CAPACITY);
         this._size = 0;
-        final int cap = capacity(capacity, factor, MAX_CAPACITY);
+        final int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
         this._threshold = (int)(cap * factor);
         final int length = cap * 2;
         this._initialMask = cap - 1;
@@ -489,7 +494,7 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
         this._haveNoValue = false;
         this._noValue = null;
         this._size = 0;
-        fill(this._data, 0, this._data.length, null);
+        Util.fill(this._data, 0, this._data.length, null);
     }
 
     @Override
@@ -556,7 +561,7 @@ public class OOHashMap<K,V> extends Hash implements OOMap<K,V> {
 
     private void _rehash() {
         final int capacity = this._data.length / 2;
-        final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+        final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
         final Object[] data = this._data;
         final int length = cap * 2;
         this._threshold = (int)(cap * this._factor);

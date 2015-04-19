@@ -7,8 +7,9 @@ import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.$Ik$$Iv$Cursor;
 import io.machinecode.vial.api.map.$Ik$$Iv$Map;
-import io.machinecode.vial.core.Hash;
+import io.machinecode.vial.core.Util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,11 +21,11 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
+public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 30;
-    private static final int DEFAULT_CAPACITY = 4;
+    private static final int MIN_CAPACITY = 4;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     private static final $pk$ NO_KEY = 0;
@@ -43,7 +44,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     private int _mask;
 
     public $Ik$$Iv$HashMapF() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
+        this(MIN_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public $Ik$$Iv$HashMapF(final int capacity) {
@@ -51,7 +52,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     public $Ik$$Iv$HashMapF(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
+        this(MIN_CAPACITY, factor, Spreads.QUICK);
     }
 
     public $Ik$$Iv$HashMapF(final Map<? extends $Pk$, ? extends $Pv$> m) {
@@ -71,9 +72,9 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
         } else {
             this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
-            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, MIN_CAPACITY);
             this._size = 0;
-            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
             this._threshold = (int)(cap * this._factor);
             this._mask = cap - 1;
             this._keys = new $pk$[cap];
@@ -91,10 +92,10 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
         assert spread != null;
         assert _capacity >= 0;
         this._spread = spread;
-        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
+        final int capacity = Math.max((int) (_capacity / factor) + 1, MIN_CAPACITY);
         this._factor = factor;
         this._size = 0;
-        final  int cap = capacity(capacity, factor, MAX_CAPACITY);
+        final  int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
         this._threshold = (int)(cap * factor);
         this._mask = cap - 1;
         this._keys = new $pk$[cap];
@@ -749,7 +750,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     }
 
     private void _rehash() {
-        final int cap = capacity(this._keys.length, this._factor, MAX_CAPACITY);
+        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
         final $pk$[] keys = this._keys;
         final $pv$[] values = this._values;
         this._threshold = (int)(cap * this._factor);

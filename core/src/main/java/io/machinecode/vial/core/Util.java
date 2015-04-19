@@ -1,23 +1,12 @@
 package io.machinecode.vial.core;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class Hash implements Serializable {
-    private static final long serialVersionUID = 0L;
-
-    protected static final Object ILLEGAL = new Object() {
-        @Override
-        public String toString() {
-            return "Illegal Key";
-        }
-    };
-
-    protected static final float DEFAULT_LOAD_FACTOR = 0.75f;
+public class Util {
 
     private static final int LINE_SIZE = 1024; //Integer.decode(System.getProperty("io.machinecode.vial.line.size","1024"));
 

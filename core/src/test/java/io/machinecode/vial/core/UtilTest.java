@@ -9,7 +9,7 @@ import java.util.Arrays;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class HashTest extends Assert {
+public class UtilTest extends Assert {
 
     @Test
     public void testFill() {
@@ -22,7 +22,7 @@ public class HashTest extends Assert {
     private void _fill(final int size) {
         final Object[] that = new Object[size];
         Arrays.fill(that, 4);
-        Hash.fill(that, 0, that.length, 0);
+        Util.fill(that, 0, that.length, 0);
         for (final Object val : that) {
             assertEquals(0, val);
         }
@@ -30,19 +30,14 @@ public class HashTest extends Assert {
 
     @Test
     public void testCapacity() {
-        assertEquals(2, Hash.capacity(1, 0.75f, 4));
-        assertEquals(4, Hash.capacity(3, 0.75f, 8));
-        assertEquals(8, Hash.capacity(4, 0.75f, 32));
-        assertEquals(16, Hash.capacity(7, 0.75f, 32));
+        assertEquals(2, Util.capacity(1, 0.75f, 4));
+        assertEquals(4, Util.capacity(3, 0.75f, 8));
+        assertEquals(8, Util.capacity(4, 0.75f, 32));
+        assertEquals(16, Util.capacity(7, 0.75f, 32));
     }
 
     @Test
     public void testMaxCapacity() {
-        assertEquals(4, Hash.capacity(10, 0.75f, 4));
-    }
-
-    @Test
-    public void testIllegalKeyToString() {
-        assertNotNull(Hash.ILLEGAL.toString());
+        assertEquals(4, Util.capacity(10, 0.75f, 4));
     }
 }

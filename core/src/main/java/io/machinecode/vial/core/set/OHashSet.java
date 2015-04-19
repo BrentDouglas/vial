@@ -1,11 +1,13 @@
 package io.machinecode.vial.core.set;
 
 import io.machinecode.vial.api.Spread;
+import io.machinecode.vial.core.IllegalKey;
 import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.set.OCursor;
 import io.machinecode.vial.api.set.OSet;
-import io.machinecode.vial.core.Hash;
+import io.machinecode.vial.core.Util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,11 +18,14 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class OHashSet<V> extends Hash implements OSet<V> {
+public class OHashSet<V> implements OSet<V>, Serializable {
     private static final long serialVersionUID = 0L;
 
+    private static final Object ILLEGAL = new IllegalKey();
+
     private static final int MAX_CAPACITY = 1 << 30;
-    private static final int DEFAULT_CAPACITY = 4;
+    private static final int MIN_CAPACITY = 4;
+    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     private Object[] _keys;
     private boolean _haveNoValue;
@@ -33,7 +38,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     private int _mask;
 
     public OHashSet() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
+        this(MIN_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public OHashSet(final int capacity) {
@@ -41,7 +46,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     public OHashSet(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
+        this(MIN_CAPACITY, factor, Spreads.QUICK);
     }
 
     public OHashSet(final Collection<? extends V> c) {
@@ -58,9 +63,9 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         } else {
             this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
-            final int capacity = Math.max((int) (c.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            final int capacity = Math.max((int) (c.size() / this._factor) + 1, MIN_CAPACITY);
             this._size = 0;
-            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
             this._threshold = (int)(cap * this._factor);
             this._mask = cap - 1;
             this._keys = new Object[cap];
@@ -83,9 +88,9 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         assert _capacity >= 0;
         this._spread = spread;
         this._factor = factor;
-        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
+        final int capacity = Math.max((int) (_capacity / factor) + 1, MIN_CAPACITY);
         this._size = 0;
-        final int cap = capacity(capacity, factor, MAX_CAPACITY);
+        final int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
         this._threshold = (int)(cap * factor);
         this._mask = cap - 1;
         this._keys = new Object[cap];
@@ -227,7 +232,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     public void clear() {
         this._haveNoValue = false;
         this._size = 0;
-        fill(this._keys, 0, this._keys.length, null);
+        Util.fill(this._keys, 0, this._keys.length, null);
     }
 
     @Override
@@ -236,7 +241,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     private void _rehash() {
-        final int cap = capacity(this._keys.length, this._factor, MAX_CAPACITY);
+        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
         final Object[] keys = this._keys;
         this._threshold = (int)(cap * this._factor);
         this._mask = cap - 1;

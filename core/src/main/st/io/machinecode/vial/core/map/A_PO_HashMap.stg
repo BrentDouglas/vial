@@ -7,8 +7,9 @@ import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.$I$OCursor;
 import io.machinecode.vial.api.map.$I$OMap;
-import io.machinecode.vial.core.Hash;
+import io.machinecode.vial.core.Util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,11 +21,11 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
+public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 30;
-    private static final int DEFAULT_CAPACITY = 4;
+    private static final int MIN_CAPACITY = 4;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     private static final $p$ NO_KEY = 0;
@@ -42,7 +43,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     private int _mask;
 
     public $I$OHashMap() {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
+        this(MIN_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
     public $I$OHashMap(final int capacity) {
@@ -50,7 +51,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     public $I$OHashMap(final float factor) {
-        this(DEFAULT_CAPACITY, factor, Spreads.QUICK);
+        this(MIN_CAPACITY, factor, Spreads.QUICK);
     }
 
     public $I$OHashMap(final Map<? extends $P$, ? extends V> m) {
@@ -71,9 +72,9 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         } else {
             this._spread = Spreads.QUICK;
             this._factor = DEFAULT_LOAD_FACTOR;
-            final int capacity = Math.max((int) (m.size() / this._factor) + 1, DEFAULT_CAPACITY);
+            final int capacity = Math.max((int) (m.size() / this._factor) + 1, MIN_CAPACITY);
             this._size = 0;
-            final int cap = capacity(capacity, this._factor, MAX_CAPACITY);
+            final int cap = Util.capacity(capacity, this._factor, MAX_CAPACITY);
             this._threshold = (int)(cap * this._factor);
             this._mask = cap - 1;
             this._keys = new $p$[cap];
@@ -91,10 +92,10 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         assert spread != null;
         assert _capacity >= 0;
         this._spread = spread;
-        final int capacity = Math.max((int) (_capacity / factor) + 1, DEFAULT_CAPACITY);
+        final int capacity = Math.max((int) (_capacity / factor) + 1, MIN_CAPACITY);
         this._factor = factor;
         this._size = 0;
-        final int cap = capacity(capacity, factor, MAX_CAPACITY);
+        final int cap = Util.capacity(capacity, factor, MAX_CAPACITY);
         this._threshold = (int)(cap * factor);
         this._mask = cap - 1;
         this._keys = new $p$[cap];
@@ -550,7 +551,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         for (int i = 0, len = keys.length; i < len; i++) {
             keys[i] = NO_KEY;
         }
-        fill(this._values, 0, this._values.length, null);
+        Util.fill(this._values, 0, this._values.length, null);
     }
 
     @Override
@@ -616,7 +617,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     private void _rehash() {
-        final int cap = capacity(this._keys.length, this._factor, MAX_CAPACITY);
+        final int cap = Util.capacity(this._keys.length, this._factor, MAX_CAPACITY);
         final $p$[] keys = this._keys;
         final Object[] values = this._values;
         this._threshold = (int)(cap * this._factor);
