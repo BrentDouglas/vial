@@ -666,8 +666,8 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        if (o instanceof $I$$I$HashMap) {
-            final $I$$I$HashMap m = ($I$$I$HashMap) o;
+        if (o instanceof $I$$I$Map) {
+            final $I$$I$Map m = ($I$$I$Map) o;
             if (_size != m.size()) return false;
             for (final $I$$I$Cursor e : this) {
                 if (e.value() != m.xget(e.key())) return false;
@@ -859,7 +859,7 @@ public class $I$$I$HashMap extends Hash implements $I$$I$Map {
                     map._data[index] = key;
                     map._data[index+1] = map._data[next+1];
                     this.index = this.data == map._data ? remove : 0;
-                    this.found = true;
+                    this.found = this.data[this.index] != NO_KEY;
                     index = next;
                 }
                 next = (next + 2) & map._nextMask;

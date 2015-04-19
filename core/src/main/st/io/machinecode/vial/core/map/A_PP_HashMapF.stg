@@ -665,8 +665,8 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        if (o instanceof $Ik$$Iv$HashMapF) {
-            final $Ik$$Iv$HashMapF m = ($Ik$$Iv$HashMapF) o;
+        if (o instanceof $Ik$$Iv$Map) {
+            final $Ik$$Iv$Map m = ($Ik$$Iv$Map) o;
             if (_size != m.size()) return false;
             for (final $Ik$$Iv$Cursor e : this) {
                 if (e.value() != m.xget(e.key())) return false;
@@ -856,7 +856,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
                     map._keys[index] = key;
                     map._values[index] = map._values[next];
                     this.index = this.keys == map._keys ? remove : 0;
-                    this.found = true;
+                    this.found = this.keys[this.index] != NO_KEY;
                     index = next;
                 }
                 next = (next + 1) & map._mask;

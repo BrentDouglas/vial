@@ -670,13 +670,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
             Object key = e.key();
             $p$ value = e.value();
             final Object mvalue = m.get(key);
-            if (!(mvalue instanceof $P$)) return false;
-            final $p$ mv = ($p$)mvalue;
-            if (value == NO_VALUE) {
-                if (!(mv == NO_VALUE && m.containsKey(key))) return false;
-            } else {
-                if (value != mv) return false;
-            }
+            if (!(mvalue instanceof $P$) || value != ($p$)mvalue) return false;
         }
         return true;
     }
@@ -802,6 +796,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
                 default:
                     assert index > INDEX_BEFORE && index < keys.length;
                     key = keys[keyIndex = index];
+                    assert key != null;
             }
             found = false;
             return _get();
@@ -852,7 +847,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
                     map._keys[index] = key;
                     map._values[index] = map._values[next];
                     this.index = this.keys == map._keys ? remove : 0;
-                    this.found = true;
+                    this.found = this.keys[this.index] != null;
                     index = next;
                 }
                 next = (next + 1) & map._mask;

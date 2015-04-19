@@ -542,7 +542,7 @@ public class $I$HashSet extends Hash implements $I$Set {
                     }
                     set._keys[index] = key;
                     this.index = this.keys == set._keys ? remove : 0;
-                    this.found = true;
+                    this.found = this.keys[this.index] != NO_KEY;
                     index = next;
                 }
                 next = (next + 1) & set._mask;

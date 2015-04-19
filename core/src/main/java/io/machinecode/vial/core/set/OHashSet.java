@@ -507,7 +507,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
                     }
                     set._keys[index] = key;
                     this.index = this.keys == set._keys ? remove : 0;
-                    this.found = true;
+                    this.found = this.keys[this.index] != null;
                     index = next;
                 }
                 next = (next + 1) & set._mask;

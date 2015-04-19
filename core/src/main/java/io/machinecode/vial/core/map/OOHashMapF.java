@@ -305,7 +305,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     @Override
-    public boolean removeValue(final Object value) {
+    public boolean xremoveValue(final Object value) {
         if (_haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
             _haveNoValue = false;
             _noValue = null;
@@ -621,6 +621,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 default:
                     assert index > INDEX_BEFORE && index < keys.length;
                     key = keys[keyIndex = index];
+                    assert key != null;
             }
             found = false;
             return _get();
@@ -674,7 +675,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                     map._keys[index] = key;
                     map._values[index] = map._values[next];
                     this.index = this.keys == map._keys ? remove : 0;
-                    this.found = true;
+                    this.found = this.keys[this.index] != null;
                     index = next;
                 }
                 next = (next + 1) & map._mask;
@@ -973,7 +974,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
 
         @Override
         public boolean remove(final Object o) {
-            return map.removeValue(o);
+            return map.xremoveValue(o);
         }
     }
 

@@ -236,6 +236,14 @@ public class $I$SetSuite extends VialSuite {
     }
     */
 
+    public void testXRetainAllNull() {
+        final $I$Set set = create.make();
+        try {
+            set.xretainAll(null);
+            fail();
+        } catch (final NullPointerException e) {}
+    }
+
     public void testRetainAllValue() {
         final $I$Set set = create.make();
         assertTrue(set.add(_0));

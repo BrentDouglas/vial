@@ -733,7 +733,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                     map._keys[index] = key;
                     map._values[index] = map._values[next];
                     this.index = this.keys == map._keys ? remove : 0;
-                    this.found = true;
+                    this.found = this.keys[this.index] != NO_KEY;
                     index = next;
                 }
                 next = (next + 1) & map._mask;

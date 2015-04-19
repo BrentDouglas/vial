@@ -446,21 +446,21 @@ public class OOMapSuite extends VialSuite {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
 
-            assertTrue(map.removeValue(i));
-            assertFalse(map.removeValue(i));
+            assertTrue(map.xremoveValue(i));
+            assertFalse(map.xremoveValue(i));
         }
         assertEquals(0, map.size());
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, 0));
         }
         for (int i = 0; i < 9; ++i) {
-            assertTrue(map.removeValue(0));
+            assertTrue(map.xremoveValue(0));
             assertTrue(map.containsValue(0));
         }
-        assertFalse(map.removeValue(null));
+        assertFalse(map.xremoveValue(null));
         assertEquals(1, map.size());
 
-        assertTrue(map.removeValue(0));
+        assertTrue(map.xremoveValue(0));
         assertFalse(map.containsValue(0));
         assertEquals(0, map.size());
     }
@@ -472,13 +472,13 @@ public class OOMapSuite extends VialSuite {
         assertTrue(map.containsValue(1));
         assertEquals(1, map.size());
 
-        assertFalse(map.removeValue(null));
+        assertFalse(map.xremoveValue(null));
         assertEquals(1, map.size());
 
-        assertFalse(map.removeValue(2));
+        assertFalse(map.xremoveValue(2));
         assertEquals(1, map.size());
 
-        assertTrue(map.removeValue(1));
+        assertTrue(map.xremoveValue(1));
         assertFalse(map.containsKey(null));
         assertFalse(map.containsValue(1));
         assertEquals(0, map.size());
@@ -491,10 +491,10 @@ public class OOMapSuite extends VialSuite {
         assertTrue(map.containsValue(null));
         assertEquals(1, map.size());
 
-        assertFalse(map.removeValue(2));
+        assertFalse(map.xremoveValue(2));
         assertEquals(1, map.size());
 
-        assertTrue(map.removeValue(null));
+        assertTrue(map.xremoveValue(null));
         assertFalse(map.containsKey(null));
         assertFalse(map.containsValue(null));
         assertEquals(0, map.size());

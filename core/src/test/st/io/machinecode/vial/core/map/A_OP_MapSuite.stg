@@ -405,6 +405,16 @@ public class O$I$MapSuite extends VialSuite {
         }
     }
 
+    public void testRemoveNulls() {
+        final O$I$Map<$P$> map = create.make();
+        assertFalse(map.remove(null, null));
+        assertFalse(map.remove(_0, null));
+        assertFalse(map.remove(null, _0));
+        assertFalse(map.remove(_0, _0));
+        assertEquals(map.nv(), map.xput(_0, _0));
+        assertTrue(map.remove(_0, _0));
+    }
+
     public void testRemoveKey() {
         final O$I$Map<$P$> map = create.make();
         for (int i = 0; i < 10; ++i) {

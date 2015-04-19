@@ -14,7 +14,7 @@ public interface OOMap<K,V> extends Map<K,V>, Iterable<OOCursor<K,V>> {
      * @param value The value to be removed.
      * @return true if the map was modified as a result of this operation.
      */
-    boolean removeValue(final Object value);
+    boolean xremoveValue(final Object value);
 
     @Override
     OOCursor<K,V> iterator();
