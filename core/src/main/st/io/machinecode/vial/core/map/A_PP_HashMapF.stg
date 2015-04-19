@@ -369,7 +369,8 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
     public void putAll(final Map<? extends $Pk$, ? extends $Pv$> m) {
         // TODO
         //if (m instanceof $Ik$$Iv$Map) {
-        //    final $Ik$$Iv$Map x = cast(m);
+        //    @SuppressWarnings("unchecked")
+        //    final $Ik$$Iv$Map x = ($Ik$$Iv$Map)m;
         //    final $pk$[] keys = x._keys;
         //    final $pv$[] values = x._values;
         //    for (int i = 0, len = keys.length; i < len; ++i) {
@@ -881,12 +882,12 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
 
         @Override
         $Ik$$Iv$Cursor _get() {
-            return cast(this);
+            return this;
         }
 
         @Override
         public $pk$ key() {
-            return cast(key);
+            return key;
         }
 
         @Override
@@ -1038,6 +1039,7 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a) {
             final T[] ret;
             if (a.length == map._size) {
@@ -1046,18 +1048,18 @@ public class $Ik$$Iv$HashMapF extends Hash implements $Ik$$Iv$Map {
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = (T[])Array.newInstance(a.getClass().getComponentType(), map._size);
             }
             int ri = 0;
             if (map._haveNoValue) {
-                ret[ri++] = cast(_get(NO_KEY));
+                ret[ri++] = (T)_get(NO_KEY);
             }
             for (int i = 0; i < map._keys.length; i++) {
                 final $pk$ key = map._keys[i];
                 if (key == NO_KEY) {
                     continue;
                 }
-                ret[ri++] = cast(_get(key));
+                ret[ri++] = (T)_get(key);
             }
             return ret;
         }

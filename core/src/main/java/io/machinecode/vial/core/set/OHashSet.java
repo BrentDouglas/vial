@@ -342,6 +342,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(final T[] a) {
         final T[] ret;
         if (a.length == _size) {
@@ -350,7 +351,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
             ret = a;
             a[_size] = null;
         } else {
-            ret = cast(Array.newInstance(a.getClass().getComponentType(), _size));
+            ret = (T[])Array.newInstance(a.getClass().getComponentType(), _size);
         }
         int ri = 0;
         if (_haveNoValue) {
@@ -360,7 +361,7 @@ public class OHashSet<V> extends Hash implements OSet<V> {
             if (key == null) {
                 continue;
             }
-            ret[ri++] = cast(key);
+            ret[ri++] = (T)key;
         }
         return ret;
     }
@@ -536,8 +537,9 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public V value() {
-            return cast(key);
+            return (V)key;
         }
 
         @Override
@@ -553,8 +555,9 @@ public class OHashSet<V> extends Hash implements OSet<V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         V _get() {
-            return cast(key);
+            return (V)key;
         }
     }
 }

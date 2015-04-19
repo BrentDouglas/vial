@@ -32,7 +32,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     private $p$[] _keys;
     private Object[] _values;
     private boolean _haveNoValue;
-    private Object _noValue;
+    private V _noValue;
 
     private final Spread _spread;
     private final float _factor;
@@ -55,7 +55,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
     public $I$OHashMap(final Map<? extends $P$, ? extends V> m) {
         if (m instanceof $I$OHashMap) {
-            final $I$OHashMap x = ($I$OHashMap)m;
+            @SuppressWarnings("unchecked")
+            final $I$OHashMap<? extends V> x = ($I$OHashMap<? extends V>)m;
             this._spread = x._spread;
             this._factor = x._factor;
             this._size = x._size;
@@ -156,13 +157,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V xget(final $p$ key) {
         if (key == NO_KEY) {
-            return cast(
-                    this._haveNoValue
+            return this._haveNoValue
                             ? this._noValue
-                            : null
-            );
+                            : null;
         }
         final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
@@ -171,7 +171,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (k == NO_KEY) {
                 return null;
             } else if (k == key) {
-                return cast(this._values[index]);
+                return (V)this._values[index];
             }
             index = (index + 1) & this._mask;
         }
@@ -185,13 +185,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V xgetOrDefault(final $p$ key, final V defaultValue) {
         if (key == NO_KEY) {
-            return cast(
-                    this._haveNoValue
+            return this._haveNoValue
                             ? this._noValue
-                            : defaultValue
-            );
+                            : defaultValue;
         }
         final int hash = _spread.spread($hc$);
         int index = hash & this._mask;
@@ -200,7 +199,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (k == NO_KEY) {
                 return defaultValue;
             } else if (k == key) {
-                return cast(this._values[index]);
+                return (V)this._values[index];
             }
             index = (index + 1) & this._mask;
         }
@@ -219,7 +218,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 this._size++;
                 old = null;
             } else {
-                old = cast(this._noValue);
+                old = this._noValue;
             }
             this._noValue = value;
             this._haveNoValue = true;
@@ -238,7 +237,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 }
                 return null;
             } else if (k == key) {
-                final V old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final V old = (V)this._values[index];
                 this._values[index] = value;
                 return old;
             }
@@ -252,10 +252,11 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V xputIfAbsent(final $p$ key, final V value) {
         if (key == NO_KEY) {
             if (this._haveNoValue) {
-                return cast(this._noValue);
+                return this._noValue;
             }
             this._size++;
             this._noValue = value;
@@ -275,17 +276,18 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 }
                 return null;
             } else if (k == key) {
-                return cast(this._values[index]);
+                return (V)this._values[index];
             }
             index = (index + 1) & this._mask;
         }
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putAll(final Map<? extends $P$, ? extends V> m) {
         // TODO
         //if (m instanceof $I$OHashMap) {
-        //    final $I$OHashMap<V> x = cast(m);
+        //    final $I$OHashMap<V> x = ($I$OHashMap<V>)m;
         //    final $p$[] keys = x._keys;
         //    final Object[] values = x._values;
         //    for (int i = 0, len = keys.length; i < len; ++i) {
@@ -322,7 +324,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (this._haveNoValue) {
                 this._size--;
                 this._haveNoValue = false;
-                final V old = cast(this._noValue);
+                final V old = this._noValue;
                 this._noValue = null;
                 return old;
             } else {
@@ -336,7 +338,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (k == NO_KEY) {
                 return null;
             } else if (k == key) {
-                final V old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final V old = (V)this._values[index];
                 _remove(index);
                 return old;
             }
@@ -488,7 +491,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (!this._haveNoValue) {
                 return null;
             }
-            final V old = cast(this._noValue);
+            final V old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -500,7 +503,8 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
             if (k == NO_KEY) {
                 return null;
             } else if (k == key) {
-                final V old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final V old = (V)this._values[index];
                 this._values[index] = value;
                 return old;
             }
@@ -758,12 +762,12 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
 
         @Override
         $I$OCursor<V> _get() {
-            return cast(this);
+            return this;
         }
 
         @Override
         public $p$ key() {
-            return cast(key);
+            return key;
         }
 
         @Override
@@ -913,6 +917,7 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a) {
             final T[] ret;
             if (a.length == map._size) {
@@ -921,17 +926,17 @@ public class $I$OHashMap<V> extends Hash implements $I$OMap<V> {
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = (T[])Array.newInstance(a.getClass().getComponentType(), map._size);
             }
             int ri = 0;
             if (map._haveNoValue) {
-                ret[ri++] = cast(_get(NO_KEY));
+                ret[ri++] = (T)_get(NO_KEY);
             }
             for (final $p$ key : map._keys) {
                 if (key == NO_KEY) {
                     continue;
                 }
-                ret[ri++] = cast(_get(key));
+                ret[ri++] = (T)_get(key);
             }
             return ret;
         }

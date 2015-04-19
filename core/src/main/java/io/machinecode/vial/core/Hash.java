@@ -34,11 +34,6 @@ public class Hash implements Serializable {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> T cast(final Object that) {
-        return (T)that;
-    }
-
     public static int capacity(final int size, final float factor, final int max) {
         assert size > 0;
         int c = (int) Math.ceil(size / factor);

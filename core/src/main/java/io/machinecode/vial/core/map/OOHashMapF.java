@@ -26,7 +26,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     private Object[] _keys;
     private Object[] _values;
     private boolean _haveNoValue;
-    private Object _noValue;
+    private V _noValue;
 
     private final Spread _spread;
     private final float _factor;
@@ -49,7 +49,8 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
 
     public OOHashMapF(final Map<? extends K, ? extends V> m) {
         if (m instanceof OOHashMapF) {
-            final OOHashMapF x = (OOHashMapF)m;
+            @SuppressWarnings("unchecked")
+            final OOHashMapF<? extends K, ? extends V> x = (OOHashMapF<? extends K, ? extends V>)m;
             this._spread = x._spread;
             this._factor = x._factor;
             this._size = x._size;
@@ -138,13 +139,12 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V get(final Object key) {
         if (key == null) {
-            return cast(
-                    this._haveNoValue
+            return this._haveNoValue
                             ? this._noValue
-                            : null
-            );
+                            : null;
         }
         final int hash = _spread.spread(key.hashCode());
         int index = hash & this._mask;
@@ -153,20 +153,19 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
-                return cast(this._values[index]);
+                return (V)this._values[index];
             }
             index = (index + 1) & this._mask;
         }
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V getOrDefault(final Object key, final V defaultValue) {
         if (key == null) {
-            return cast(
-                    this._haveNoValue
+            return this._haveNoValue
                             ? this._noValue
-                            : defaultValue
-            );
+                            : defaultValue;
         }
         final int hash = _spread.spread(key.hashCode());
         int index = hash & this._mask;
@@ -175,7 +174,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             if (k == null) {
                 return defaultValue;
             } else if (k.equals(key)) {
-                return cast(this._values[index]);
+                return (V)this._values[index];
             }
             index = (index + 1) & this._mask;
         }
@@ -189,7 +188,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 this._size++;
                 old = null;
             } else {
-                old = cast(this._noValue);
+                old = this._noValue;
             }
             this._noValue = value;
             this._haveNoValue = true;
@@ -208,7 +207,8 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 }
                 return null;
             } else if (k.equals(key)) {
-                final V old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final V old = (V)this._values[index];
                 this._values[index] = value;
                 return old;
             }
@@ -217,10 +217,11 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public V putIfAbsent(final K key, final V value) {
         if (key == null) {
             if (this._haveNoValue) {
-                return cast(this._noValue);
+                return this._noValue;
             }
             this._size++;
             this._noValue = value;
@@ -240,18 +241,18 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 }
                 return null;
             } else if (k.equals(key)) {
-                return cast(this._values[index]);
+                return (V)this._values[index];
             }
             index = (index + 1) & this._mask;
         }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void putAll(final Map<? extends K, ? extends V> m) {
         // TODO
         //if (m instanceof OOHashMapF) {
-        //    final OOHashMapF<K,V> x = cast(m);
+        //    @SuppressWarnings("unchecked")
+        //    final OOHashMapF<K,V> x = (OOHashMapF<K,V>)m);
         //    final Object[] keys = x._keys;
         //    final Object[] values = x._values;
         //    for (int i = 0, len = keys.length; i < len; ++i) {
@@ -265,7 +266,8 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
         //    }
         //} else
         if (m instanceof OOMap) {
-            final OOMap<K,V> x = cast(m);
+            @SuppressWarnings("unchecked")
+            final OOMap<K,V> x = (OOMap<K,V>)m;
             for (final OOCursor<K,V> c : x.iterator()) {
                 put(c.key(), c.value());
             }
@@ -282,7 +284,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             if (this._haveNoValue) {
                 this._size--;
                 this._haveNoValue = false;
-                final V old = cast(this._noValue);
+                final V old = this._noValue;
                 this._noValue = null;
                 return old;
             } else {
@@ -296,9 +298,10 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
-                final V old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final V old = (V)this._values[index];
                 _remove(index);
-                return cast(old);
+                return old;
             }
             index = (index + 1) & this._mask;
         }
@@ -432,7 +435,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             if (!this._haveNoValue) {
                 return null;
             }
-            final V old = cast(this._noValue);
+            final V old = this._noValue;
             this._noValue = value;
             this._haveNoValue = true;
             return old;
@@ -444,7 +447,8 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
-                final V old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final V old = (V)this._values[index];
                 this._values[index] = value;
                 return old;
             }
@@ -700,12 +704,13 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
 
         @Override
         OOCursor<K, V> _get() {
-            return cast(this);
+            return this;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public K key() {
-            return cast(key);
+            return (K)key;
         }
 
         @Override
@@ -754,7 +759,8 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
 
         @Override
         Entry<K, V> _get() {
-            final K k = cast(key);
+            @SuppressWarnings("unchecked")
+            final K k = (K)key;
             return new En<>(map, k, map.get(k));
         }
     }
@@ -765,8 +771,9 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         K _get() {
-            return cast(key);
+            return (K)key;
         }
     }
 
@@ -777,7 +784,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
 
         @Override
         V _get() {
-            return map.get(Hash.<K>cast(key));
+            return map.get(key);
         }
     }
 
@@ -852,12 +859,13 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 if (key == null) {
                     continue;
                 }
-                ret[ri++] = _get(Hash.<K>cast(key));
+                ret[ri++] = _get(key);
             }
             return ret;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a) {
             final T[] ret;
             if (a.length == map._size) {
@@ -866,22 +874,22 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = (T[])Array.newInstance(a.getClass().getComponentType(), map._size);
             }
             int ri = 0;
             if (map._haveNoValue) {
-                ret[ri++] = cast(_get(null));
+                ret[ri++] = (T)_get(null);
             }
             for (final Object key : map._keys) {
                 if (key == null) {
                     continue;
                 }
-                ret[ri++] = cast(_get(Hash.<K>cast(key)));
+                ret[ri++] = (T)_get(key);
             }
             return ret;
         }
 
-        abstract X _get(final K key);
+        abstract X _get(final Object key);
 
         @Override
         public void clear() {
@@ -942,8 +950,9 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
         }
 
         @Override
-        K _get(final K key) {
-            return key;
+        @SuppressWarnings("unchecked")
+        K _get(final Object key) {
+            return (K)key;
         }
 
         @Override
@@ -958,7 +967,7 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
         }
 
         @Override
-        V _get(final K key) {
+        V _get(final Object key) {
             return map.get(key);
         }
 
@@ -1002,8 +1011,10 @@ public class OOHashMapF<K,V> extends Hash implements OOMap<K,V> {
         }
 
         @Override
-        Entry<K, V> _get(final K key) {
-            return new En<>(map, key, map.get(key));
+        Entry<K, V> _get(final Object key) {
+            @SuppressWarnings("unchecked")
+            final K k = (K)key;
+            return new En<>(map, k, map.get(k));
         }
 
         @Override

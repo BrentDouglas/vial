@@ -168,7 +168,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
-    public $p$ xget(final Object key) {
+    public $p$ xget(final K key) {
         if (key == null) {
             return this._haveNoValue
                     ? this._noValue
@@ -381,10 +381,11 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putAll(final Map<? extends K, ? extends $P$> m) {
         // TODO
         //if (m instanceof O$I$HashMap) {
-        //    final O$I$HashMap<K> x = cast(m);
+        //    final O$I$HashMap<K> x = (O$I$HashMap<K>)m;
         //    final Object[] keys = x._keys;
         //    final $p$[] values = x._values;
         //    for (int i = 0, len = keys.length; i < len; ++i) {
@@ -426,9 +427,10 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
             if (k == null) {
                 return null;
             } else if (k.equals(key)) {
-                final $P$ old = cast(this._values[index]);
+                @SuppressWarnings("unchecked")
+                final $P$ old = ($P$)this._values[index];
                 _remove(index);
-                return cast(old);
+                return old;
             }
             index = (index + 1) & this._mask;
         }
@@ -872,17 +874,19 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
 
         @Override
         O$I$Cursor<K> _get() {
-            return cast(this);
+            return this;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public K key() {
-            return cast(key);
+            return (K)key;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public $p$ value() {
-            return map.xget(key);
+            return map.xget((K)key);
         }
 
         @Override
@@ -927,7 +931,8 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
 
         @Override
         Entry<K, $P$> _get() {
-            final K k = cast(key);
+            @SuppressWarnings("unchecked")
+            final K k = (K)key;
             return new En<>(map, k, map.xget(k));
         }
     }
@@ -938,8 +943,9 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         K _get() {
-            return cast(key);
+            return (K)key;
         }
     }
 
@@ -1028,6 +1034,7 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a) {
             final T[] ret;
             if (a.length == map._size) {
@@ -1036,17 +1043,17 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
                 ret = a;
                 a[map._size] = null;
             } else {
-                ret = cast(Array.newInstance(a.getClass().getComponentType(), map._size));
+                ret = (T[])Array.newInstance(a.getClass().getComponentType(), map._size);
             }
             int ri = 0;
             if (map._haveNoValue) {
-                ret[ri++] = cast(_get(null));
+                ret[ri++] = (T)_get(null);
             }
             for (final Object key : map._keys) {
                 if (key == null) {
                     continue;
                 }
-                ret[ri++] = cast(_get(key));
+                ret[ri++] = (T)_get(key);
             }
             return ret;
         }
@@ -1112,8 +1119,9 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         K _get(final Object key) {
-            return cast(key);
+            return (K)key;
         }
 
         @Override
@@ -1172,9 +1180,10 @@ public class O$I$HashMap<K> extends Hash implements O$I$Map<K> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         Entry<K,$P$> _get(final Object key) {
-            final K k = cast(key);
-            return new En<>(map, k, map.xget(key));
+            final K k = (K)key;
+            return new En<>(map, k, map.xget(k));
         }
 
         @Override

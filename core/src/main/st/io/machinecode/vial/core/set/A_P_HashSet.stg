@@ -364,6 +364,7 @@ public class $I$HashSet extends Hash implements $I$Set {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(final T[] a) {
         final T[] ret;
         if (a.length == _size) {
@@ -372,17 +373,17 @@ public class $I$HashSet extends Hash implements $I$Set {
             ret = a;
             a[_size] = null;
         } else {
-            ret = cast(Array.newInstance(a.getClass().getComponentType(), _size));
+            ret = (T[])Array.newInstance(a.getClass().getComponentType(), _size);
         }
         int ri = 0;
         if (_haveNoValue) {
-            ret[ri++] = cast(NO_KEY);
+            ret[ri++] = (T)($P$)NO_KEY;
         }
         for (final $p$ key : _keys) {
             if (key == NO_KEY) {
                 continue;
             }
-            ret[ri++] = cast(key);
+            ret[ri++] = (T)($P$)key;
         }
         return ret;
     }
@@ -572,7 +573,7 @@ public class $I$HashSet extends Hash implements $I$Set {
 
         @Override
         public $p$ value() {
-            return cast(key);
+            return key;
         }
 
         @Override
@@ -589,7 +590,7 @@ public class $I$HashSet extends Hash implements $I$Set {
 
         @Override
         $P$ _get() {
-            return cast(key);
+            return key;
         }
     }
 }
