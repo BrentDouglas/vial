@@ -3,7 +3,7 @@ package io.machinecode.vial.core.set;
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.IllegalKey;
 import io.machinecode.vial.core.Spreads;
-import io.machinecode.vial.api.set.OCursor;
+import io.machinecode.vial.api.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.Util;
 

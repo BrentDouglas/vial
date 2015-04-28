@@ -1,7 +1,5 @@
 package io.machinecode.vial.api;
 
-import io.machinecode.vial.api.set.OCursor;
-
 import java.util.Collection;
 
 /**

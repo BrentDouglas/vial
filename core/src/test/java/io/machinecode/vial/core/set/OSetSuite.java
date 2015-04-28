@@ -8,7 +8,7 @@ import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.SetFeature;
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.Spreads;
-import io.machinecode.vial.api.set.OCursor;
+import io.machinecode.vial.api.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.BadHashCode;
 import io.machinecode.vial.core.TestUtil;

@@ -1,4 +1,4 @@
-package io.machinecode.vial.api.set;
+package io.machinecode.vial.api;
 
 import java.util.Iterator;
 

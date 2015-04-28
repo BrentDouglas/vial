@@ -16,4 +16,8 @@
         <Class name="~io\.machinecode\.vial\.core\.map\..ZHashMapF.*"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
+    <Match>
+        <Class name="~io\.machinecode\.vial\.core\.list\..ArrayList.*"/>
+        <Bug pattern="IT_NO_SUCH_ELEMENT"/>
+    </Match>
 </FindBugsFilter>

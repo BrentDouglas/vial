@@ -1,6 +1,7 @@
 package io.machinecode.vial.core;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,27 +11,43 @@ import java.util.Set;
  */
 public class TestUtil {
 
-    public static <K,V, M extends Map<K,V>> M populate(final M map, Map.Entry<K,V>[] entries) {
+    public static <K,V, M extends Map<K,V>> M populate(final M c, Map.Entry<K,V>[] entries) {
         for (final Map.Entry<K,V> entry : entries) {
-            map.put(entry.getKey(), entry.getValue());
+            c.put(entry.getKey(), entry.getValue());
         }
-        return map;
+        return c;
     }
 
     @SuppressWarnings("unchecked")
-    public static <V, S extends Set<V>> S populate(final S set, Object[] entries) {
+    public static <V, S extends Set<V>> S populate(final S c, Object[] entries) {
         for (final Object entry : entries) {
-            set.add((V) entry);
+            c.add((V) entry);
         }
-        return set;
+        return c;
     }
 
     @SuppressWarnings("unchecked")
-    public static <V, S extends Set<V>> S populate(final S set, Collection<?> entries) {
+    public static <V, S extends Set<V>> S populate(final S c, Collection<?> entries) {
         for (final Object entry : entries) {
-            set.add((V)entry);
+            c.add((V) entry);
         }
-        return set;
+        return c;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <V, S extends List<V>> S populate(final S c, Object[] entries) {
+        for (final Object entry : entries) {
+            c.add((V) entry);
+        }
+        return c;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <V, S extends List<V>> S populate(final S c, Collection<?> entries) {
+        for (final Object entry : entries) {
+            c.add((V) entry);
+        }
+        return c;
     }
 
     public static boolean arrayContains(final Object[] a, final Object v) {
