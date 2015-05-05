@@ -377,7 +377,7 @@ public class $I$SetSuite extends VialSuite {
         }
         assertFalse(c.hasNext());
 
-        c.reset();
+        c.before();
 
         int i = 0;
         for (final $I$Cursor x : c) {

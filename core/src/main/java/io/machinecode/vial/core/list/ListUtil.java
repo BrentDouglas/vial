@@ -42,17 +42,6 @@ public class ListUtil {
         return ret;
     }
 
-    static <X> int _removeAll(final OList<X> list, final int from, int to, final Object... cs) {
-        int ret = 0;
-        for (final Object x : cs) {
-            while (list.remove(from, to, x)) {
-                --to;
-                ++ret;
-            }
-        }
-        return ret;
-    }
-
     static <X> int _retainAll(final OList<X> list, final X[] values, final int from, int to, final Collection<?> c) {
         if (c == null) throw new NullPointerException(); //TODO Message
         if (to < from) throw new IndexOutOfBoundsException();
@@ -66,25 +55,6 @@ public class ListUtil {
             } else {
                 ++i;
             }
-        }
-        return ret;
-    }
-
-    static <X> int _retainAll(final OList<X> list, final X[] values, final int from, int to, final Object... cs) {
-        if (cs == null) throw new NullPointerException(); //TODO Message
-        if (to < from) throw new IndexOutOfBoundsException();
-        int ret = 0;
-        outer: for (int i = from; i < to;) {
-            final X x = values[i];
-            for (final Object c : cs) {
-                if (c == null ? x == null : c.equals(x)) {
-                    list.remove(i);
-                    --to;
-                    ++ret;
-                    continue outer;
-                }
-            }
-            ++i;
         }
         return ret;
     }

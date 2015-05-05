@@ -1,16 +1,16 @@
 package io.machinecode.vial.core.set;
 
+import io.machinecode.vial.api.OCursor;
+import io.machinecode.vial.api.OIterator;
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.IllegalKey;
 import io.machinecode.vial.core.Spreads;
-import io.machinecode.vial.api.OCursor;
 import io.machinecode.vial.api.set.OSet;
 import io.machinecode.vial.core.Util;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -75,7 +75,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
 
     public OHashSet(final V[] c) {
         this(c.length, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
-        xaddAll(c);
+        _addAll(c);
     }
 
     public OHashSet(final int capacity, final float factor) {
@@ -174,8 +174,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         return ret;
     }
 
-    @Override
-    public boolean xaddAll(final V[] c) {
+    private boolean _addAll(final V[] c) {
         final int s = c.length;
         if (s == 0) {
             return false;
@@ -252,7 +251,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public Iterator<V> iterator() {
+    public OIterator<V> iterator() {
         return new ValueIt<>(this);
     }
 
@@ -310,16 +309,6 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     }
 
     @Override
-    public boolean xcontainsAll(final Object... c) {
-        for (final Object o : c) {
-            if (!contains(o)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean containsAll(final Collection<?> c) {
         for (final Object o : c) {
             if (!contains(o)) {
@@ -327,15 +316,6 @@ public class OHashSet<V> implements OSet<V>, Serializable {
             }
         }
         return true;
-    }
-
-    @Override
-    public boolean xremoveAll(final Object... c) {
-        boolean ret = false;
-        for (final Object o : c) {
-            ret |= remove(o);
-        }
-        return ret;
     }
 
     @Override
@@ -350,31 +330,13 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     @Override
     public boolean retainAll(final Collection<?> c) {
         if (c == null) throw new NullPointerException(); //TODO Message
-        final Iterator<V> it = iterator();
+        final OIterator<V> it = iterator();
         boolean ret = false;
         while (it.hasNext()) {
             if (!c.contains(it.next())) {
                 it.remove();
                 ret = true;
             }
-        }
-        return ret;
-    }
-
-    @Override
-    public boolean xretainAll(final Object... c) {
-        if (c == null) throw new NullPointerException(); //TODO Message
-        final Iterator<V> it = iterator();
-        boolean ret = false;
-        outer: while (it.hasNext()) {
-            final V k = it.next();
-            for (final Object o : c) {
-                if (k == null ? o == null : k.equals(o)) {
-                    continue outer;
-                }
-            }
-            it.remove();
-            ret = true;
         }
         return ret;
     }
@@ -451,7 +413,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         return sb.append(']').toString();
     }
 
-    private abstract static class _It<T,V> implements Iterator<T> {
+    public abstract static class _It<T,V> implements OIterator<T> {
         private static final int INDEX_BEFORE = -1;
         private static final int INDEX_NO_VALUE = -2;
         private static final int INDEX_FINISHED = -3;
@@ -575,11 +537,43 @@ public class OHashSet<V> implements OSet<V>, Serializable {
             }
         }
 
-        public void reset() {
+        @Override
+        public _It<T,V> before() {
             index = INDEX_BEFORE;
             found = false;
             key = ILLEGAL;
             keys = set._keys;
+            return this;
+        }
+
+        @Override
+        public _It<T,V> after() {
+            index = INDEX_FINISHED;
+            found = true;
+            key = ILLEGAL;
+            keys = set._keys;
+            return this;
+        }
+
+        @Override
+        public _It<T,V> index(final int index) {
+            if (index >= set._size) throw new IndexOutOfBoundsException();
+            this.index = INDEX_BEFORE;
+            key = ILLEGAL;
+            found = true;
+            final Object[] keys = this.keys;
+            int x = 0;
+            for (int i = 0, len = keys.length; i < len; ++i) {
+                if (keys[i] == null) {
+                    continue;
+                }
+                if (x++ == index) {
+                    this.index = i;
+                    return this;
+                }
+            }
+            this.index = set._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
+            return this;
         }
 
         abstract T _get();
@@ -603,7 +597,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
         }
 
         @Override
-        public OCursor<V> iterator() {
+        public OIterator<OCursor<V>> iterator() {
             return this;
         }
     }

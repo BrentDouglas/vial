@@ -3,6 +3,7 @@ delimiters "$", "$"
 PHashSet(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.set;
 
+import io.machinecode.vial.api.OIterator;
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.$I$Cursor;
@@ -12,7 +13,6 @@ import io.machinecode.vial.core.Util;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -187,6 +187,22 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
+    public boolean xaddRange(final int from, final int to, final $p$... c) {
+        final int s = to - from;
+        if (s < 0) {
+            throw new IndexOutOfBoundsException();
+        } else if (s == 0) {
+            return false;
+        }
+        _expand(this._size + s);
+        boolean ret = false;
+        for (int i = from; i < to; ++i) {
+            ret |= xadd(c[i]);
+        }
+        return ret;
+    }
+
+    @Override
     public boolean addAll(final Collection<? extends $P$> c) {
         final int s = c.size();
         if (s == 0) {
@@ -272,7 +288,7 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
-    public Iterator<$P$> iterator() {
+    public OIterator<$P$> iterator() {
         return new ValueIt(this);
     }
 
@@ -340,6 +356,16 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
+    public boolean xcontainsRange(final int from, final int to, final $p$... c) {
+        for (int i = from; i < to; ++i) {
+            if (!xcontains(c[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean containsAll(final Collection<?> c) {
         for (final Object o : c) {
             if (!contains(o)) {
@@ -359,6 +385,15 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
+    public boolean xremoveRange(final int from, final int to, final $p$... c) {
+        boolean ret = false;
+        for (int i = from; i < to; ++i) {
+            ret |= xremove(c[i]);
+        }
+        return ret;
+    }
+
+    @Override
     public boolean removeAll(final Collection<?> c) {
         boolean ret = false;
         for (final Object o : c) {
@@ -370,7 +405,7 @@ public class $I$HashSet implements $I$Set, Serializable {
     @Override
     public boolean retainAll(final Collection<?> c) {
         if (c == null) throw new NullPointerException(); //TODO Message
-        final Iterator<$P$> it = iterator();
+        final OIterator<$P$> it = iterator(); //TODO Remove this
         boolean ret = false;
         while (it.hasNext()) {
             if (!c.contains(it.next())) {
@@ -382,9 +417,27 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
+    public boolean xretainRange(final int from, final int to, final $p$... c) {
+        if (c == null) throw new NullPointerException(); //TODO Message
+        final OIterator<$P$> it = iterator(); //TODO Remove this
+        boolean ret = false;
+        outer: while (it.hasNext()) {
+            final $p$ k = it.next();
+            for (int i = from; i < to; ++i) {
+                if (k == c[i]) {
+                    continue outer;
+                }
+            }
+            it.remove();
+            ret = true;
+        }
+        return ret;
+    }
+
+    @Override
     public boolean xretainAll(final $p$... c) {
         if (c == null) throw new NullPointerException(); //TODO Message
-        final Iterator<$P$> it = iterator(); //TODO Remove this
+        final OIterator<$P$> it = iterator(); //TODO Remove this
         boolean ret = false;
         outer: while (it.hasNext()) {
             final $p$ k = it.next();
@@ -478,7 +531,7 @@ public class $I$HashSet implements $I$Set, Serializable {
         return sb.append(']').toString();
     }
 
-    private abstract static class _It<T> implements Iterator<T> {
+    private abstract static class _It<T> implements OIterator<T> {
         private static $p$ ILLEGAL = ($p$)-1;
         private static final int INDEX_BEFORE = -1;
         private static final int INDEX_NO_KEY = -2;
@@ -604,11 +657,43 @@ public class $I$HashSet implements $I$Set, Serializable {
             }
         }
 
-        public void reset() {
-            index = INDEX_BEFORE;
-            found = false;
-            key = ILLEGAL;
-            keys = set._keys;
+        @Override
+        public _It<T> before() {
+            this.index = INDEX_BEFORE;
+            this.found = false;
+            this.key = ILLEGAL;
+            this.keys = set._keys;
+            return this;
+        }
+
+        @Override
+        public _It<T> after() {
+            this.index = INDEX_FINISHED;
+            this.found = true;
+            this.key = ILLEGAL;
+            this.keys = set._keys;
+            return this;
+        }
+
+        @Override
+        public _It<T> index(final int index) {
+            if (index >= set._size) throw new IndexOutOfBoundsException();
+            this.index = INDEX_BEFORE;
+            this.key = ILLEGAL;
+            this.found = true;
+            final $p$[] keys = this.keys;
+            int x = 0;
+            for (int i = 0, len = keys.length; i < len; ++i) {
+                if (keys[i] == NO_KEY) {
+                    continue;
+                }
+                if (x++ == index) {
+                    this.index = i;
+                    return this;
+                }
+            }
+            this.index = set._haveNoValue ? INDEX_NO_KEY : INDEX_FINISHED;
+            return this;
         }
 
         abstract T _get();

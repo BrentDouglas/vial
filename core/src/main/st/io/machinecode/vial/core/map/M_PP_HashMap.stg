@@ -3,6 +3,7 @@ delimiters "$", "$"
 PPHashMap(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.map;
 
+import io.machinecode.vial.api.OIterator;
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.Spreads;
 import io.machinecode.vial.api.map.$I$$I$Cursor;
@@ -813,7 +814,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
     }
 
-    private abstract static class _It<T> implements Iterator<T> {
+    private abstract static class _It<T> implements OIterator<T> {
         private static final $p$ ILLEGAL = ($p$)-1;
         private static final int INDEX_BEFORE = -1;
         private static final int INDEX_NO_VALUE = -2;
@@ -942,11 +943,43 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
             }
         }
 
-        public void reset() {
+        @Override
+        public _It<T> before() {
             index = INDEX_BEFORE;
             found = false;
             key = ILLEGAL;
             data = map._data;
+            return this;
+        }
+
+        @Override
+        public _It<T> after() {
+            index = INDEX_FINISHED;
+            found = true;
+            key = ILLEGAL;
+            data = map._data;
+            return this;
+        }
+
+        @Override
+        public _It<T> index(final int index) {
+            if (index >= map._size) throw new IndexOutOfBoundsException();
+            this.index = INDEX_BEFORE;
+            key = ILLEGAL;
+            found = true;
+            final $p$[] data = this.data;
+            int x = 0;
+            for (int i = 0, len = data.length; i < len; ++i) {
+                if (data[i] == NO_KEY) {
+                    continue;
+                }
+                if (x++ == index) {
+                    this.index = i;
+                    return this;
+                }
+            }
+            this.index = map._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
+            return this;
         }
 
         abstract T _get();

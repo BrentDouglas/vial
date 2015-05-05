@@ -7,6 +7,7 @@ import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.Feature;
 import com.google.common.collect.testing.features.ListFeature;
+import io.machinecode.vial.api.OCursor;
 import io.machinecode.vial.api.list.OList;
 import io.machinecode.vial.api.list.OListIterator;
 import io.machinecode.vial.core.TestUtil;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * @author <a href="mailto:brent.douglas@ysura.com">Brent Douglas</a>
+ * @author <a href="mailto:brent.douglas@gmail.com">Brent Douglas</a>
  */
 public class OListSuite extends VialSuite {
 
@@ -916,7 +917,7 @@ public class OListSuite extends VialSuite {
     public void testRetainAllRangeNullArg() {
         final OList<Integer> that = vlist(_0, _1, _2, _3, _4);
         try {
-            that.retainAll(3, 2, null);
+            that.retainAll(2, 3, null);
             fail();
         } catch (final NullPointerException e) {}
     }
@@ -1217,12 +1218,12 @@ public class OListSuite extends VialSuite {
         it.remove();
     }
 
-    public void testIteratorIterator() {
+    public void testIteratorCursor() {
         final List<Integer> ref = jlist(_0, _1);
         final OList<Integer> that = vlist(_0, _1);
-        final OListIterator<Integer> it = that.iterator();
-        for (final Integer x : it) {
-            assertTrue(ref.remove(x));
+        final OCursor<Integer> it = that.cursor();
+        for (final OCursor<Integer> x : it) {
+            assertTrue(ref.remove(x.value()));
         }
         assertTrue(ref.isEmpty());
     }

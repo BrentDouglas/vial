@@ -29,12 +29,6 @@ public interface OList<X> extends OCollection<X>, List<X> {
 
     boolean retainAll(final int from, final int to, final Collection<?> c);
 
-    boolean xcontainsAll(final int from, final int to, final Object... c);
-
-    boolean xremoveAll(final int from, final int to, final Object... c);
-
-    boolean xretainAll(final int from, final int to, final Object... c);
-
     Object[] toArray(final int from, final int to);
 
     <T> T[] toArray(final int from, final int to, final T[] a);

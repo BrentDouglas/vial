@@ -1285,7 +1285,7 @@ public class $Ik$$Iv$MapSuite extends VialSuite {
         }
         assertFalse(c.hasNext());
 
-        c.reset();
+        c.before();
         int i = 0;
         for (final $Ik$$Iv$Cursor x : c) {
             ++i;
@@ -1295,7 +1295,7 @@ public class $Ik$$Iv$MapSuite extends VialSuite {
         }
         assertEquals(11, i);
 
-        c.reset();
+        c.before();
         c.next();
         assertFalse(c.equals(null));
         assertFalse(c.equals(new Object()));
@@ -1510,7 +1510,13 @@ public class $Ik$$Iv$MapSuite extends VialSuite {
         }
 
         @Override
-        public void reset() {}
+        public Cur before() { return this; }
+
+        @Override
+        public Cur after() { return this; }
+
+        @Override
+        public Cur index(final int index) { return this; }
 
         @Override
         public Iterator<$Ik$$Iv$Cursor> iterator() {

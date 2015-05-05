@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 import java.util.List;
 
 /**
- * @author <a href="mailto:brent.douglas@ysura.com">Brent Douglas</a>
+ * @author <a href="mailto:brent.douglas@gmail.com">Brent Douglas</a>
  */
 public class OArrayListTest {
 

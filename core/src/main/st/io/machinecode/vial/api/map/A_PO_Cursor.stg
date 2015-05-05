@@ -3,18 +3,16 @@ delimiters "$", "$"
 POCursor(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.api.map;
 
-import java.util.Iterator;
+import io.machinecode.vial.api.OIterator;
 
 /**
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public interface $I$OCursor<V> extends Iterable<$I$OCursor<V$X$, Iterator<$I$OCursor<V$X$ {
+public interface $I$OCursor<V> extends Iterable<$I$OCursor<V$X$, OIterator<$I$OCursor<V$X$ {
 
     $p$ key();
 
     V value();
-
-    void reset();
 }
 >>

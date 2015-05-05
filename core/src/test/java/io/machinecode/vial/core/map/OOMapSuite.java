@@ -989,7 +989,7 @@ public class OOMapSuite extends VialSuite {
         }
         assertFalse(c.hasNext());
 
-        c.reset();
+        c.before();
         int i = 0;
         for (final OOCursor<Integer, Integer> x : c) {
             ++i;
@@ -999,7 +999,7 @@ public class OOMapSuite extends VialSuite {
         }
         assertEquals(11, i);
 
-        c.reset();
+        c.before();
         c.next();
         assertFalse(c.equals(null));
         assertFalse(c.equals(new Object()));
@@ -1186,7 +1186,13 @@ public class OOMapSuite extends VialSuite {
         }
 
         @Override
-        public void reset() {}
+        public Cur before() { return this; }
+
+        @Override
+        public Cur after() { return this; }
+
+        @Override
+        public Cur index(final int index) { return this; }
 
         @Override
         public Iterator<OOCursor<Integer, Integer>> iterator() {

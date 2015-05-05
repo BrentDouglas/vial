@@ -1,5 +1,6 @@
 package io.machinecode.vial.core.map;
 
+import io.machinecode.vial.api.OIterator;
 import io.machinecode.vial.api.Spread;
 import io.machinecode.vial.core.IllegalKey;
 import io.machinecode.vial.core.Spreads;
@@ -631,7 +632,7 @@ public class OOHashMapF<K,V> implements OOMap<K,V>, Serializable {
         }
     }
 
-    private abstract static class _It<T,K,V> implements Iterator<T> {
+    private abstract static class _It<T,K,V> implements OIterator<T> {
         private static final int INDEX_BEFORE = -1;
         private static final int INDEX_NO_VALUE = -2;
         private static final int INDEX_FINISHED = -3;
@@ -763,11 +764,43 @@ public class OOHashMapF<K,V> implements OOMap<K,V>, Serializable {
             }
         }
 
-        public void reset() {
+        @Override
+        public _It<T,K,V> before() {
             index = INDEX_BEFORE;
             found = false;
             key = ILLEGAL;
             keys = map._keys;
+            return this;
+        }
+
+        @Override
+        public _It<T,K,V> after() {
+            index = INDEX_FINISHED;
+            found = true;
+            key = ILLEGAL;
+            keys = map._keys;
+            return this;
+        }
+
+        @Override
+        public _It<T,K,V> index(final int index) {
+            if (index >= map._size) throw new IndexOutOfBoundsException();
+            this.index = INDEX_BEFORE;
+            key = ILLEGAL;
+            found = true;
+            final Object[] keys = this.keys;
+            int x = 0;
+            for (int i = 0, len = keys.length; i < len; ++i) {
+                if (keys[i] == null) {
+                    continue;
+                }
+                if (x++ == index) {
+                    this.index = i;
+                    return this;
+                }
+            }
+            this.index = map._haveNoValue ? INDEX_NO_VALUE : INDEX_FINISHED;
+            return this;
         }
 
         abstract T _get();

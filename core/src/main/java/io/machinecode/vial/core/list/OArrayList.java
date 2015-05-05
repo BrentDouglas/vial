@@ -1,19 +1,18 @@
 package io.machinecode.vial.core.list;
 
+import io.machinecode.vial.api.OCursor;
 import io.machinecode.vial.api.list.OList;
 import io.machinecode.vial.api.list.OListIterator;
-import io.machinecode.vial.api.OCursor;
 import io.machinecode.vial.core.Util;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 /**
- * @author <a href="mailto:brent.douglas@ysura.com">Brent Douglas</a>
+ * @author <a href="mailto:brent.douglas@gmail.com">Brent Douglas</a>
  */
 public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializable {
     private static final long serialVersionUID = 0L;
@@ -236,27 +235,6 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
     }
 
     @Override
-    public boolean xcontainsAll(final Object... c) {
-        for (final Object x : c) {
-            if (!this.contains(x)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean xcontainsAll(final int from, final int to, final Object... c) {
-        if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
-        for (final Object x : c) {
-            if (!ListUtil._contains(this._values, from, to, x)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean addAll(final Collection<? extends X> c) {
         boolean ret = false;
         for (final X x : c) {
@@ -270,15 +248,6 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
         boolean ret = false;
         for (final X x : c) {
             ret |= _add(index++, x);
-        }
-        return ret;
-    }
-
-    @Override
-    public boolean xaddAll(final X[] c) {
-        boolean ret = false;
-        for (final X x : c) {
-            ret |= add(x);
         }
         return ret;
     }
@@ -301,16 +270,7 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
 
     @Override
     public boolean removeAll(final int from, int to, final Collection<?> c) {
-        return ListUtil._removeAll(this, from, to, c) != 0;
-    }
-
-    @Override
-    public boolean xremoveAll(final Object... c) {
-        return ListUtil._removeAll(this, 0, this._size, c) != 0;
-    }
-
-    @Override
-    public boolean xremoveAll(final int from, int to, final Object... c) {
+        if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
         return ListUtil._removeAll(this, from, to, c) != 0;
     }
 
@@ -321,16 +281,7 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
 
     @Override
     public boolean retainAll(final int from, int to, final Collection<?> c) {
-        return ListUtil._retainAll(this, this._values, from, to, c) != 0;
-    }
-
-    @Override
-    public boolean xretainAll(final Object... c) {
-        return ListUtil._retainAll(this, this._values, 0, this._size, c) != 0;
-    }
-
-    @Override
-    public boolean xretainAll(final int from, int to, final Object... c) {
+        if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
         return ListUtil._retainAll(this, this._values, from, to, c) != 0;
     }
 
@@ -462,14 +413,11 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
 
         @Override
         public boolean containsAll(final int from, final int to, final Collection<?> c) {
-            final int _from = this._from;
-            return this._list.containsAll(_from + from, _from + to, c);
-        }
-
-        @Override
-        public boolean xcontainsAll(final int from, final int to, final Object... c) {
-            final int _from = this._from;
-            return this._list.xcontainsAll(_from + from, _from + to, c);
+            final int _f = this._from;
+            final int _from = _f + from;
+            int _to = _f + to;
+            if (_to < _from || _from < _f || to > this._to) throw new IndexOutOfBoundsException();
+            return this._list.containsAll(_from, _to, c);
         }
 
         @Override
@@ -484,7 +432,9 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
 
         @Override
         int _addAll(final int index, final Collection<? extends X> c) {
-            final int ret = this._list._addAll(this._from + index, c);
+            final int i = this._from + index;
+            if (index < 0 || i > this._to) throw new IndexOutOfBoundsException();
+            final int ret = this._list._addAll(i, c);
             this._to += ret;
             return ret;
         }
@@ -499,23 +449,7 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
             return this._removeAll(from, to, c) != 0;
         }
 
-        @Override
-        public boolean xremoveAll(final int from, final int to, final Object... c) {
-            return this._removeAll(from, to, c) != 0;
-        }
-
         public int _removeAll(final int from, final int to, final Collection<?> c) {
-            final int _f = this._from;
-            final int _from = _f + from;
-            int _to = _f + to;
-            if (_to < _from || _from < _f || to > this._to) throw new IndexOutOfBoundsException();
-            final BaseList<X> list = this._list;
-            final int ret = ListUtil._removeAll(list, _from, _to, c);
-            this._to -= ret;
-            return ret;
-        }
-
-        public int _removeAll(final int from, final int to, final Object... c) {
             final int _f = this._from;
             final int _from = _f + from;
             int _to = _f + to;
@@ -536,23 +470,7 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
             return _retainAll(from, to, c) != 0;
         }
 
-        @Override
-        public boolean xretainAll(final int from, final int to, final Object... c) {
-            return _retainAll(from, to, c) != 0;
-        }
-
         private int _retainAll(final int from, final int to, final Collection<?> c) {
-            if (c == null) throw new NullPointerException(); //TODO Message
-            final int _f = this._from;
-            final int _from = _f + from;
-            int _to = _f + to;
-            if (_to < _from || _from < _f || _to > this._to) throw new IndexOutOfBoundsException();
-            final int ret = ListUtil._retainAll(this._list, this._list._values(), _from, _to, c);
-            this._to -= ret;
-            return ret;
-        }
-
-        private int _retainAll(final int from, final int to, final Object... c) {
             if (c == null) throw new NullPointerException(); //TODO Message
             final int _f = this._from;
             final int _from = _f + from;
@@ -676,26 +594,6 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
         public <T> T[] toArray(final int from, final int to, final T[] a) {
             final int _from = this._from;
             return this._list.toArray(_from + from, _from + to, a);
-        }
-
-        @Override
-        public boolean xcontainsAll(final Object... c) {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public boolean xaddAll(final X[] c) {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public boolean xremoveAll(final Object... c) {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
-        public boolean xretainAll(final Object... c) {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
@@ -903,11 +801,6 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
         public void add(final X x) {
             this._add(x);
         }
-
-        @Override
-        public It<X> iterator() {
-            return this;
-        }
     }
 
     public static class Cur<X> extends _OIt<X,OCursor<X>> implements OCursor<X> {
@@ -921,12 +814,7 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
         }
 
         @Override
-        public void reset() {
-            this.before();
-        }
-
-        @Override
-        public Iterator<OCursor<X>> iterator() {
+        public Cur<X> iterator() {
             return this;
         }
 
@@ -1005,11 +893,6 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
         public void add(final X x) {
             this._add(x);
         }
-
-        @Override
-        public SubIt<X> iterator() {
-            return this;
-        }
     }
 
     public static class SubCur<X> extends _SubIt<X,OCursor<X>> implements OCursor<X> {
@@ -1023,12 +906,7 @@ public class OArrayList<X> extends BaseList<X> implements RandomAccess, Serializ
         }
 
         @Override
-        public void reset() {
-            this.before();
-        }
-
-        @Override
-        public Iterator<OCursor<X>> iterator() {
+        public SubCur<X> iterator() {
             return this;
         }
 

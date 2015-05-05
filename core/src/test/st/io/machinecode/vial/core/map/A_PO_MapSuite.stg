@@ -994,7 +994,7 @@ public class $I$OMapSuite extends VialSuite {
         }
         assertFalse(c.hasNext());
 
-        c.reset();
+        c.before();
         int i = 0;
         for (final $I$OCursor<$P$> x : c) {
             ++i;
@@ -1004,7 +1004,7 @@ public class $I$OMapSuite extends VialSuite {
         }
         assertEquals(($p$)11, i);
 
-        c.reset();
+        c.before();
         c.next();
         assertFalse(c.equals(null));
         assertFalse(c.equals(new Object()));
@@ -1228,7 +1228,13 @@ public class $I$OMapSuite extends VialSuite {
         }
 
         @Override
-        public void reset() {}
+        public Cur before() { return this; }
+
+        @Override
+        public Cur after() { return this; }
+
+        @Override
+        public Cur index(final int index) { return this; }
 
         @Override
         public Iterator<$I$OCursor<$P$$X$ iterator() {

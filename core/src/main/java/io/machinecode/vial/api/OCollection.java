@@ -8,17 +8,11 @@ import java.util.Collection;
  */
 public interface OCollection<V> extends Collection<V> {
 
-    boolean xcontainsAll(final Object... c);
-
-    boolean xaddAll(final V[] c);
-
-    boolean xremoveAll(final Object... c);
-
-    boolean xretainAll(final Object... c);
-
     OCollection<V> with(final V value);
 
     OCollection<V> capacity(final int desired);
 
     OCursor<V> cursor();
+
+    OIterator<V> iterator();
 }

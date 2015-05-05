@@ -3,7 +3,7 @@ package io.machinecode.vial.core;
 import io.machinecode.vial.api.Spread;
 
 /**
- * @author <a href="mailto:brent.douglas@ysura.com">Brent Douglas</a>
+ * @author <a href="mailto:brent.douglas@gmail.com">Brent Douglas</a>
  */
 public enum Spreads implements Spread {
     NONE {
