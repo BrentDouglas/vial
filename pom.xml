@@ -26,7 +26,7 @@
 
         <version.com.google.caliper.caliper>1.0-beta-1</version.com.google.caliper.caliper>
         <version.com.google.guava.guava-testlib>17.0</version.com.google.guava.guava-testlib>
-        <version.junit.junit>4.10</version.junit.junit>
+        <version.junit.junit>4.12</version.junit.junit>
 
         <version.org.antlr.ST4>4.0.8</version.org.antlr.ST4>
         <version.org.apache.maven.maven-plugin-api>3.2.1</version.org.apache.maven.maven-plugin-api>

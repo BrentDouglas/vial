@@ -1,0 +1,24 @@
+delimiters "$", "$"
+
+PListIterator(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.api.list;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public interface $I$ListIterator extends OListIterator<$P$> {
+
+    $I$ListIterator before();
+
+    $I$ListIterator after();
+
+    $I$ListIterator index(final int index);
+
+    $p$ value();
+
+    $I$ListIterator setValue(final $p$ value);
+
+    $I$ListIterator addValue(final $p$ value);
+}
+>>

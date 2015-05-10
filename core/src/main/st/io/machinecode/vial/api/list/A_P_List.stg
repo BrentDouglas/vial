@@ -1,0 +1,73 @@
+delimiters "$", "$"
+
+PList(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.api.list;
+
+import io.machinecode.vial.api.$I$Collection;
+
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public interface $I$List extends $I$Collection, List<$P$> {
+
+    $I$List with(final $p$ value);
+
+    $I$List capacity(final int desired);
+
+    boolean contains(final int from, final int to, final Object o);
+
+    int indexOf(final int from, final int to, final Object o);
+
+    int lastIndexOf(final int from, final int to, final Object o);
+
+    boolean clear(final int from, final int to);
+
+    boolean remove(final int from, final int to, final Object o);
+
+    boolean containsAll(final int from, final int to, final Collection<?> c);
+
+    boolean removeAll(final int from, final int to, final Collection<?> c);
+
+    boolean retainAll(final int from, final int to, final Collection<?> c);
+
+    Object[] toArray(final int from, final int to);
+
+    <T> T[] toArray(final int from, final int to, final T[] a);
+
+    boolean xadd(final int index, final $p$ o);
+
+    $p$ xremoveAt(final int index);
+
+    int xindexOf(final $p$ o);
+
+    int xlastIndexOf(final $p$ o);
+
+    boolean xcontains(final int from, final int to, final $p$ o);
+
+    int xindexOf(final int from, final int to, final $p$ o);
+
+    int xlastIndexOf(final int from, final int to, final $p$ o);
+
+    boolean xremove(final int from, final int to, final $p$ o);
+
+    $p$[] xtoArray();
+
+    $p$[] xtoArray(final $p$[] dest);
+
+    $p$[] xtoArray(final int from, final int to);
+
+    $p$[] xtoArray(final int from, final int to, final int destPos, final $p$[] dest);
+
+    $I$ListIterator iterator();
+
+    $I$ListIterator listIterator();
+
+    $I$ListIterator listIterator(final int index);
+
+    $I$List subList(final int from, final int to);
+}
+>>

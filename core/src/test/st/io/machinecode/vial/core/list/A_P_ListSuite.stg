@@ -1,0 +1,1745 @@
+delimiters "$", "$"
+
+PListSuite(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.core.list;
+
+import com.google.common.collect.testing.ListTestSuiteBuilder;
+import com.google.common.collect.testing.SampleElements;
+import com.google.common.collect.testing.TestListGenerator;
+import com.google.common.collect.testing.features.CollectionFeature;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.Feature;
+import com.google.common.collect.testing.features.ListFeature;
+import io.machinecode.vial.api.$I$Cursor;
+import io.machinecode.vial.api.list.$I$List;
+import io.machinecode.vial.api.list.$I$ListIterator;
+import io.machinecode.vial.core.TestUtil;
+import io.machinecode.vial.core.VialSuite;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+/**
+ * @author <a href="mailto:brent.douglas@gmail.com">Brent Douglas</a>
+ */
+public class $I$ListSuite extends VialSuite {
+
+    public interface CreateList {
+
+        $I$List make();
+
+        $I$List create();
+
+        $I$List create(final int cap);
+
+        $I$List create(final List<$P$> list);
+    }
+
+    private static interface Make {
+        $I$List make(final $P$... vs);
+
+        Feature<?>[] features();
+    }
+
+    public static class $I$SubListSuite extends $I$ListSuite {
+
+        public $I$SubListSuite(final String method, final CreateList create) {
+            super(method, create);
+        }
+
+        protected $I$List vlist(final $P$... vs) {
+            return super.vlist(vs).subList(0, vs.length);
+        }
+    }
+
+    public static void createSuite(final TestSuite suite, final Class<?> clazz, final CreateList create) {
+        final Make list = new Make() {
+            @Override
+            public $I$List make(final $P$... vs) {
+                return TestUtil.populate(create.make(), vs);
+            }
+
+            @Override
+            public Feature<?>[] features() {
+                return new Feature<?>[]{
+                        ListFeature.GENERAL_PURPOSE,
+                        CollectionFeature.SERIALIZABLE,
+                        CollectionSize.ANY
+                };
+            }
+        };
+        final Make subList = new Make() {
+            @Override
+            public $I$List make(final $P$... vs) {
+                return list.make(vs).subList(0, vs.length);
+            }
+
+            @Override
+            public Feature<?>[] features() {
+                return new Feature<?>[]{
+                        ListFeature.GENERAL_PURPOSE,
+                        CollectionSize.ANY
+                };
+            }
+        };
+        suite.addTest(forList(clazz, list));
+        suite.addTest(forList(clazz, subList));
+
+        for (final Method method : $I$ListSuite.class.getDeclaredMethods()) {
+            if (method.getName().startsWith("test") && method.getReturnType().equals(void.class)) {
+                suite.addTest(new $I$ListSuite(method.getName(), create));
+                suite.addTest(new $I$SubListSuite(method.getName(), create));
+            }
+        }
+    }
+
+    private static Test forList(final Class<?> clazz, final Make make) {
+        return ListTestSuiteBuilder
+                .using(new TestListGenerator<$P$>() {
+                    @Override
+                    public SampleElements<$P$> samples() {
+                        return new SampleElements<>(_0, _1, _2, _3, _4);
+                    }
+
+                    @Override
+                    public List<$P$> create(final Object... elements) {
+                        final $P$[] array = new $P$[elements.length];
+                        System.arraycopy(elements, 0, array, 0, elements.length);
+                        return make.make(array);
+                    }
+
+                    @Override
+                    public $P$[] createArray(final int length) {
+                        return new $P$[length];
+                    }
+
+                    @Override
+                    public Iterable<$P$> order(final List<$P$> insertionOrder) {
+                        return insertionOrder;
+                    }
+                })
+                .named(clazz.getSimpleName())
+                .withFeatures(make.features())
+                .createTestSuite();
+    }
+
+    private static final $p$ _0 = 0;
+    private static final $p$ _1 = 1;
+    private static final $p$ _2 = 2;
+    private static final $p$ _3 = 3;
+    private static final $p$ _4 = 4;
+
+    final CreateList create;
+
+    public $I$ListSuite(final String method, final CreateList create) {
+        super(method, null);
+        this.create = create;
+    }
+
+    protected $I$List vlist(final $P$... vs) {
+        final $I$List list = create.make();
+        Collections.addAll(list, vs);
+        return list;
+    }
+
+    private List<$P$> jlist(final $P$... vs) {
+        final List<$P$> list = new ArrayList<>();
+        Collections.addAll(list, vs);
+        return list;
+    }
+
+    public void testCollectionConstructor() {
+        final $I$List that = create.create(jlist(_0, _1, _2, _3, _4));
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+    }
+
+    public void testCapacityConstructor() {
+        final $I$List that = create.create(5);
+        that.addAll(jlist(_0, _1, _2, _3, _4));
+
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+    }
+
+    public void testNoArgsConstructor() {
+        final $I$List that = create.create();
+        that.addAll(jlist(_0, _1, _2, _3, _4));
+
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+    }
+
+    public void testWith() {
+        final $I$List that = vlist()
+                .with(_0)
+                .with(_1)
+                .with(_2)
+                .with(_3)
+                .with(_4);
+
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+    }
+
+    public void testXAdd() {
+        final $I$List that = vlist();
+        assertTrue(that.xadd(_0));
+        assertTrue(that.xadd(_1));
+        assertTrue(that.xadd(_2));
+        assertTrue(that.xadd(_3));
+        assertTrue(that.xadd(_4));
+
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+    }
+
+    public void testXAddIndex() {
+        final $I$List that = vlist();
+        assertTrue(that.xadd(0, _4));
+        assertTrue(that.xadd(0, _3));
+        assertTrue(that.xadd(0, _2));
+        assertTrue(that.xadd(0, _1));
+        assertTrue(that.xadd(0, _0));
+
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+    }
+
+    public void testXAddIndexTooLow() {
+        try {
+            final $I$List that = vlist(_0, _1, _2, _3, _4);
+            that.xadd(-1, _0);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXAddIndexTooHigh() {
+        try {
+            final $I$List that = vlist(_0, _1, _2, _3, _4);
+            that.xadd(6, _0);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testHashCodeNone() {
+        final $I$List that = vlist();
+        final List<$P$> ref = jlist();
+
+        assertEquals(ref.hashCode(), that.hashCode());
+    }
+
+    public void testHashCodeSome() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+
+        assertEquals(ref.hashCode(), that.hashCode());
+    }
+
+    public void testXContains() {
+        final $I$List that = vlist(_0, _1, _2);
+        assertTrue(that.xcontains(_0));
+        assertTrue(that.xcontains(_1));
+        assertTrue(that.xcontains(_2));
+        assertFalse(that.xcontains(_3));
+        assertFalse(that.xcontains(_4));
+    }
+
+    public void testContainsRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.contains(0, 3, _4));
+        assertFalse(that.contains(1, 2, _4));
+        assertTrue(that.contains(0, 5, _4));
+        assertTrue(that.contains(4, 5, _4));
+    }
+
+    public void testXContainsRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.xcontains(0, 3, _4));
+        assertFalse(that.xcontains(1, 2, _4));
+        assertTrue(that.xcontains(0, 5, _4));
+        assertTrue(that.xcontains(4, 5, _4));
+    }
+
+    public void testContainsRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.contains(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xcontains(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testContainsRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.contains(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xcontains(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testContainsRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.contains(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xcontains(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testContainsAllRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.containsAll(0, 3, jlist(_4)));
+        assertFalse(that.containsAll(1, 2, jlist(_4)));
+        assertTrue(that.containsAll(0, 5, jlist(_4)));
+        assertTrue(that.containsAll(4, 5, jlist(_4)));
+    }
+
+    public void testXContainsAll() {
+        final $I$List that = vlist(_0, _1, _3, _4);
+        assertFalse(that.xcontainsAll(_2, _4));
+        assertFalse(that.xcontainsAll(_0, _2));
+        assertTrue(that.xcontainsAll(_0, _1, _3, _4));
+        assertTrue(that.xcontainsAll(_4));
+    }
+
+    public void testXContainsAllRange() {
+        final $I$List that = vlist(_0, _1, _3, _4);
+        assertFalse(that.xcontainsRange(0, 3, _0, _1, _2, _3, _4));
+        assertFalse(that.xcontainsRange(2, 5, _0, _1, _2, _3, _4));
+        assertTrue(that.xcontainsRange(0, 2, _0, _1, _2, _3, _4));
+        assertTrue(that.xcontainsRange(3, 5, _0, _1, _2, _3, _4));
+    }
+
+    public void testContainsAllRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.containsAll(-1, 3, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsAllRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xcontainsRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testContainsAllRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.containsAll(3, 6, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsAllRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xcontainsRange(0, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testContainsAllRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.containsAll(3, 2, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsAllRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xcontainsRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testContainsAllRangeNullArg() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.containsAll(2, 3, null);
+            fail();
+        } catch (final NullPointerException e) {}
+    }
+
+    public void testClearRangeEmpty() {
+        final $I$List ref = vlist(_0, _1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.clear(0, 0));
+        assertFalse(that.clear(2, 2));
+        assertFalse(that.clear(4, 4));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testClearRangeSingleStart() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(that.clear(0, 1));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertFalse(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testClearRangeMany() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_0, _1);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(that.clear(2, 5));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertFalse(that.contains(_2));
+        assertFalse(that.contains(_3));
+        assertFalse(that.contains(_4));
+    }
+
+    public void testClearRangeSingleMiddle() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_0, _1, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(that.clear(2, 3));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertFalse(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testClearRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.clear(-1, 3);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testClearRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.clear(3, 6);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testClearRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.clear(3, 2);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRemoveFromWrongType() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.remove(0, 5, new Object()));
+    }
+
+    public void testRemoveObjectRangeEmptyRange() {
+        final $I$List ref = vlist(_0, _1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.remove(0, 0, _1));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertFalse(that.remove(0, 0, _0));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRemoveObjectRangeSingleStart() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.remove(0, 1, _1));
+
+        assertTrue(before.equals(that));
+        assertTrue(that.equals(before));
+
+        assertFalse(after.equals(that));
+        assertFalse(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertTrue(that.remove(0, 1, _0));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertFalse(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRemoveObjectRangeMiddle() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_0, _1, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.remove(2, 4, _0));
+
+        assertTrue(before.equals(that));
+        assertTrue(that.equals(before));
+
+        assertFalse(after.equals(that));
+        assertFalse(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertTrue(that.remove(2, 4, _2));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertFalse(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRemoveObjectRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.remove(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRemoveObjectRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.remove(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRemoveObjectRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.remove(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRemoveAllRangeEmpty() {
+        final $I$List ref = vlist(_0, _1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.removeAll(0, 0, jlist(_1)));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertFalse(that.removeAll(0, 0, jlist(_0)));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRemoveAllRangeSingleStart() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.removeAll(0, 1, jlist(_1)));
+
+        assertTrue(before.equals(that));
+        assertTrue(that.equals(before));
+
+        assertFalse(after.equals(that));
+        assertFalse(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertTrue(that.removeAll(0, 1, jlist(_0)));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertFalse(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRemoveAllRangeMultipleMiddle() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_0, _1, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.removeAll(2, 4, jlist(_0)));
+
+        assertTrue(before.equals(that));
+        assertTrue(that.equals(before));
+
+        assertFalse(after.equals(that));
+        assertFalse(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertTrue(that.removeAll(2, 4, jlist(_2)));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertFalse(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRemoveAllRangeToLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.removeAll(-1, 3, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRemoveAllRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.removeAll(3, 6, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRemoveAllRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.removeAll(3, 2, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRetainAllRangeEmpty() {
+        final $I$List ref = vlist(_0, _1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.retainAll(0, 0, jlist(_1)));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertFalse(that.retainAll(0, 0, jlist(_0)));
+
+        assertTrue(ref.equals(that));
+        assertTrue(that.equals(ref));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRetainAllRangeSingleStart() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.retainAll(0, 1, jlist(_0)));
+
+        assertTrue(before.equals(that));
+        assertTrue(that.equals(before));
+
+        assertFalse(after.equals(that));
+        assertFalse(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertTrue(that.retainAll(0, 1, jlist(_1)));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertFalse(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRetainAllRangeMultipleMiddle() {
+        final $I$List before = vlist(_0, _1, _2, _3, _4);
+        final $I$List after = vlist(_0, _1, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertFalse(that.retainAll(2, 4, jlist(_2, _3)));
+
+        assertTrue(before.equals(that));
+        assertTrue(that.equals(before));
+
+        assertFalse(after.equals(that));
+        assertFalse(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertTrue(that.contains(_2));
+        assertTrue(that.contains(_3));
+        assertTrue(that.contains(_4));
+
+        assertTrue(that.retainAll(2, 4, jlist(_0, _1)));
+
+        assertFalse(before.equals(that));
+        assertFalse(that.equals(before));
+
+        assertTrue(after.equals(that));
+        assertTrue(that.equals(after));
+
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+        assertFalse(that.contains(_2));
+        assertFalse(that.contains(_3));
+        assertTrue(that.contains(_4));
+    }
+
+    public void testRetainAllRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.retainAll(-1, 3, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRetainAllRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.retainAll(3, 6, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRetainAllRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.retainAll(3, 2, jlist(_4));
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testRetainAllRangeNullArg() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.retainAll(2, 3, null);
+            fail();
+        } catch (final NullPointerException e) {}
+    }
+
+    public void testToObjectArrayRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.deepEquals(new Object[]{_0, _1, _2, _3, _4}, that.toArray(0, 5)));
+        assertTrue(Arrays.deepEquals(new Object[]{_0, _1, _2, _3}, that.toArray(0, 4)));
+        assertTrue(Arrays.deepEquals(new Object[]{_0, _1, _2}, that.toArray(0, 3)));
+        assertTrue(Arrays.deepEquals(new Object[]{_0, _1}, that.toArray(0, 2)));
+        assertTrue(Arrays.deepEquals(new Object[]{_0}, that.toArray(0, 1)));
+        assertTrue(Arrays.deepEquals(new Object[]{}, that.toArray(0, 0)));
+
+        assertTrue(Arrays.deepEquals(new Object[]{_1, _2, _3, _4}, that.toArray(1, 5)));
+        assertTrue(Arrays.deepEquals(new Object[]{_1, _2, _3}, that.toArray(1, 4)));
+        assertTrue(Arrays.deepEquals(new Object[]{_1, _2}, that.toArray(1, 3)));
+        assertTrue(Arrays.deepEquals(new Object[]{_1}, that.toArray(1, 2)));
+        assertTrue(Arrays.deepEquals(new Object[]{}, that.toArray(1, 1)));
+
+        assertTrue(Arrays.deepEquals(new Object[]{_2, _3, _4}, that.toArray(2, 5)));
+        assertTrue(Arrays.deepEquals(new Object[]{_2, _3}, that.toArray(2, 4)));
+        assertTrue(Arrays.deepEquals(new Object[]{_2}, that.toArray(2, 3)));
+        assertTrue(Arrays.deepEquals(new Object[]{}, that.toArray(2, 2)));
+
+        assertTrue(Arrays.deepEquals(new Object[]{_3, _4}, that.toArray(3, 5)));
+        assertTrue(Arrays.deepEquals(new Object[]{_3}, that.toArray(3, 4)));
+        assertTrue(Arrays.deepEquals(new Object[]{}, that.toArray(3, 3)));
+
+        assertTrue(Arrays.deepEquals(new Object[]{_4}, that.toArray(4, 5)));
+        assertTrue(Arrays.deepEquals(new Object[]{}, that.toArray(4, 4)));
+
+        assertTrue(Arrays.deepEquals(new Object[]{}, that.toArray(5, 5)));
+    }
+
+    public void testToObjectArrayRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(-1, 3);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testToObjectArrayRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(3, 6);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testToObjectArrayRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(3, 2);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testToTArrayRangeTooShort() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, _3, _4}, that.toArray(0, 5, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, _3}, that.toArray(0, 4, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2}, that.toArray(0, 3, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1}, that.toArray(0, 2, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0}, that.toArray(0, 1, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(0, 0, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, _3, _4}, that.toArray(1, 5, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, _3}, that.toArray(1, 4, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2}, that.toArray(1, 3, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1}, that.toArray(1, 2, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(1, 1, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, _3, _4}, that.toArray(2, 5, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, _3}, that.toArray(2, 4, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_2}, that.toArray(2, 3, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(2, 2, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_3, _4}, that.toArray(3, 5, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_3}, that.toArray(3, 4, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(3, 3, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_4}, that.toArray(4, 5, new $P$[0])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(4, 4, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(5, 5, new $P$[0])));
+    }
+
+    public void testToTArrayRangeSameLength() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, _3, _4}, that.toArray(0, 5, new $P$[5])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, _3}, that.toArray(0, 4, new $P$[4])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2}, that.toArray(0, 3, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1}, that.toArray(0, 2, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0}, that.toArray(0, 1, new $P$[1])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(0, 0, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, _3, _4}, that.toArray(1, 5, new $P$[4])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, _3}, that.toArray(1, 4, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2}, that.toArray(1, 3, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1}, that.toArray(1, 2, new $P$[1])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(1, 1, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, _3, _4}, that.toArray(2, 5, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, _3}, that.toArray(2, 4, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_2}, that.toArray(2, 3, new $P$[1])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(2, 2, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_3, _4}, that.toArray(3, 5, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_3}, that.toArray(3, 4, new $P$[1])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(3, 3, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_4}, that.toArray(4, 5, new $P$[1])));
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(4, 4, new $P$[0])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{}, that.toArray(5, 5, new $P$[0])));
+    }
+
+    public void testToTArrayRangeLonger() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, _3, _4, null}, that.toArray(0, 5, new $P$[6])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, _3, null}, that.toArray(0, 4, new $P$[5])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, _2, null}, that.toArray(0, 3, new $P$[4])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, _1, null}, that.toArray(0, 2, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_0, null}, that.toArray(0, 1, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{null}, that.toArray(0, 0, new $P$[1])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, _3, _4, null}, that.toArray(1, 5, new $P$[5])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, _3, null}, that.toArray(1, 4, new $P$[4])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, _2, null}, that.toArray(1, 3, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_1, null}, that.toArray(1, 2, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{null}, that.toArray(1, 1, new $P$[1])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, _3, _4, null}, that.toArray(2, 5, new $P$[4])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, _3, null}, that.toArray(2, 4, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_2, null}, that.toArray(2, 3, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{null}, that.toArray(2, 2, new $P$[1])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_3, _4, null}, that.toArray(3, 5, new $P$[3])));
+        assertTrue(Arrays.deepEquals(new $P$[]{_3, null}, that.toArray(3, 4, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{null}, that.toArray(3, 3, new $P$[1])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{_4, null}, that.toArray(4, 5, new $P$[2])));
+        assertTrue(Arrays.deepEquals(new $P$[]{null}, that.toArray(4, 4, new $P$[1])));
+
+        assertTrue(Arrays.deepEquals(new $P$[]{null}, that.toArray(5, 5, new $P$[1])));
+    }
+
+    public void testToTArrayRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(-1, 3, new $P$[0]);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testToTArrayRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(3, 6, new $P$[0]);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testToTArrayRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(3, 2, new $P$[0]);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testToTArrayRangeNullArg() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.toArray(2, 3, null);
+            fail();
+        } catch (final NullPointerException e) {}
+    }
+
+    public void testIteratorBeforePrevious() {
+        try {
+            final $I$ListIterator it = vlist(_0, _1)
+                    .iterator()
+                    .before();
+            it.previous();
+            fail();
+        } catch (final NoSuchElementException e) {}
+    }
+
+    public void testIteratorAfterNext() {
+        try {
+            final $I$ListIterator it = vlist(_0, _1)
+                    .iterator()
+                    .after();
+            it.next();
+            fail();
+        } catch (final NoSuchElementException e) {}
+    }
+
+    public void testIteratorSetBefore() {
+        try {
+            vlist(_0, _1).iterator()
+                    .before()
+                    .set(_2);
+            fail();
+        } catch (final IllegalStateException e) {}
+    }
+
+    public void testIteratorSetBeforeNext() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .before();
+        it.next();
+        it.set(_2);
+    }
+
+    public void testIteratorSetAfter() {
+        try {
+            vlist(_0, _1).iterator()
+                    .after()
+                    .set(_2);
+            fail();
+        } catch (final IllegalStateException e) {}
+    }
+
+    public void testIteratorSetAfterPrevious() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .after();
+        it.previous();
+        it.set(_2);
+    }
+
+    public void testIteratorNextSetIndex() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .index(1);
+        it.next();
+        it.set(_2);
+    }
+
+    public void testIteratorPreviousSetIndex() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .index(1);
+        it.previous();
+        it.set(_2);
+    }
+
+    public void testIteratorRemoveBefore() {
+        try {
+            vlist(_0, _1).iterator()
+                    .before()
+                    .remove();
+            fail();
+        } catch (final IllegalStateException e) {}
+    }
+
+    public void testIteratorRemoveBeforeNext() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .before();
+        it.next();
+        it.remove();
+    }
+
+    public void testIteratorRemoveAfter() {
+        try {
+            vlist(_0, _1).iterator()
+                    .after()
+                    .remove();
+            fail();
+        } catch (final IllegalStateException e) {}
+    }
+
+    public void testIteratorRemoveAfterPrevious() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .after();
+        it.previous();
+        it.remove();
+    }
+
+    public void testIteratorRemoveIndexNext() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .index(1);
+        it.next();
+        it.remove();
+    }
+
+    public void testIteratorRemoveIndexPrevious() {
+        final $I$ListIterator it = vlist(_0, _1)
+                .iterator()
+                .index(1);
+        it.previous();
+        it.remove();
+    }
+
+    public void testIteratorCursor() {
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        final $I$Cursor it = that.cursor();
+        for (final $I$Cursor x : it) {
+            assertTrue(ref.remove(($P$)x.value()));
+        }
+        assertTrue(ref.isEmpty());
+    }
+
+    public void testIteratorPrevious() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorPrevious(that.iterator());
+    }
+
+    //public void testCursorPrevious() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorPrevious(that.cursor());
+    //}
+
+    private void _testIteratorPrevious(final $I$ListIterator it) {
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+        it.after();
+        while (it.hasPrevious()) {
+            assertTrue(ref.remove(it.previous()));
+        }
+        assertTrue(ref.isEmpty());
+    }
+
+    public void testIteratorPositioning() {
+        final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorPositioning(that.iterator());
+    }
+
+    //public void testCursorPositioning() {
+    //    final List<$P$> ref = jlist(_0, _1, _2, _3, _4);
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorPositioning(that.cursor());
+    //}
+
+    private void _testIteratorPositioning(final $I$ListIterator it) {
+        it.after().previous();
+        assertEquals(_4, it.value());
+        it.before().next();
+        assertEquals(_0, it.value());
+        it.index(2).next();
+        assertEquals(_2, it.value());
+    }
+
+    public void testIteratorIndexTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorIndexTooLow(that.iterator());
+    }
+
+    //public void testCursorIndexTooLow() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorIndexTooLow(that.cursor());
+    //}
+
+    private void _testIteratorIndexTooLow(final $I$ListIterator it) {
+        try {
+            it.index(-1);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorIndexTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorIndexTooHigh(that.iterator());
+    }
+
+    //public void testCursorIndexTooHigh() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorIndexTooHigh(that.cursor());
+    //}
+
+    private void _testIteratorIndexTooHigh(final $I$ListIterator it) {
+        try {
+            it.index(6);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorSet() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorSet(that, that.iterator());
+    }
+
+    //public void testCursorSet() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorSet(that, that.cursor());
+    //}
+
+    private void _testIteratorSet(final $I$List that, final $I$ListIterator it) {
+        it.next();
+        it.setValue(_4);
+        final List<$P$> ref = jlist(_4, _1, _2, _3, _4);
+        assertEquals(ref, that);
+    }
+
+    public void testIteratorIndexSet() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorIndexSet(that, that.iterator());
+    }
+
+    //public void testCursorIndexSet() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorIndexSet(that, that.cursor());
+    //}
+
+    private void _testIteratorIndexSet(final $I$List that, final $I$ListIterator it) {
+        it.index(2);
+        it.next();
+        it.setValue(_0);
+        final List<$P$> ref = jlist(_0, _1, _0, _3, _4);
+        assertEquals(ref, that);
+    }
+
+    public void testIteratorAdd() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorAdd(that, that.iterator());
+    }
+
+    //public void testCursorAdd() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorAdd(that, that.cursor());
+    //}
+
+    private void _testIteratorAdd(final $I$List that, final $I$ListIterator it) {
+        it.addValue(_4);
+        final List<$P$> ref = jlist(_4, _0, _1, _2, _3, _4);
+        assertEquals(ref, that);
+    }
+
+    public void testIteratorIndexAdd() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        _testIteratorIndexAdd(that, that.iterator());
+    }
+
+    //public void testCursorIndexAdd() {
+    //    final $I$List that = vlist(_0, _1, _2, _3, _4);
+    //    _testIteratorIndexAdd(that, that.cursor());
+    //}
+
+    private void _testIteratorIndexAdd(final $I$List that, final $I$ListIterator it) {
+        it.index(2)
+          .addValue(_0);
+        final List<$P$> ref = jlist(_0, _1, _0, _2, _3, _4);
+        assertEquals(ref, that);
+    }
+
+    public void testSubListFullContains() {
+        final $I$List that = vlist(_0, _1).subList(0, 2);
+        assertTrue(that.contains(_0));
+        assertTrue(that.contains(_1));
+    }
+
+    public void testSubListEmptyContains() {
+        {
+            final $I$List that = vlist(_0, _1).subList(0, 0);
+            assertFalse(that.contains(_0));
+            assertFalse(that.contains(_1));
+        }
+        {
+            final $I$List that = vlist(_0, _1).subList(1, 1);
+            assertFalse(that.contains(_0));
+            assertFalse(that.contains(_1));
+        }
+        {
+            final $I$List that = vlist(_0, _1).subList(2, 2);
+            assertFalse(that.contains(_0));
+            assertFalse(that.contains(_1));
+        }
+    }
+
+    public void testSubListSingleContains() {
+        {
+            final $I$List that = vlist(_0, _1).subList(0, 1);
+            assertTrue(that.contains(_0));
+            assertFalse(that.contains(_1));
+        }
+        {
+            final $I$List that = vlist(_0, _1).subList(1, 2);
+            assertFalse(that.contains(_0));
+            assertTrue(that.contains(_1));
+        }
+    }
+
+    public void testXIndexOf() {
+        final $I$List that = vlist(_1, _2, _2, _3);
+        assertEquals(-1, that.xindexOf(_0));
+        assertEquals(-1, that.xindexOf(_4));
+        assertEquals(0, that.xindexOf(_1));
+        assertEquals(1, that.xindexOf(_2));
+        assertEquals(3, that.xindexOf(_3));
+    }
+
+    public void testXLastIndexOf() {
+        final $I$List that = vlist(_1, _2, _2, _3);
+        assertEquals(-1, that.xlastIndexOf(_0));
+        assertEquals(-1, that.xlastIndexOf(_4));
+        assertEquals(0, that.xlastIndexOf(_1));
+        assertEquals(2, that.xlastIndexOf(_2));
+        assertEquals(3, that.xlastIndexOf(_3));
+    }
+
+    public void testIndexOfRangeWrongThing() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.indexOf(0, 5, new Object()));
+    }
+
+    public void testIndexOfRangeNull() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.indexOf(0, 5, null));
+    }
+
+    public void testIndexOfRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.indexOf(0, 3, _4));
+        assertEquals(-1, that.indexOf(1, 2, _4));
+        assertEquals(4, that.indexOf(0, 5, _4));
+        assertEquals(0, that.indexOf(4, 5, _4));
+    }
+
+    public void testXIndexOfRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.xindexOf(0, 3, _4));
+        assertEquals(-1, that.xindexOf(1, 2, _4));
+        assertEquals(4, that.xindexOf(0, 5, _4));
+        assertEquals(0, that.xindexOf(4, 5, _4));
+    }
+
+    public void testIndexOfRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.indexOf(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXIndexOfRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xindexOf(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIndexOfRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.indexOf(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXIndexOfRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xindexOf(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIndexOfRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.indexOf(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXIndexOfRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xindexOf(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testLastIndexOfRangeWrongThing() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.lastIndexOf(0, 5, new Object()));
+    }
+
+    public void testLastIndexOfRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.lastIndexOf(0, 3, _4));
+        assertEquals(-1, that.lastIndexOf(1, 2, _4));
+        assertEquals(4, that.lastIndexOf(0, 5, _4));
+        assertEquals(0, that.lastIndexOf(4, 5, _4));
+    }
+
+    public void testXLastIndexOfRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertEquals(-1, that.xlastIndexOf(0, 3, _4));
+        assertEquals(-1, that.xlastIndexOf(1, 2, _4));
+        assertEquals(4, that.xlastIndexOf(0, 5, _4));
+        assertEquals(0, that.xlastIndexOf(4, 5, _4));
+    }
+
+    public void testLastIndexOfRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.lastIndexOf(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXLastIndexOfRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xlastIndexOf(-1, 3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testLastIndexOfRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.lastIndexOf(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXLastIndexOfRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xlastIndexOf(3, 6, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testLastIndexOfRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.lastIndexOf(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXLastIndexOfRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xlastIndexOf(3, 2, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testCapacitySmall() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        that.capacity(2);
+    }
+
+    public void testCapacitySame() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        that.capacity(5);
+    }
+
+    public void testCapacityLarge() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        that.capacity(100);
+    }
+
+    public void testXAddAll() {
+        {
+            final $I$List that = vlist(_0, _1, _2, _3, _4);
+            assertTrue(that.xaddAll(_0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _2, _3, _4, _0, _1, _2, _3, _4));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertTrue(that.xaddAll(_1, _2));
+            assertEquals(that, jlist(_3, _0, _1, _2));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertFalse(that.xaddAll());
+            assertEquals(that, jlist(_3, _0));
+        }
+    }
+
+    public void testXAddRange() {
+        {
+            final $I$List that = vlist(_0, _1, _2, _3, _4);
+            assertTrue(that.xaddRange(0, 3, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _2, _3, _4, _0, _1, _2));
+        }
+        {
+            final $I$List that = vlist(_0, _1, _2, _3, _4);
+            assertTrue(that.xaddRange(2, 4, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _2, _3, _4, _2, _3));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertFalse(that.xaddRange(0, 0));
+            assertEquals(that, jlist(_3, _0));
+        }
+    }
+
+    public void testXAddRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xaddRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXAddRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xaddRange(3, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXAddRangeWrongORder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xaddRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRemoveAll() {
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertTrue(that.xremoveAll(_0, _1, _2, _3, _4));
+            assertEquals(that, jlist());
+        }
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertTrue(that.xremoveAll(_1, _3));
+            assertEquals(that, jlist(_0, _2, _2, _4));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertFalse(that.xremoveAll());
+            assertEquals(that, jlist(_3, _0));
+        }
+    }
+
+    public void testXRemoveRange() {
+        {
+            final $I$List that = vlist(_0, _1, _2, _3, _4);
+            assertTrue(that.xremoveRange(0, 3, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_3, _4));
+        }
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertTrue(that.xremoveRange(2, 4, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _4));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertFalse(that.xremoveRange(0, 0));
+            assertEquals(that, jlist(_3, _0));
+        }
+    }
+
+    public void testXRemoveRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xremoveRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRemoveRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xremoveRange(0, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRemoveRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xremoveRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRetainAll() {
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertFalse(that.xretainAll(_0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _2, _2, _3, _4));
+        }
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertTrue(that.xretainAll(_1, _2));
+            assertEquals(that, jlist(_1, _2, _2));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertTrue(that.xretainAll());
+            assertEquals(that, jlist());
+        }
+    }
+
+    public void testXRetainRange() {
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertTrue(that.xretainRange(0, 3, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _2, _2));
+        }
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertTrue(that.xretainRange(3, 5, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_3, _4));
+        }
+        {
+            final $I$List that = vlist(_3, _0);
+            assertTrue(that.xretainRange(0, 0));
+            assertEquals(that, jlist());
+        }
+        {
+            final $I$List that = vlist(_0, _1, _2, _2, _3, _4);
+            assertFalse(that.xretainRange(0, 5, _0, _1, _2, _3, _4));
+            assertEquals(that, jlist(_0, _1, _2, _2, _3, _4));
+        }
+    }
+
+    public void testXRetainRangeTooLow() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xretainRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRetainRangeTooHigh() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xretainRange(0, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRetainRangeWrongOrder() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        try {
+            that.xretainRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXToArray() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.equals(new $p$[]{_0, _1, _2, _3, _4}, that.xtoArray()));
+    }
+
+    public void testXToArrayTooShort() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.equals(new $p$[]{_0, _1, _2, _3, _4}, that.xtoArray(new $p$[0])));
+    }
+
+    public void testXToArrayTooLong() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.equals(new $p$[]{_0, _1, _2, _3, _4, _0, _0, _0, _0, _0}, that.xtoArray(new $p$[10])));
+    }
+
+    public void testXToArrayRange() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.equals(new $p$[]{_2, _3}, that.xtoArray(2, 4)));
+    }
+
+    public void testXToArrayRangeTooShort() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.equals(new $p$[]{_2, _3}, that.xtoArray(2, 4, 0, new $p$[0])));
+    }
+
+    public void testXToArrayRangeTooLong() {
+        final $I$List that = vlist(_0, _1, _2, _3, _4);
+        assertTrue(Arrays.equals(new $p$[]{_0, _0, _2, _3, _0, _0, _0, _0, _0, _0}, that.xtoArray(2, 4, 2, new $p$[10])));
+    }
+}
+>>

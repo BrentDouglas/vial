@@ -18,6 +18,9 @@ public abstract class VialSuite extends TestCase {
 
     @Override
     public String toString() {
+        if (spreadName == null) {
+            return getName() + "(" + getClass().getName() + ")";
+        }
         return getName() + "[" + spreadName+ "](" + getClass().getName() + ")";
     }
 

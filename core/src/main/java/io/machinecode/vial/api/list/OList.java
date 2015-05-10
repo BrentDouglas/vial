@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface OList<X> extends OCollection<X>, List<X> {
 
+    OList<X> with(final X value);
+
     OList<X> capacity(final int desired);
 
     boolean contains(final int from, final int to, final Object o);

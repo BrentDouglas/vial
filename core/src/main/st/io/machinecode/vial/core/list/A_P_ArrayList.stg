@@ -1,12 +1,15 @@
+delimiters "$", "$"
+
+PArrayList(I, P, p, hc, X) ::= <<
 package io.machinecode.vial.core.list;
 
-import io.machinecode.vial.api.OCursor;
-import io.machinecode.vial.api.list.OList;
+import io.machinecode.vial.api.$I$Cursor;
+import io.machinecode.vial.api.list.$I$List;
+import io.machinecode.vial.api.list.$I$ListIterator;
 import io.machinecode.vial.api.list.OListIterator;
 import io.machinecode.vial.core.Util;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
@@ -14,47 +17,47 @@ import java.util.RandomAccess;
 /**
  * @author <a href="mailto:brent.douglas@gmail.com">Brent Douglas</a>
  */
-public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Serializable {
+public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializable {
     private static final long serialVersionUID = 0L;
 
-    protected X[] _values;
+    protected $p$[] _values;
     protected int _size;
 
-    public OArrayList() {
+    public $I$ArrayList() {
         this(4);
     }
 
     @SuppressWarnings("unchecked")
-    public OArrayList(final int capacity) {
-        this._values = (X[])new Object[capacity];
+    public $I$ArrayList(final int capacity) {
+        this._values = new $p$[capacity];
         this._size = 0;
     }
 
-    public OArrayList(final Collection<? extends X> c) {
+    public $I$ArrayList(final Collection<? extends $P$> c) {
         this(c.size());
         this.addAll(c);
     }
 
     @Override
-    X[] _values() {
+    $p$[] _values() {
         return this._values;
     }
 
     @Override
-    public OList<X> with(final X value) {
-        add(value);
+    public $I$List with(final $p$ value) {
+        xadd(value);
         return this;
     }
 
     @Override
-    public OArrayList<X> capacity(final int desired) {
+    public $I$ArrayList capacity(final int desired) {
         final int size = this._size;
-        final X[] values = this._values;
+        final $p$[] values = this._values;
         final int len = values.length;
         final int cap = Util.pow2(Math.max(size, desired));
         if (cap != len) {
             @SuppressWarnings("unchecked")
-            final X[] newValues = this._values = (X[])new Object[cap];
+            final $p$[] newValues = this._values = new $p$[cap];
             System.arraycopy(values, 0, newValues, 0, size);
         }
         return this;
@@ -76,30 +79,51 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
     }
 
     @Override
+    public boolean xcontains(final $p$ o) {
+        return __contains(this._values, 0, this._size, o);
+    }
+
+    @Override
+    public boolean xcontains(final int from, final int to, final $p$ o) {
+        if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
+        return __contains(this._values, from, to, o);
+    }
+
+    @Override
     public boolean contains(final int from, final int to, final Object o) {
         if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
         return __contains(this._values, from, to, o);
     }
 
     @Override
-    public boolean add(final X x) {
-        return _add(this._size, x);
+    public boolean add(final $P$ o) {
+        return _add(this._size, o);
     }
 
     @Override
-    public void add(final int index, final X element) {
-        _add(index, element);
+    public void add(final int index, final $P$ o) {
+        _add(index, o);
     }
 
     @Override
-    boolean _add(final int index, final X element) {
+    public boolean xadd(final $p$ o) {
+        return _add(this._size, o);
+    }
+
+    @Override
+    public boolean xadd(final int index, final $p$ o) {
+        return _add(index, o);
+    }
+
+    @Override
+    boolean _add(final int index, final $p$ element) {
         final int s = this._size;
         if (index < 0 || index > s) throw new IndexOutOfBoundsException();
-        final X[] values = this._values;
+        final $p$[] values = this._values;
         final int next = index + 1;
         if (s >= values.length - 1) {
             @SuppressWarnings("unchecked")
-            final X[] newValues = this._values = (X[])new Object[values.length * 2];
+            final $p$[] newValues = this._values = new $p$[values.length * 2];
             System.arraycopy(values, 0, newValues, 0, index);
             System.arraycopy(values, index, newValues, next, s - index);
             newValues[index] = element;
@@ -114,79 +138,90 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
 
     @Override
     public boolean remove(final Object o) {
-        final X[] values = this._values;
-        final int size = this._size;
-        final int index = o == null
-                ? __nidx(values, 0, size)
-                : __idx(values, 0, size, o);
-        if (index == -1) {
-            return false;
-        }
-        System.arraycopy(values, index + 1, values, index, size - index);
-        values[--this._size] = null;
-        return true;
+        if (!(o instanceof $P$)) return false;
+        return xremove(($p$)o);
     }
 
     @Override
     public boolean remove(final int from, final int to, final Object o) {
+        if (!(o instanceof $P$)) return false;
+        return xremove(from, to, ($p$)o);
+    }
+
+    @Override
+    public $P$ remove(final int index) {
+        return xremoveAt(index);
+    }
+
+    @Override
+    public boolean xremove(final $p$ o) {
+        final $p$[] values = this._values;
+        final int size = this._size;
+        final int index = __xidx(values, 0, size, o);
+        if (index == -1) {
+            return false;
+        }
+        System.arraycopy(values, index + 1, values, index, size - index);
+        --this._size;
+        return true;
+    }
+
+    @Override
+    public boolean xremove(final int from, final int to, final $p$ o) {
         final int size = this. _size;
         if (to < from || from < 0 || to > size) throw new IndexOutOfBoundsException();
-        final X[] values = this._values;
-        final int rel = o == null
-                ? __nidx(values, from, to)
-                : __idx(values, from, to, o);
+        final $p$[] values = this._values;
+        final int rel = __xidx(values, from, to, o);
         if (rel == -1) {
             return false;
         }
         final int index = from + rel;
         System.arraycopy(values, index + 1, values, index, size - index);
-        values[--this._size] = null;
+        --this._size;
         return true;
     }
 
     @Override
-    public X remove(final int index) {
+    public $p$ xremoveAt(final int index) {
         final int size = this._size;
         if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
-        final X[] values = this._values;
-        final X old = values[index];
+        final $p$[] values = this._values;
+        final $p$ old = values[index];
         System.arraycopy(values, index + 1, values, index, size - index);
-        values[--this._size] = null;
+        --this._size;
         return old;
     }
 
     @Override
     public boolean clear(final int from, final int to) {
-        final int end = this._size;
-        if (to < from || from < 0 || to > end) throw new IndexOutOfBoundsException();
+        final int size = this._size;
+        if (to < from || from < 0 || to > size) throw new IndexOutOfBoundsException();
         if (to == from) {
             return false;
         }
-        final X[] values = this._values;
-        final int left = end - to;
+        final $p$[] values = this._values;
+        final int left = size - to;
         System.arraycopy(values, to, values, from, left);
-        final int start = this._size -= (to - from);
-        Util.fill(values, start, end, null);
+        this._size -= (to - from);
         return true;
     }
 
     @Override
     public void clear() {
-        Util.fill(this._values, 0, this._size, null);
         this._size = 0;
     }
 
     @Override
-    public X get(final int index) {
+    public $P$ get(final int index) {
         if (index < 0 || index >= this._size) throw new IndexOutOfBoundsException();
         return this._values[index];
     }
 
     @Override
-    public X set(final int index, final X element) {
+    public $P$ set(final int index, final $P$ element) {
         if (index < 0 || index >= this._size) throw new IndexOutOfBoundsException();
-        final X[] values = this._values;
-        final X old = values[index];
+        final $p$[] values = this._values;
+        final $p$ old = values[index];
         values[index] = element;
         return old;
     }
@@ -214,6 +249,28 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
     }
 
     @Override
+    public int xindexOf(final $p$ o) {
+        return __xidx(this._values, 0, this._size, o);
+    }
+
+    @Override
+    public int xlastIndexOf(final $p$ o) {
+        return __xlidx(this._values, 0, this._size, o);
+    }
+
+    @Override
+    public int xindexOf(final int from, final int to, final $p$ o) {
+        if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
+        return __xidx(this._values, from, to, o);
+    }
+
+    @Override
+    public int xlastIndexOf(final int from, final int to, final $p$ o) {
+        if (to < from || from < 0 || to > this._size) throw new IndexOutOfBoundsException();
+        return __xlidx(this._values, from, to, o);
+    }
+
+    @Override
     public boolean containsAll(final Collection<?> c) {
         for (final Object x : c) {
             if (!this.contains(x)) {
@@ -235,27 +292,27 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
     }
 
     @Override
-    public boolean addAll(final Collection<? extends X> c) {
+    public boolean addAll(final Collection<? extends $P$> c) {
         boolean ret = false;
-        for (final X x : c) {
+        for (final $P$ x : c) {
             ret |= add(x);
         }
         return ret;
     }
 
     @Override
-    public boolean addAll(int index, final Collection<? extends X> c) {
+    public boolean addAll(int index, final Collection<? extends $P$> c) {
         boolean ret = false;
-        for (final X x : c) {
+        for (final $P$ x : c) {
             ret |= _add(index++, x);
         }
         return ret;
     }
 
     @Override
-    int _addAll(int index, final Collection<? extends X> c) {
+    int _addAll(int index, final Collection<? extends $P$> c) {
         int ret = 0;
-        for (final X x : c) {
+        for (final $P$ x : c) {
             if (_add(index++, x)) {
                 ++ret;
             }
@@ -286,65 +343,58 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
     }
 
     @Override
-    public Cur<X> cursor() {
-        return new Cur<>(this, 0);
+    public Cur cursor() {
+        return new Cur(this, 0);
     }
 
     @Override
-    public It<X> iterator() {
-        return new It<>(this, 0);
+    public It iterator() {
+        return new It(this, 0);
     }
 
     @Override
-    public It<X> listIterator() {
-        return new It<>(this, 0);
+    public It listIterator() {
+        return new It(this, 0);
     }
 
     @Override
-    public It<X> listIterator(final int index) {
+    public It listIterator(final int index) {
         if (index < 0 || index > _size) throw new IndexOutOfBoundsException();
-        return new It<>(this, index);
+        return new It(this, index);
     }
 
     @Override
     public Object[] toArray() {
         final int size = this._size;
         final Object[] ret = new Object[size];
-        System.arraycopy(this._values, 0, ret, 0, size);
+        final $p$[] values = this._values;
+        for (int i = 0; i < size; ++i) {
+            ret[i] = values[i];
+        }
         return ret;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T[] toArray(final T[] a) {
-        final int size = this._size;
-        final T[] ret;
-        if (a.length < size) {
-            ret = (T[]) Array.newInstance(a.getClass().getComponentType(), size);
-        }  else if (a.length > size) {
-            ret = a;
-            ret[size] = null;
-        } else {
-            ret = a;
-        }
-        System.arraycopy(this._values, 0, ret, 0, size);
-        return ret;
+    public <T> T[] toArray(final T[] dest) {
+    final int size = this._size;
+    return __toArray(this._values, size, 0, size, 0, dest);
     }
 
     @Override
     public Object[] toArray(final int from, final int to) {
-        return __toArray(this._values, from, to, 0, this._size);
+        return __toArray(this._values, this._size, from, to, 0);
     }
 
     @Override
-    public <T> T[] toArray(final int from, final int to, final T[] a) {
-        return __toArray(this._values, from, to, 0, this._size, a);
+    public <T> T[] toArray(final int from, final int to, final T[] dest) {
+        return __toArray(this._values, this._size, from, to, 0, dest);
     }
 
     @Override
-    public SubList<X> subList(final int from, final int to) {
+    public SubList subList(final int from, final int to) {
         if (from < 0 || to > this._size || to < from) throw new IndexOutOfBoundsException();
-        return new SubList<>(this, from, to);
+        return new SubList(this, from, to);
     }
 
     @Override
@@ -362,12 +412,88 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         return __toString(this._values, 0, this._size);
     }
 
-    protected static class SubList<X> extends OBaseList<X> implements RandomAccess {
-        final OBaseList<X> _list;
+    @Override
+    public boolean xcontainsAll(final $p$... c) {
+        for (final $p$ o : c) {
+            if (!xcontains(o)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean xcontainsRange(final int from, final int to, final $p$... c) {
+        if (from < 0 || to > c.length || to < from) throw new IndexOutOfBoundsException();
+        for (int i = from; i < to; ++i) {
+            if (!xcontains(c[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean xaddAll(final $p$... c) {
+        return __xaddRange(this, this._size, c, 0, c.length) != 0;
+    }
+
+    @Override
+    public boolean xaddRange(final int from, final int to, final $p$... c) {
+        if (to < from || from < 0 || to > c.length) throw new IndexOutOfBoundsException();
+        return __xaddRange(this, this._size, c, from, to) != 0;
+    }
+
+    @Override
+    public boolean xremoveAll(final $p$... c) {
+        return __xremoveRange(this, 0, this._size, c, 0, c.length) != 0;
+    }
+
+    @Override
+    public boolean xremoveRange(final int from, final int to, final $p$... c) {
+        if (to < from || from < 0 || to > c.length) throw new IndexOutOfBoundsException();
+        return __xremoveRange(this, 0, this._size, c, from, to) != 0;
+    }
+
+    @Override
+    public boolean xretainAll(final $p$... c) {
+        return __xretainRange(this, this._values, 0, this._size, c, 0, c.length) != 0;
+    }
+
+    @Override
+    public boolean xretainRange(final int from, final int to, final $p$... c) {
+        if (to < from || from < 0 || to > c.length) throw new IndexOutOfBoundsException();
+        return __xretainRange(this, this._values, 0, this._size, c, from, to) != 0;
+    }
+
+    @Override
+    public $p$[] xtoArray() {
+        final int size = this._size;
+        return __xtoArray(this._values, size, 0, size, 0);
+    }
+
+    @Override
+    public $p$[] xtoArray(final $p$[] dest) {
+        final int size = this._size;
+        return __xtoArray(this._values, size, 0, size, 0, dest);
+    }
+
+    @Override
+    public $p$[] xtoArray(final int from, final int to) {
+        return __xtoArray(this._values, this._size, from, to, 0);
+    }
+
+    @Override
+    public $p$[] xtoArray(final int from, final int to, final int destPos, final $p$[] dest) {
+        return __xtoArray(this._values, this._size, from, to, destPos, dest);
+    }
+
+    protected static class SubList extends $I$BaseList implements RandomAccess {
+        final $I$BaseList _list;
         final int _from;
         int _to;
 
-        SubList(final OBaseList<X> list, final int from, final int to) {
+        SubList(final $I$BaseList list, final int from, final int to) {
             this._list = list;
             this._from = from;
             this._to = to;
@@ -395,8 +521,30 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
-        public boolean add(final X x) {
-            if (this._list._add(this._to, x)) {
+        public boolean xcontains(final $p$ o) {
+            return this._list.xcontains(_from, _to, o);
+        }
+
+        @Override
+        public boolean xcontains(final int from, final int to, final $p$ o) {
+            final int _from = this._from;
+            return this._list.xcontains(_from + from, _from + to, o);
+        }
+
+        @Override
+        public boolean add(final $P$ o) {
+            return xadd(o);
+        }
+
+        @Override
+        public void add(final int index, final $P$ o) {
+            if (index < 0 || index > this._to) throw new IndexOutOfBoundsException();
+            this._add(index, o);
+        }
+
+        @Override
+        public boolean xadd(final $p$ o) {
+            if (this._list._add(this._to, o)) {
                 ++this._to;
                 return true;
             }
@@ -404,13 +552,13 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
-        public void add(final int index, final X element) {
+        public boolean xadd(final int index, final $p$ o) {
             if (index < 0 || index > this._to) throw new IndexOutOfBoundsException();
-            this._add(index, element);
+            return this._add(index, o);
         }
 
         @Override
-        boolean _add(final int index, final X element) {
+        boolean _add(final int index, final $p$ element) {
             if (this._list._add(this._from + index, element)) {
                 ++this._to;
                 return true;
@@ -419,8 +567,42 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
+        public $P$ remove(final int index) {
+            return xremoveAt(index);
+        }
+
+        @Override
         public boolean remove(final Object o) {
-            if (this._list.remove(this._from, this._to, o)) {
+            if (!(o instanceof $P$)) return false;
+            return this.xremove(($p$)o);
+        }
+
+        @Override
+        public boolean remove(final int from, final int to, final Object o) {
+            if (!(o instanceof $P$)) return false;
+            return this.xremove(from, to, ($p$)o);
+        }
+
+        @Override
+        public boolean xremove(final $p$ o) {
+            if (this._list.xremove(this._from, this._to, o)) {
+                --this._to;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public $p$ xremoveAt(final int index) {
+            final $p$ ret = this._list.xremoveAt(this._from + index);
+            --this._to;
+            return ret;
+        }
+
+        @Override
+        public boolean xremove(final int from, final int to, final $p$ o) {
+            final int _from = this._from;
+            if (this._list.xremove(_from + from, _from + to, o)) {
                 --this._to;
                 return true;
             }
@@ -442,17 +624,17 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
-        public boolean addAll(final Collection<? extends X> c) {
+        public boolean addAll(final Collection<? extends $P$> c) {
             return this._addAll(this._to - this._from, c) != 0;
         }
 
         @Override
-        public boolean addAll(final int index, final Collection<? extends X> c) {
+        public boolean addAll(final int index, final Collection<? extends $P$> c) {
             return this._addAll(index, c) != 0;
         }
 
         @Override
-        int _addAll(final int index, final Collection<? extends X> c) {
+        int _addAll(final int index, final Collection<? extends $P$> c) {
             final int i = this._from + index;
             if (index < 0 || i > this._to) throw new IndexOutOfBoundsException();
             final int ret = this._list._addAll(i, c);
@@ -475,7 +657,7 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
             final int _from = _f + from;
             int _to = _f + to;
             if (_to < _from || _from < _f || to > this._to) throw new IndexOutOfBoundsException();
-            final OBaseList<X> list = this._list;
+            final $I$BaseList list = this._list;
             final int ret = __removeAll(list, _from, _to, c);
             this._to -= ret;
             return ret;
@@ -495,7 +677,7 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
             if (c == null) throw new NullPointerException(); //TODO Message
             final int _f = this._from;
             final int _from = _f + from;
-            int _to = _f + to;
+            final int _to = _f + to;
             if (_to < _from || _from < _f || _to > this._to) throw new IndexOutOfBoundsException();
             final int ret = __retainAll(this._list, this._list._values(), _from, _to, c);
             this._to -= ret;
@@ -510,22 +692,15 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
-        public X get(final int index) {
+        public $P$ get(final int index) {
             if (index < 0 || index >= this._to - this._from) throw new IndexOutOfBoundsException();
             return this._list.get(this._from + index);
         }
 
         @Override
-        public X set(final int index, final X element) {
+        public $P$ set(final int index, final $P$ element) {
             if (index < 0 || index >= this._to - this._from) throw new IndexOutOfBoundsException();
             return this._list.set(this._from + index, element);
-        }
-
-        @Override
-        public X remove(final int index) {
-            final X ret = this._list.remove(this._from + index);
-            --this._to;
-            return ret;
         }
 
         @Override
@@ -555,20 +730,36 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
+        public int xindexOf(final $p$ o) {
+            return __xidx(this._list._values(), this._from, this._to, o);
+        }
+
+        @Override
+        public int xlastIndexOf(final $p$ o) {
+            return __xlidx(this._list._values(), this._from, this._to, o);
+        }
+
+        @Override
+        public int xindexOf(final int from, final int to, final $p$ o) {
+            final int f = this._from;
+            final int _to = f + to;
+            if (to < from || from < 0 || _to > this._to) throw new IndexOutOfBoundsException();
+            return __xidx(this._list._values(), f + from, _to, o);
+        }
+
+        @Override
+        public int xlastIndexOf(final int from, final int to, final $p$ o) {
+            final int f = this._from;
+            final int _to = f + to;
+            if (to < from || from < 0 || _to > this._to) throw new IndexOutOfBoundsException();
+            return __xlidx(this._list._values(), f + from, _to, o);
+        }
+
+        @Override
         public boolean clear(final int from, final int to) {
             final int _from = this._from;
             if (this._list.clear(_from + from, _from + to)) {
                 this._to -= (to - from);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean remove(final int from, final int to, final Object o) {
-            final int _from = this._from;
-            if (this._list.remove(_from + from, _from + to, o)) {
-                --this._to;
                 return true;
             }
             return false;
@@ -597,48 +788,48 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
-        public SubList<X> with(final X value) {
+        public SubList with(final $p$ value) {
             this.add(value);
             return this;
         }
 
         @Override
-        public SubList<X> capacity(final int desired) {
-            final OBaseList<X> list = this._list;
+        public SubList capacity(final int desired) {
+            final $I$BaseList list = this._list;
             final int diff = list.size() - (this._to - this._from);
             list.capacity(diff + desired);
             return this;
         }
 
         @Override
-        public OCursor<X> cursor() {
-            return new SubCur<>(this, this._from);
+        public $I$Cursor cursor() {
+            return new SubCur(this, this._from);
         }
 
         @Override
-        public SubIt<X> iterator() {
-            return new SubIt<>(this, this._from);
+        public SubIt iterator() {
+            return new SubIt(this, this._from);
         }
 
         @Override
-        public SubIt<X> listIterator() {
-            return new SubIt<>(this, this._from);
+        public SubIt listIterator() {
+            return new SubIt(this, this._from);
         }
 
         @Override
-        public SubIt<X> listIterator(final int index) {
+        public SubIt listIterator(final int index) {
             final int _index = this._from + index;
             if (_index < this._from || _index > this._to) throw new IndexOutOfBoundsException();
-            return new SubIt<>(this, _index);
+            return new SubIt(this, _index);
         }
 
         @Override
-        public SubList<X> subList(final int from, final int to) {
+        public SubList subList(final int from, final int to) {
             final int _f = this._from;
             final int _from = _f + from;
             final int _to = _f + to;
             if (to < from || _from < _f || _to > this._to) throw new IndexOutOfBoundsException();
-            return new SubList<>(this, from, to);
+            return new SubList(this, _from, _to);
         }
 
         @Override
@@ -657,19 +848,104 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
 
         @Override
-        X[] _values() {
+        $p$[] _values() {
             return this._list._values();
+        }
+
+    @Override
+    public boolean xcontainsAll(final $p$... c) {
+        final int from = this._from;
+        final int to = this._to;
+        final $I$BaseList list = this._list;
+        for (final $p$ o : c) {
+            if (!list.xcontains(from, to, o)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean xcontainsRange(final int from, final int to, final $p$... c) {
+        if (from < 0 || to > c.length || to < from) throw new IndexOutOfBoundsException();
+        for (int i = from; i < to; ++i) {
+            if (!xcontains(_from, _to, c[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+        @Override
+        public boolean xaddAll(final $p$... c) {
+            return __xaddRange(this, this._to, c, 0, c.length) != 0;
+        }
+
+        @Override
+        public boolean xaddRange(final int from, final int to, final $p$... c) {
+            if (to < from || from < 0 || to > c.length) throw new IndexOutOfBoundsException();
+            return __xaddRange(this, this._to, c, from, to) != 0;
+        }
+
+        @Override
+        public boolean xremoveAll(final $p$... c) {
+            return __xremoveRange(this, this._from, this._to, c, 0, c.length) != 0;
+        }
+
+        @Override
+        public boolean xremoveRange(final int from, final int to, final $p$... c) {
+            if (to < from || from < 0 || to > c.length) throw new IndexOutOfBoundsException();
+            return __xremoveRange(this, this._from, this._to, c, from, to) != 0;
+        }
+
+        @Override
+        public boolean xretainAll(final $p$... c) {
+            return __xretainRange(this, this._list._values(), this._from, this._to, c, 0, c.length) != 0;
+        }
+
+        @Override
+        public boolean xretainRange(final int from, final int to, final $p$... c) {
+            if (to < from || from < 0 || to > c.length) throw new IndexOutOfBoundsException();
+            return __xretainRange(this, this._list._values(), this._from, this._to, c, from, to) != 0;
+        }
+
+        @Override
+        public $p$[] xtoArray() {
+            return this._list.xtoArray(this._from, this._to);
+        }
+
+        @Override
+        public $p$[] xtoArray(final $p$[] dest) {
+            return this._list.xtoArray(this._from, this._to, 0, dest);
+        }
+
+        @Override
+        public $p$[] xtoArray(final int from, final int to) {
+            final int _f = this._from;
+            final int _from = _f + from;
+            final int _to = _f + to;
+            if (to < from || _from < _f || _to > this._to) throw new IndexOutOfBoundsException();
+            return this._list.xtoArray(_from, _to);
+        }
+
+        @Override
+        public $p$[] xtoArray(final int from, final int to, final int destPos, final $p$[] dest) {
+            final int _f = this._from;
+            final int _from = _f + from;
+            final int _to = _f + to;
+            if (to < from || _from < _f || _to > this._to) throw new IndexOutOfBoundsException();
+            return this._list.xtoArray(_from, _to, destPos, dest);
         }
     }
 
-    public abstract static class _It<X,I,L extends OBaseList<X>> implements OListIterator<I> {
+    public abstract static class _It<I,L extends $I$BaseList> implements OListIterator<I> {
         protected static final int INVALID = -1;
 
         final L _list;
         final int _from;
         int _index;
         int _last;
-        protected X _value;
+        protected $p$ _value;
 
         private _It(final L list, final int from, final int index) {
             this._list = list;
@@ -700,35 +976,29 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
             return this._index - 1;
         }
 
-        @Override
-        public _It<X,I,L> before() {
+        protected void _before() {
             this._index = this._from;
             this._last = INVALID;
-            return this;
         }
 
-        @Override
-        public _It<X,I,L> after() {
+        protected void _after() {
             this._index = _to();
             this._last = INVALID;
-            return this;
         }
 
-        @Override
-        public _It<X,I,L> index(final int index) {
+        protected void _index(final int index) {
             if (index < this._from || index >= _to()) throw new IndexOutOfBoundsException();
             this._index = index;
             this._last = INVALID;
-            return this;
         }
 
-        protected void _set(final X x) {
+        protected void _set(final $p$ x) {
             final int index = this._last;
             if (index < this._from || index >= _to()) throw new IllegalStateException();
             this._list._values()[index] = x;
         }
 
-        protected void _add(final X x) {
+        protected void _add(final $p$ x) {
             this._list.add(this._index++, x);
             this._last = INVALID;
         }
@@ -749,9 +1019,9 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
     }
 
-    public abstract static class _OIt<X,I> extends _It<X,I,OArrayList<X>> {
+    public abstract static class _OIt<I> extends _It<I,$I$ArrayList> {
 
-        private _OIt(final OArrayList<X> list, final int index) {
+        private _OIt(final $I$ArrayList list, final int index) {
             super(list, 0, index);
         }
 
@@ -763,10 +1033,10 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         @Override
         public void remove() {
             final int index = this._last;
-            final OArrayList<X> list = this._list;
+            final $I$ArrayList list = this._list;
             final int size = list._size;
             if (index < 0 || index >= size) throw new IllegalStateException();
-            final X[] values = list._values;
+            final $p$[] values = list._values;
             System.arraycopy(values, index + 1, values, index, size - index);
             --list._size;
             this._index = index;
@@ -774,76 +1044,129 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
     }
 
-    public static class It<X> extends _OIt<X,X> {
+    public static class It extends _OIt<$P$> implements $I$ListIterator {
 
-        private It(final OArrayList<X> list, final int index) {
+        private It(final $I$ArrayList list, final int index) {
             super(list, index);
         }
 
         @Override
-        public X next() {
+        public $P$ next() {
             _advance();
             return this._value;
         }
 
         @Override
-        public X previous() {
+        public $P$ previous() {
             _retreat();
             return this._value;
         }
 
         @Override
-        public void set(final X x) {
+        public void set(final $P$ x) {
             this._set(x);
         }
 
         @Override
-        public void add(final X x) {
+        public void add(final $P$ x) {
             this._add(x);
         }
-    }
-
-    public static class Cur<X> extends _OIt<X,OCursor<X>> implements OCursor<X> {
-        public Cur(final OArrayList<X> list, final int index) {
-            super(list, index);
-        }
 
         @Override
-        public X value() {
-            return this._value;
-        }
-
-        @Override
-        public Cur<X> iterator() {
+        public It before() {
+            this._before();
             return this;
         }
 
         @Override
-        public OCursor<X> next() {
+        public It after() {
+            this._after();
+            return this;
+        }
+
+        @Override
+        public It index(final int index) {
+            this._index(index);
+            return this;
+        }
+
+        @Override
+        public $p$ value() {
+            return this._value;
+        }
+
+        @Override
+        public It setValue(final $p$ value) {
+            this._set(value);
+            return this;
+        }
+
+        @Override
+        public It addValue(final $p$ value) {
+            this._add(value);
+            return this;
+        }
+    }
+
+    public static class Cur extends _OIt<$I$Cursor> implements $I$Cursor {
+        public Cur(final $I$ArrayList list, final int index) {
+            super(list, index);
+        }
+
+        @Override
+        public $p$ value() {
+            return this._value;
+        }
+
+        @Override
+        public Cur iterator() {
+            return this;
+        }
+
+        @Override
+        public $I$Cursor next() {
             _advance();
             return this;
         }
 
         @Override
-        public OCursor<X> previous() {
+        public $I$Cursor previous() {
             _retreat();
             return this;
         }
 
         @Override
-        public void set(final OCursor<X> that) {
+        public void set(final $I$Cursor that) {
             _set(that.value());
         }
 
         @Override
-        public void add(final OCursor<X> that) {
+        public void add(final $I$Cursor that) {
             _add(that.value());
+        }
+
+        @Override
+        public Cur before() {
+            this._before();
+            return this;
+        }
+
+        @Override
+        public Cur after() {
+            this._after();
+            return this;
+        }
+
+        @Override
+        public Cur index(final int index) {
+            this._index(index);
+            return this;
         }
     }
 
-    public abstract static class _SubIt<X,I> extends _It<X,I,SubList<X>> {
+    public abstract static class _SubIt<I> extends _It<I,SubList> {
 
-        private _SubIt(final SubList<X> list, final int index) {
+        private _SubIt(final SubList list, final int index) {
             super(list, list._from, index);
         }
 
@@ -856,9 +1179,9 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         public void remove() {
             final int index = this._last;
             if (index < this._from) throw new IllegalStateException();
-            final SubList<X> list = this._list;
+            final SubList list = this._list;
             if (index >= list._to) throw new IllegalStateException();
-            final X[] values = list._values();
+            final $p$[] values = list._values();
             System.arraycopy(values, index + 1, values, index, list._to - index);
             --list._to;
             this._index = index;
@@ -866,70 +1189,124 @@ public class OArrayList<X> extends OBaseList<X> implements RandomAccess, Seriali
         }
     }
 
-    public static class SubIt<X> extends _SubIt<X,X> {
+    public static class SubIt extends _SubIt<$P$> implements $I$ListIterator {
 
-        private SubIt(final SubList<X> list, final int index) {
+        private SubIt(final SubList list, final int index) {
             super(list, index);
         }
 
         @Override
-        public X next() {
+        public $P$ next() {
             _advance();
             return this._value;
         }
 
         @Override
-        public X previous() {
+        public $P$ previous() {
             _retreat();
             return this._value;
         }
 
         @Override
-        public void set(final X x) {
+        public void set(final $P$ x) {
             this._set(x);
         }
 
         @Override
-        public void add(final X x) {
+        public void add(final $P$ x) {
             this._add(x);
         }
-    }
-
-    public static class SubCur<X> extends _SubIt<X,OCursor<X>> implements OCursor<X> {
-        public SubCur(final SubList<X> list, final int index) {
-            super(list, index);
-        }
 
         @Override
-        public X value() {
-            return this._value;
-        }
-
-        @Override
-        public SubCur<X> iterator() {
+        public SubIt before() {
+            this._before();
             return this;
         }
 
         @Override
-        public OCursor<X> next() {
+        public SubIt after() {
+            this._after();
+            return this;
+        }
+
+        @Override
+        public SubIt index(final int index) {
+            this._index(index);
+            return this;
+        }
+
+        @Override
+        public $p$ value() {
+            return this._value;
+        }
+
+        @Override
+        public SubIt setValue(final $p$ value) {
+            this._set(value);
+            return this;
+        }
+
+        @Override
+        public SubIt addValue(final $p$ value) {
+            this._add(value);
+            return this;
+        }
+    }
+
+    public static class SubCur extends _SubIt<$I$Cursor> implements $I$Cursor {
+        public SubCur(final SubList list, final int index) {
+            super(list, index);
+        }
+
+        @Override
+        public $p$ value() {
+            return this._value;
+        }
+
+        @Override
+        public SubCur iterator() {
+            return this;
+        }
+
+        @Override
+        public $I$Cursor next() {
             _advance();
             return this;
         }
 
         @Override
-        public OCursor<X> previous() {
+        public $I$Cursor previous() {
             _retreat();
             return this;
         }
 
         @Override
-        public void set(final OCursor<X> that) {
+        public void set(final $I$Cursor that) {
             _set(that.value());
         }
 
         @Override
-        public void add(final OCursor<X> that) {
+        public void add(final $I$Cursor that) {
             _add(that.value());
+        }
+
+        @Override
+        public SubCur before() {
+            this._before();
+            return this;
+        }
+
+        @Override
+        public SubCur after() {
+            this._after();
+            return this;
+        }
+
+        @Override
+        public SubCur index(final int index) {
+            this._index(index);
+            return this;
         }
     }
 }
+>>

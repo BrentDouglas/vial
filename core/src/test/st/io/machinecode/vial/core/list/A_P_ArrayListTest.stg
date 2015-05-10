@@ -1,0 +1,44 @@
+delimiters "$", "$"
+
+PArrayListTest(I, P, p, hc, X) ::= <<
+package io.machinecode.vial.core.list;
+
+import io.machinecode.vial.api.list.$I$List;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import java.util.List;
+
+/**
+ * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
+ * @since 1.0
+ */
+public class $I$ArrayListTest {
+
+    public static Test suite() {
+        final TestSuite suite = new TestSuite($I$ArrayList.class.getName());
+        $I$ListSuite.createSuite(suite, $I$ArrayList.class, new $I$ListSuite.CreateList() {
+            @Override
+            public $I$List make() {
+                return new $I$ArrayList(4);
+            }
+            @Override
+            public $I$List create() {
+                return new $I$ArrayList();
+            }
+
+            @Override
+            public $I$List create(final int cap) {
+                return new $I$ArrayList(cap);
+            }
+
+            @Override
+            public $I$List create(final List<$P$> list) {
+                return new $I$ArrayList(list);
+            }
+        });
+        return suite;
+    }
+}
+
+>>
