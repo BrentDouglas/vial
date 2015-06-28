@@ -963,13 +963,12 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
 
         @Override
         public _It<T> index(final int index) {
-            if (index >= map._size) throw new IndexOutOfBoundsException();
-            this.index = INDEX_BEFORE;
+            if (index < 0 || index >= map._size) throw new IndexOutOfBoundsException();
             key = ILLEGAL;
             found = true;
             final $p$[] data = this.data;
             int x = 0;
-            for (int i = 0, len = data.length; i < len; ++i) {
+            for (int i = 0, len = data.length; i < len; i+=2) {
                 if (data[i] == NO_KEY) {
                     continue;
                 }

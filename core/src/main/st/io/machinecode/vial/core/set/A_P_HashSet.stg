@@ -188,10 +188,9 @@ public class $I$HashSet implements $I$Set, Serializable {
 
     @Override
     public boolean xaddRange(final int from, final int to, final $p$... c) {
+        if (from < 0 || to > c.length || to < from) throw new IndexOutOfBoundsException(); //TODO Message
         final int s = to - from;
-        if (s < 0) {
-            throw new IndexOutOfBoundsException();
-        } else if (s == 0) {
+        if (s == 0) {
             return false;
         }
         _expand(this._size + s);
@@ -357,6 +356,7 @@ public class $I$HashSet implements $I$Set, Serializable {
 
     @Override
     public boolean xcontainsRange(final int from, final int to, final $p$... c) {
+        if (from < 0 || to > c.length || to < from) throw new IndexOutOfBoundsException(); //TODO Message
         for (int i = from; i < to; ++i) {
             if (!xcontains(c[i])) {
                 return false;
@@ -386,6 +386,7 @@ public class $I$HashSet implements $I$Set, Serializable {
 
     @Override
     public boolean xremoveRange(final int from, final int to, final $p$... c) {
+        if (from < 0 || to > c.length || to < from) throw new IndexOutOfBoundsException(); //TODO Message
         boolean ret = false;
         for (int i = from; i < to; ++i) {
             ret |= xremove(c[i]);
@@ -418,7 +419,7 @@ public class $I$HashSet implements $I$Set, Serializable {
 
     @Override
     public boolean xretainRange(final int from, final int to, final $p$... c) {
-        if (c == null) throw new NullPointerException(); //TODO Message
+        if (from < 0 || to > c.length || to < from) throw new IndexOutOfBoundsException(); //TODO Message
         final OIterator<$P$> it = iterator(); //TODO Remove this
         boolean ret = false;
         outer: while (it.hasNext()) {
@@ -677,8 +678,7 @@ public class $I$HashSet implements $I$Set, Serializable {
 
         @Override
         public _It<T> index(final int index) {
-            if (index >= set._size) throw new IndexOutOfBoundsException();
-            this.index = INDEX_BEFORE;
+            if (index < 0 || index >= set._size) throw new IndexOutOfBoundsException();
             this.key = ILLEGAL;
             this.found = true;
             final $p$[] keys = this.keys;

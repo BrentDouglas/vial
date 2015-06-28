@@ -969,8 +969,7 @@ public class O$I$HashMap<K> implements O$I$Map<K>, Serializable {
 
         @Override
         public _It<T,K> index(final int index) {
-            if (index >= map._size) throw new IndexOutOfBoundsException();
-            this.index = INDEX_BEFORE;
+            if (index < 0 || index >= map._size) throw new IndexOutOfBoundsException();
             key = ILLEGAL;
             found = true;
             final Object[] keys = this.keys;

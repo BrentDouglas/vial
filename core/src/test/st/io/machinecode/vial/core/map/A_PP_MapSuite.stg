@@ -1301,6 +1301,100 @@ public class $Ik$$Iv$MapSuite extends VialSuite {
         assertFalse(c.equals(new Object()));
     }
 
+    public void testCursorBefore() {
+        final $Ik$$Iv$Map map = create.make();
+
+        for ($pk$ i = 0; i < 10; ++i) {
+            assertNull(map.put(($pk$)i, v_0));
+        }
+
+        final $Ik$$Iv$Cursor c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final $Ik$$Iv$Cursor x : c) {
+            assertNotNull(c.next());
+            assertEquals(x.value(), c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.before();
+        int i = 0;
+        for (final $Ik$$Iv$Cursor x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+    }
+
+    public void testCursorAfter() {
+        final $Ik$$Iv$Map map = create.make();
+
+        for ($pk$ i = 0; i < 10; ++i) {
+            assertNull(map.put(i, v_0));
+        }
+
+        final $Ik$$Iv$Cursor c = map.iterator();
+        assertTrue(c.hasNext());
+        c.after();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndex() {
+        final $Ik$$Iv$Map map = create.make();
+
+        for ($pk$ i = 0; i < 10; ++i) {
+            assertNull(map.put(i, v_0));
+        }
+
+        final $Ik$$Iv$Cursor c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final $Ik$$Iv$Cursor x : c) {
+            assertNotNull(c.next());
+            assertEquals(x.value(), c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.index(0);
+
+        int i = 0;
+        for (final $Ik$$Iv$Cursor x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+
+        c.index(0);
+        assertTrue(c.hasNext());
+        c.index(9).next();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndexTooLow() {
+        final $Ik$$Iv$Map map = create.make();
+        final $Ik$$Iv$Cursor c = map.iterator();
+        try {
+            c.index(-1);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorIndexTooHigh() {
+        final $Ik$$Iv$Map map = create.make();
+
+        for ($pk$ i = 0; i < 6; ++i) {
+            assertNull(map.put(i, v_0));
+        }
+
+        final $Ik$$Iv$Cursor c = map.iterator();
+        try {
+            c.index(6);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
     public void testCursorEquals() {
         final $Ik$$Iv$Map map = create.make();
         assertEquals(map.nv(), map.xput(k_0, map.nv()));

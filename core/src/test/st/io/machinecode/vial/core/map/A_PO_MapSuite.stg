@@ -1010,6 +1010,100 @@ public class $I$OMapSuite extends VialSuite {
         assertFalse(c.equals(new Object()));
     }
 
+    public void testCursorBefore() {
+        final $I$OMap<$P$> map = create.make();
+
+        for ($p$ i = 0; i < 10; ++i) {
+            assertNull(map.put(i, _0));
+        }
+
+        final $I$OCursor<$P$> c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final $I$OCursor<$P$> x : c) {
+            assertNotNull(c.next());
+            assertEquals(x.value(), c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.before();
+        int i = 0;
+        for (final $I$OCursor<$P$> x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+    }
+
+    public void testCursorAfter() {
+        final $I$OMap<$P$> map = create.make();
+
+        for ($p$ i = 0; i < 10; ++i) {
+            assertNull(map.put(i, _0));
+        }
+
+        final $I$OCursor<$P$> c = map.iterator();
+        assertTrue(c.hasNext());
+        c.after();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndex() {
+        final $I$OMap<$P$> map = create.make();
+
+        for ($p$ i = 0; i < 10; ++i) {
+            assertNull(map.put(i, _0));
+        }
+
+        final $I$OCursor<$P$> c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final $I$OCursor<$P$> x : c) {
+            assertNotNull(c.next());
+            assertEquals(x.value(), c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.index(0);
+
+        int i = 0;
+        for (final $I$OCursor<$P$> x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+
+        c.index(0);
+        assertTrue(c.hasNext());
+        c.index(9).next();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndexTooLow() {
+        final $I$OMap<$P$> map = create.make();
+        final $I$OCursor<$P$> c = map.iterator();
+        try {
+            c.index(-1);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorIndexTooHigh() {
+        final $I$OMap<$P$> map = create.make();
+
+        for ($p$ i = 0; i < 6; ++i) {
+            assertNull(map.put(i, _0));
+        }
+
+        final $I$OCursor<$P$> c = map.iterator();
+        try {
+            c.index(6);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
     public void testCursorEquals() {
         final $I$OMap<$P$> map = create.make();
         assertNull(map.put(_0, null));

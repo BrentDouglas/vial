@@ -839,8 +839,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
 
         @Override
         public _It<T,V> index(final int index) {
-            if (index >= map._size) throw new IndexOutOfBoundsException();
-            this.index = INDEX_BEFORE;
+            if (index < 0 || index >= map._size) throw new IndexOutOfBoundsException();
             key = ILLEGAL;
             found = true;
             final $p$[] keys = this.keys;

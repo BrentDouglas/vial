@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -82,6 +83,18 @@ public class $I$SetSuite extends VialSuite {
     public $I$SetSuite(final String method, final String spreadName, final CreateSet create) {
         super(method, spreadName);
         this.create = create;
+    }
+
+    protected $I$Set vset(final $P$... vs) {
+        final $I$Set that = create.make();
+        Collections.addAll(that, vs);
+        return that;
+    }
+
+    protected Set<$P$> jset(final $P$... vs) {
+        final Set<$P$> that = new HashSet<>();
+        Collections.addAll(that, vs);
+        return that;
     }
 
     public void testConstructors() {
@@ -362,7 +375,7 @@ public class $I$SetSuite extends VialSuite {
         set.addAll(jset);
     }
 
-    public void testCursor() {
+    public void testCursorBefore() {
         final $I$Set set = create.make();
 
         for ($p$ i = 0; i < 10; ++i) {
@@ -378,6 +391,45 @@ public class $I$SetSuite extends VialSuite {
         assertFalse(c.hasNext());
 
         c.before();
+        int i = 0;
+        for (final $I$Cursor x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+    }
+
+    public void testCursorAfter() {
+        final $I$Set set = create.make();
+
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final $I$Cursor c = set.cursor();
+        assertTrue(c.hasNext());
+        c.after();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndex() {
+        final $I$Set set = create.make();
+
+        for ($p$ i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final $I$Cursor c = set.cursor();
+        assertTrue(c.hasNext());
+        for (final $p$ x : set) {
+            assertNotNull(c.next());
+            assertEquals(x, c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.index(0);
 
         int i = 0;
         for (final $I$Cursor x : c) {
@@ -387,6 +439,34 @@ public class $I$SetSuite extends VialSuite {
             assertEquals(x.toString(), c.toString());
         }
         assertEquals(10, i);
+
+        c.index(0);
+        assertTrue(c.hasNext());
+        c.index(9).next();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndexTooLow() {
+        final $I$Set set = create.make();
+        final $I$Cursor c = set.cursor();
+        try {
+            c.index(-1);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorIndexTooHigh() {
+        final $I$Set set = create.make();
+
+        for ($p$ i = 0; i < 6; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final $I$Cursor c = set.cursor();
+        try {
+            c.index(6);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
     }
 
     public void testToArray() {
@@ -457,5 +537,230 @@ public class $I$SetSuite extends VialSuite {
         }
     }
     */
+
+    public void testXAddAll() {
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertFalse(that.xaddAll(_0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _2, _3, _4));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertTrue(that.xaddAll(_1, _2));
+            assertEquals(that, jset(_3, _0, _1, _2));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertFalse(that.xaddAll());
+            assertEquals(that, jset(_3, _0));
+        }
+    }
+
+    public void testXAddRange() {
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertFalse(that.xaddRange(0, 3, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _2, _3, _4));
+        }
+        {
+            final $I$Set that = vset(_0, _1, _2);
+            assertTrue(that.xaddRange(1, 4, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _2, _3));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertFalse(that.xaddRange(0, 0));
+            assertEquals(that, jset(_3, _0));
+        }
+    }
+
+    public void testXAddRangeTooLow() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xaddRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXAddRangeTooHigh() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xaddRange(3, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXAddRangeWrongOrder() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xaddRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRemoveAll() {
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xremoveAll(_0, _1, _2, _3, _4));
+            assertEquals(that, jset());
+        }
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xremoveAll(_1, _3));
+            assertEquals(that, jset(_0, _2, _4));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertFalse(that.xremoveAll());
+            assertEquals(that, jset(_3, _0));
+        }
+    }
+
+    public void testXRemoveRange() {
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xremoveRange(0, 3, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_3, _4));
+        }
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xremoveRange(2, 4, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _4));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertFalse(that.xremoveRange(0, 0));
+            assertEquals(that, jset(_3, _0));
+        }
+    }
+
+    public void testXRemoveRangeTooLow() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xremoveRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRemoveRangeTooHigh() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xremoveRange(0, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRemoveRangeWrongOrder() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xremoveRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRetainAll() {
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertFalse(that.xretainAll(_0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _2, _3, _4));
+        }
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xretainAll(_1, _2));
+            assertEquals(that, jset(_1, _2));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertTrue(that.xretainAll());
+            assertEquals(that, jset());
+        }
+    }
+
+    public void testXRetainRange() {
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xretainRange(0, 3, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _2));
+        }
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertTrue(that.xretainRange(3, 5, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_3, _4));
+        }
+        {
+            final $I$Set that = vset(_3, _0);
+            assertTrue(that.xretainRange(0, 0));
+            assertEquals(that, jset());
+        }
+        {
+            final $I$Set that = vset(_0, _1, _2, _3, _4);
+            assertFalse(that.xretainRange(0, 5, _0, _1, _2, _3, _4));
+            assertEquals(that, jset(_0, _1, _2, _3, _4));
+        }
+    }
+
+    public void testXRetainRangeTooLow() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xretainRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRetainRangeTooHigh() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xretainRange(0, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXRetainRangeWrongOrder() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xretainRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsAll() {
+        final $I$Set that = vset(_0, _1, _3, _4);
+        assertFalse(that.xcontainsAll(_2, _4));
+        assertFalse(that.xcontainsAll(_0, _2));
+        assertTrue(that.xcontainsAll(_0, _1, _3, _4));
+        assertTrue(that.xcontainsAll(_4));
+    }
+
+    public void testXContainsAllRange() {
+        final $I$Set that = vset(_0, _1, _3, _4);
+        assertFalse(that.xcontainsRange(0, 3, _0, _1, _2, _3, _4));
+        assertFalse(that.xcontainsRange(2, 5, _0, _1, _2, _3, _4));
+        assertTrue(that.xcontainsRange(0, 2, _0, _1, _2, _3, _4));
+        assertTrue(that.xcontainsRange(3, 5, _0, _1, _2, _3, _4));
+    }
+
+    public void testXContainsAllRangeTooLow() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xcontainsRange(-1, 3, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsAllRangeTooHigh() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xcontainsRange(0, 6, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
+
+    public void testXContainsAllRangeWrongOrder() {
+        final $I$Set that = vset(_0, _1, _2, _3, _4);
+        try {
+            that.xcontainsRange(3, 2, _0, _1, _2, _3, _4);
+            fail();
+        } catch (final IndexOutOfBoundsException e) {}
+    }
 }
 >>

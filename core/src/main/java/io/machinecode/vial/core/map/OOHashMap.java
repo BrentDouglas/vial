@@ -782,13 +782,12 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
 
         @Override
         public _It<T,K,V> index(final int index) {
-            if (index >= map._size) throw new IndexOutOfBoundsException();
-            this.index = INDEX_BEFORE;
+            if (index < 0 || index >= map._size) throw new IndexOutOfBoundsException();
             key = ILLEGAL;
             found = true;
             final Object[] data = this.data;
             int x = 0;
-            for (int i = 0, len = data.length; i < len; ++i) {
+            for (int i = 0, len = data.length; i < len; i+=2) {
                 if (data[i] == null) {
                     continue;
                 }

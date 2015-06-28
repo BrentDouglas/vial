@@ -377,31 +377,98 @@ public class OSetSuite extends VialSuite {
         set.addAll(jset);
     }
 
-    public void testCursor() {
-        final OSet<Long> set = create.create();
+    public void testCursorBefore() {
+        final OSet<Integer> set = create.make();
 
-        for (long i = 0; i < 10; ++i) {
+        for (Integer i = 0; i < 10; ++i) {
             assertTrue(set.add(i));
         }
 
-        final OCursor<Long> c = set.cursor();
+        final OCursor<Integer> c = set.cursor();
         assertTrue(c.hasNext());
-        for (final Long x : set) {
+        for (final Integer x : set) {
             assertNotNull(c.next());
             assertEquals(x, c.value());
         }
         assertFalse(c.hasNext());
 
         c.before();
-
         int i = 0;
-        for (final OCursor<Long> x : c) {
+        for (final OCursor<Integer> x : c) {
             ++i;
             assertSame(x, c);
             assertEquals(x, c);
             assertEquals(x.toString(), c.toString());
         }
         assertEquals(10, i);
+    }
+
+    public void testCursorAfter() {
+        final OSet<Integer> set = create.make();
+
+        for (Integer i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final OCursor<Integer> c = set.cursor();
+        assertTrue(c.hasNext());
+        c.after();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndex() {
+        final OSet<Integer> set = create.make();
+
+        for (Integer i = 0; i < 10; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final OCursor<Integer> c = set.cursor();
+        assertTrue(c.hasNext());
+        for (final Integer x : set) {
+            assertNotNull(c.next());
+            assertEquals(x, c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.index(0);
+
+        int i = 0;
+        for (final OCursor<Integer> x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+
+        c.index(0);
+        assertTrue(c.hasNext());
+        c.index(9).next();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndexTooLow() {
+        final OSet<Integer> set = create.make();
+        final OCursor<Integer> c = set.cursor();
+        try {
+            c.index(-1);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorIndexTooHigh() {
+        final OSet<Integer> set = create.make();
+
+        for (Integer i = 0; i < 6; ++i) {
+            assertTrue(set.add(i));
+        }
+
+        final OCursor<Integer> c = set.cursor();
+        try {
+            c.index(6);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
     }
 
     public void testToArray() {

@@ -1005,6 +1005,100 @@ public class OOMapSuite extends VialSuite {
         assertFalse(c.equals(new Object()));
     }
 
+    public void testCursorBefore() {
+        final OOMap<Integer,Integer> map = create.make();
+
+        for (Integer i = 0; i < 10; ++i) {
+            assertNull(map.put(i, 0));
+        }
+
+        final OOCursor<Integer, Integer> c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final OOCursor<Integer, Integer> x : c) {
+            assertNotNull(c.next());
+            assertEquals(x.value(), c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.before();
+        int i = 0;
+        for (final OOCursor<Integer, Integer> x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+    }
+
+    public void testCursorAfter() {
+        final OOMap<Integer,Integer> map = create.make();
+
+        for (Integer i = 0; i < 10; ++i) {
+            assertNull(map.put(i, 0));
+        }
+
+        final OOCursor<Integer, Integer> c = map.iterator();
+        assertTrue(c.hasNext());
+        c.after();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndex() {
+        final OOMap<Integer,Integer> map = create.make();
+
+        for (Integer i = 0; i < 10; ++i) {
+            assertNull(map.put(i, 0));
+        }
+
+        final OOCursor<Integer, Integer> c = map.iterator();
+        assertTrue(c.hasNext());
+        for (final OOCursor<Integer, Integer> x : c) {
+            assertNotNull(c.next());
+            assertEquals(x.value(), c.value());
+        }
+        assertFalse(c.hasNext());
+
+        c.index(0);
+
+        int i = 0;
+        for (final OOCursor<Integer, Integer> x : c) {
+            ++i;
+            assertSame(x, c);
+            assertEquals(x, c);
+            assertEquals(x.toString(), c.toString());
+        }
+        assertEquals(10, i);
+
+        c.index(0);
+        assertTrue(c.hasNext());
+        c.index(9).next();
+        assertFalse(c.hasNext());
+    }
+
+    public void testCursorIndexTooLow() {
+        final OOMap<Integer,Integer> map = create.make();
+        final OOCursor<Integer, Integer> c = map.iterator();
+        try {
+            c.index(-1);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
+    public void testIteratorIndexTooHigh() {
+        final OOMap<Integer,Integer> map = create.make();
+
+        for (Integer i = 0; i < 6; ++i) {
+            assertNull(map.put(i, 0));
+        }
+
+        final OOCursor<Integer, Integer> c = map.iterator();
+        try {
+            c.index(6);
+            fail();
+        } catch(final IndexOutOfBoundsException e) {}
+    }
+
     public void testCursorEquals() {
         final OOMap<Integer,Integer> map = create.make();
         assertNull(map.put(null, null));

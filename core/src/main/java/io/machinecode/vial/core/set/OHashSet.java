@@ -557,8 +557,7 @@ public class OHashSet<V> implements OSet<V>, Serializable {
 
         @Override
         public _It<T,V> index(final int index) {
-            if (index >= set._size) throw new IndexOutOfBoundsException();
-            this.index = INDEX_BEFORE;
+            if (index < 0 || index >= set._size) throw new IndexOutOfBoundsException();
             key = ILLEGAL;
             found = true;
             final Object[] keys = this.keys;
