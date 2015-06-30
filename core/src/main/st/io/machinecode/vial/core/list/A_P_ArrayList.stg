@@ -138,14 +138,12 @@ public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializa
 
     @Override
     public boolean remove(final Object o) {
-        if (!(o instanceof $P$)) return false;
-        return xremove(($p$)o);
+        return o instanceof $P$ && xremove(($p$)o);
     }
 
     @Override
     public boolean remove(final int from, final int to, final Object o) {
-        if (!(o instanceof $P$)) return false;
-        return xremove(from, to, ($p$)o);
+        return o instanceof $P$ && xremove(from, to, ($p$)o);
     }
 
     @Override
@@ -538,7 +536,7 @@ public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializa
 
         @Override
         public void add(final int index, final $P$ o) {
-            if (index < 0 || index > this._to) throw new IndexOutOfBoundsException();
+            if (index < 0 || index > this._to - this._from) throw new IndexOutOfBoundsException();
             this._add(index, o);
         }
 
@@ -553,7 +551,7 @@ public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializa
 
         @Override
         public boolean xadd(final int index, final $p$ o) {
-            if (index < 0 || index > this._to) throw new IndexOutOfBoundsException();
+            if (index < 0 || index > this._to - this._from) throw new IndexOutOfBoundsException();
             return this._add(index, o);
         }
 
@@ -573,14 +571,12 @@ public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializa
 
         @Override
         public boolean remove(final Object o) {
-            if (!(o instanceof $P$)) return false;
-            return this.xremove(($p$)o);
+            return o instanceof $P$ && this.xremove(($p$)o);
         }
 
         @Override
         public boolean remove(final int from, final int to, final Object o) {
-            if (!(o instanceof $P$)) return false;
-            return this.xremove(from, to, ($p$)o);
+            return o instanceof $P$ && this.xremove(from, to, ($p$)o);
         }
 
         @Override
@@ -693,14 +689,16 @@ public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializa
 
         @Override
         public $P$ get(final int index) {
-            if (index < 0 || index >= this._to - this._from) throw new IndexOutOfBoundsException();
-            return this._list.get(this._from + index);
+            final int f = this._from;
+            if (index < 0 || index >= this._to - f) throw new IndexOutOfBoundsException();
+            return this._list.get(f + index);
         }
 
         @Override
         public $P$ set(final int index, final $P$ element) {
-            if (index < 0 || index >= this._to - this._from) throw new IndexOutOfBoundsException();
-            return this._list.set(this._from + index, element);
+            final int f = this._from;
+            if (index < 0 || index >= this._to - f) throw new IndexOutOfBoundsException();
+            return this._list.set(f + index, element);
         }
 
         @Override

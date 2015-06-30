@@ -14,8 +14,10 @@ import java.util.List;
  */
 public interface $I$List extends $I$Collection, List<$P$> {
 
+    @Override
     $I$List with(final $p$ value);
 
+    @Override
     $I$List capacity(final int desired);
 
     boolean contains(final int from, final int to, final Object o);
@@ -62,12 +64,16 @@ public interface $I$List extends $I$Collection, List<$P$> {
 
     $p$[] xtoArray(final int from, final int to, final int destPos, final $p$[] dest);
 
+    @Override
     $I$ListIterator iterator();
 
+    @Override
     $I$ListIterator listIterator();
 
+    @Override
     $I$ListIterator listIterator(final int index);
 
+    @Override
     $I$List subList(final int from, final int to);
 }
 >>
