@@ -3,6 +3,8 @@ package io.machinecode.vial.build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
@@ -13,30 +15,27 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
+import static org.apache.maven.plugins.annotations.LifecyclePhase.GENERATE_SOURCES;
+
 /**
- * @goal generate
- *
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
+@Mojo(name = "generate", defaultPhase = GENERATE_SOURCES, requiresProject = false)
 public class VialMojo extends AbstractMojo {
 
     private static final String UTF_8 = "UTF-8";
 
     /**
      * The root directory containing templates.
-     *
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     File in;
 
     /**
      * The root directory to output the templates to.
-     *
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     File out;
 
     private static final String[][] PROPERTIES = {
