@@ -33,11 +33,11 @@
         <version.org.apache.maven.maven-core>3.2.1</version.org.apache.maven.maven-core>
         <version.org.apache.maven.plugin-tools.maven-plugin-annotations>3.4</version.org.apache.maven.plugin-tools.maven-plugin-annotations>
 
-        <version.org.apache.maven.plugin-tools.maven-javadoc-plugin>3.2</version.org.apache.maven.plugin-tools.maven-javadoc-plugin>
+        <version.org.apache.maven.plugin-tools.maven-plugin-tools-javadoc>3.4</version.org.apache.maven.plugin-tools.maven-plugin-tools-javadoc>
         <version.org.codehaus.mojo.build-helper-maven-plugin>1.9.1</version.org.codehaus.mojo.build-helper-maven-plugin>
-        <version.org.codehaus.mojo.maven-plugin-plugin>3.2</version.org.codehaus.mojo.maven-plugin-plugin>
-        <version.org.codehaus.mojo.plexus-component-metadata>1.5.5</version.org.codehaus.mojo.plexus-component-metadata>
-        <version.org.codehaus.plexus.maven-javadoc-plugin>1.5.5</version.org.codehaus.plexus.maven-javadoc-plugin>
+        <version.org.codehaus.mojo.maven-plugin-plugin>3.4</version.org.codehaus.mojo.maven-plugin-plugin>
+        <version.org.codehaus.mojo.plexus-component-metadata>1.6</version.org.codehaus.mojo.plexus-component-metadata>
+        <version.org.codehaus.plexus.plexus-component-javadoc>1.6</version.org.codehaus.plexus.plexus-component-javadoc>
         <version.org.apache.maven.plugins.maven-clean-plugin>2.6.1</version.org.apache.maven.plugins.maven-clean-plugin>
     </properties>
 

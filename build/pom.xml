@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vial-build</artifactId>
+    <artifactId>vial-build-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
     <dependencies>
@@ -32,6 +32,70 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>default-descriptor</id>
+                            <phase>none</phase>
+                            <goals>
+                                <goal>descriptor</goal>
+                            </goals>
+                            <configuration>
+                                <goalPrefix>vial-build</goalPrefix>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>generate-helpmojo</id>
+                            <phase>none</phase>
+                            <goals>
+                                <goal>helpmojo</goal>
+                            </goals>
+                            <configuration>
+                                <helpPackageName>io.machinecode.vial.build</helpPackageName>
+                                <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-component-metadata</artifactId>
+                    <executions>
+                        <execution>
+                            <id>generate-metadata</id>
+                            <phase>none</phase>
+                            <goals>
+                                <goal>generate-metadata</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                        <tagletArtifacts>
+                            <tagletArtifact>
+                                <groupId>org.apache.maven.plugin-tools</groupId>
+                                <artifactId>maven-plugin-tools-javadoc</artifactId>
+                                <version>${version.org.apache.maven.plugin-tools.maven-plugin-tools-javadoc}</version>
+                            </tagletArtifact>
+                            <tagletArtifact>
+                                <groupId>org.codehaus.plexus</groupId>
+                                <artifactId>plexus-component-javadoc</artifactId>
+                                <version>${version.org.codehaus.plexus.plexus-component-javadoc}</version>
+                            </tagletArtifact>
+                        </tagletArtifacts>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -40,27 +104,13 @@
                     <execution>
                         <id>default-descriptor</id>
                         <phase>process-classes</phase>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                        <configuration>
-                            <goalPrefix>vial-build</goalPrefix>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>generate-helpmojo</id>
                         <phase>process-classes</phase>
-                        <goals>
-                            <goal>helpmojo</goal>
-                        </goals>
-                        <configuration>
-                            <helpPackageName>io.machinecode.vial.build</helpPackageName>
-                            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-component-metadata</artifactId>
@@ -68,30 +118,8 @@
                     <execution>
                         <id>generate-metadata</id>
                         <phase>process-classes</phase>
-                        <goals>
-                            <goal>generate-metadata</goal>
-                        </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <additionalparam>-Xdoclint:none</additionalparam>
-                    <tagletArtifacts>
-                        <tagletArtifact>
-                            <groupId>org.apache.maven.plugin-tools</groupId>
-                            <artifactId>maven-plugin-tools-javadoc</artifactId>
-                            <version>${version.org.apache.maven.plugin-tools.maven-javadoc-plugin}</version>
-                        </tagletArtifact>
-                        <tagletArtifact>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-component-javadoc</artifactId>
-                            <version>${version.org.codehaus.plexus.maven-javadoc-plugin}</version>
-                        </tagletArtifact>
-                    </tagletArtifacts>
-                </configuration>
             </plugin>
         </plugins>
     </build>

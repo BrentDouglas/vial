@@ -78,7 +78,7 @@
             </plugin>
             <plugin>
                 <groupId>io.machinecode.vial</groupId>
-                <artifactId>vial-build</artifactId>
+                <artifactId>vial-build-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
