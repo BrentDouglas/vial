@@ -18,7 +18,6 @@
     <modules>
         <module>build</module>
         <module>core</module>
-        <module>bench</module>
     </modules>
 
     <properties>
@@ -183,4 +182,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <modules>
+                <module>bench</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

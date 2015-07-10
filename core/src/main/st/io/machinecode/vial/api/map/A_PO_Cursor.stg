@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-POCursor(I, P, p, hc, X) ::= <<
+POCursor(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import io.machinecode.vial.api.OIterator;

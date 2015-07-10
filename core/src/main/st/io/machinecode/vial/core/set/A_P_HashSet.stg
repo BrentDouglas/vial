@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PHashSet(I, P, p, hc, X) ::= <<
+PHashSet(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.set;
 
 import io.machinecode.vial.api.OIterator;
@@ -120,7 +120,7 @@ public class $I$HashSet implements $I$Set, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -155,7 +155,7 @@ public class $I$HashSet implements $I$Set, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & this._mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -238,7 +238,7 @@ public class $I$HashSet implements $I$Set, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -264,7 +264,7 @@ public class $I$HashSet implements $I$Set, Serializable {
                 keys[index] = NO_KEY;
                 return;
             }
-            final int hash = spread.spread($hc$);
+            final int hash = spread.spread($hck$);
             int slot = hash & mask;
             if (index <= next
                     ? index >= slot || slot > next
@@ -329,7 +329,7 @@ public class $I$HashSet implements $I$Set, Serializable {
             if (key == NO_KEY) {
                 continue;
             }
-            final int hash = spread.spread($hc$);
+            final int hash = spread.spread($hck$);
             int index = hash & mask;
             for (;;) {
                 final $p$ k = newKeys[index];
@@ -507,13 +507,13 @@ public class $I$HashSet implements $I$Set, Serializable {
         int h = 0;
         if (this._haveNoValue) {
             final $p$ key = NO_KEY;
-            h += $hc$;
+            h += $hck$;
         }
         for (final $p$ key : this._keys) {
             if (key == NO_KEY) {
                 continue;
             }
-            h += $hc$;
+            h += $hck$;
         }
         return h;
     }
@@ -639,7 +639,7 @@ public class $I$HashSet implements $I$Set, Serializable {
                     setKeys[index] = NO_KEY;
                     return;
                 }
-                final int hash = spread.spread($hc$);
+                final int hash = spread.spread($hck$);
                 int slot = hash & mask;
                 if (index <= next
                         ? index >= slot || slot > next

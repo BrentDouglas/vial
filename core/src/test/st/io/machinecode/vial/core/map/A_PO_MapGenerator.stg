@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-POMapGenerator(I, P, p, hc, X) ::= <<
+POMapGenerator(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import com.google.common.collect.testing.Helpers;

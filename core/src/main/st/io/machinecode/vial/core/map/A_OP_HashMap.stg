@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-OPHashMap(I, P, p, hc, X) ::= <<
+OPHashMap(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.OIterator;
@@ -472,6 +472,11 @@ public class O$I$HashMap<K> implements O$I$Map<K>, Serializable {
             }
             index = (index + 1) & mask;
         }
+    }
+
+    @Override
+    public boolean remove(final Object key, final Object value) {
+        return value instanceof $P$ && xremove(key, ($p$) value);
     }
 
     @Override
@@ -1031,7 +1036,7 @@ public class O$I$HashMap<K> implements O$I$Map<K>, Serializable {
         public int hashCode() {
             final K key = key();
             final $p$ value = value();
-            return (key == null ? 0 : key.hashCode()) ^ $P$.hashCode(value);
+            return (key == null ? 0 : key.hashCode()) ^ $hcv$;
         }
 
         @Override

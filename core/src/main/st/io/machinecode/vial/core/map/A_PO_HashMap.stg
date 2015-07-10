@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-POHashMap(I, P, p, hc, X) ::= <<
+POHashMap(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.OIterator;
@@ -125,7 +125,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -172,7 +172,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -202,7 +202,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -242,7 +242,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -283,7 +283,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -357,7 +357,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -392,7 +392,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -422,7 +422,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -450,7 +450,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
                 values[index] = null;
                 return;
             }
-            final int hash = spread.spread($hc$);
+            final int hash = spread.spread($hck$);
             int slot = hash & mask;
             if (index <= next
                     ? index >= slot || slot > next
@@ -501,7 +501,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -537,7 +537,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         }
         final $p$[] keys = this._keys;
         final int mask = this._mask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = hash & mask;
         for (;;) {
             final $p$ k = keys[index];
@@ -670,7 +670,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
                  continue;
             }
             final Object value = values[i];
-            final int hash = spread.spread($hc$);
+            final int hash = spread.spread($hck$);
             int index = hash & mask;
             for (;;) {
                 final $p$ k = newKeys[index];
@@ -799,7 +799,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
                     mapValues[index] = null;
                     return;
                 }
-                final int hash = spread.spread($hc$);
+                final int hash = spread.spread($hck$);
                 int slot = hash & mask;
                 if (index <= next
                         ? index >= slot || slot > next
@@ -899,7 +899,7 @@ public class $I$OHashMap<V> implements $I$OMap<V>, Serializable {
         public int hashCode() {
             final $p$ key = key();
             final V value = value();
-            return $P$.hashCode(key) ^ (value == null ? 0 : value.hashCode());
+            return $hck$ ^ (value == null ? 0 : value.hashCode());
         }
 
         @Override

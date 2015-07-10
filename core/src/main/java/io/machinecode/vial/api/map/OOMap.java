@@ -18,6 +18,16 @@ public interface OOMap<K,V> extends Map<K,V>, Iterable<OOCursor<K,V>> {
      */
     boolean xremoveValue(final Object value);
 
+    V getOrDefault(final Object key, final V defaultValue);
+
+    V putIfAbsent(final K key, final V value);
+
+    boolean remove(final Object key, final Object value);
+
+    boolean replace(final K key, final V oldValue, final V newValue);
+
+    V replace(final K key, final V value);
+
     OOMap<K,V> capacity(final int desired);
 
     @Override

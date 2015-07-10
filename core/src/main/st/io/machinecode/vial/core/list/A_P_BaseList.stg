@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PBaseList(I, P, p, hc, X) ::= <<
+PBaseList(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.list;
 
 import io.machinecode.vial.api.list.$I$List;
@@ -135,7 +135,7 @@ abstract class $I$BaseList implements $I$List {
         int h = 1;
         for (int i = from; i < to; ++i) {
             final $p$ key = values[i];
-            h = 31 * h + $hc$;
+            h = 31 * h + $hck$;
         }
         return h;
     }

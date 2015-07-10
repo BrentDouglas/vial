@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-OPMap(I, P, p, hc, X) ::= <<
+OPMap(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import java.util.Map;
@@ -17,19 +17,29 @@ public interface O$I$Map<K> extends Map<K,$P$>, Iterable<O$I$Cursor<K$X$ {
 
     $p$ xget(final K key);
 
+    $P$ getOrDefault(final Object key, final $P$ defaultValue);
+
     $p$ xgetOrDefault(final K key, final $p$ defaultValue);
 
     O$I$Map<K> with(final K key, final $p$ value);
 
     $p$ xput(final K key, final $p$ value);
 
+    $P$ putIfAbsent(final Object key, final $P$ value);
+
     $p$ xputIfAbsent(final K key, final $p$ value);
+
+    boolean remove(final Object key, final Object value);
 
     boolean xremove(final K key, final $p$ value);
 
     boolean xremoveValue(final $p$ value);
 
+    boolean replace(final Object key, final $P$ oldValue, final $P$ newValue);
+
     boolean xreplace(final K key, final $p$ oldValue, final $p$ newValue);
+
+    $P$ replace(final Object key, final $P$ value);
 
     $p$ xreplace(final K key, final $p$ value);
 

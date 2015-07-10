@@ -39,11 +39,11 @@ public class VialMojo extends AbstractMojo {
     File out;
 
     private static final String[][] PROPERTIES = {
-            { "B", "Byte", "byte", "(int)key", " == " },
-            { "S", "Short", "short", "(int)key", " == " },
-            { "I", "Integer", "int", "key", " == " },
-            { "L", "Long", "long", "(int)(key ^ (key >>> 32))", " == " },
-            { "C", "Character", "char", "(int)key", " == " }//,
+            { "B", "Byte", "byte", "(int)key", "(int)value", " == " },
+            { "S", "Short", "short", "(int)key", "(int)value", " == " },
+            { "I", "Integer", "int", "key", "value", " == " },
+            { "L", "Long", "long", "(int)(key ^ (key >>> 32))", "(int)(value ^ (value >>> 32))", " == " },
+            { "C", "Character", "char", "(int)key", "(int)value", " == " }//,
             //{ "O", "Object", "Object", "key.hashCode()", ").equals(" }
     };
 
@@ -117,7 +117,8 @@ public class VialMojo extends AbstractMojo {
                 st.add("I", k[0]);
                 st.add("P", k[1]);
                 st.add("p", k[2]);
-                st.add("hc", k[3]);
+                st.add("hck", k[3]);
+                st.add("hcv", k[4]);
                 st.add("X", ">>");
                 final String that = "" + ki + name + ".java";
                 generate(st,  new File(out, that), errors);
@@ -140,7 +141,8 @@ public class VialMojo extends AbstractMojo {
                     st.add("I", k[0]);
                     st.add("P", k[1]);
                     st.add("p", k[2]);
-                    st.add("hc", k[3]);
+                    st.add("hck", k[3]);
+                    st.add("hcv", k[4]);
                     st.add("X", ">>");
                     final String that = "" + ki + ki + name + ".java";
                     generate(st, new File(out, that), errors);
@@ -153,10 +155,11 @@ public class VialMojo extends AbstractMojo {
                         st.add("Ik", k[0]);
                         st.add("Pk", k[1]);
                         st.add("pk", k[2]);
-                        st.add("hc", k[3]);
+                        st.add("hck", k[3]);
                         st.add("Iv", v[0]);
                         st.add("Pv", v[1]);
                         st.add("pv", v[2]);
+                        st.add("hcv", v[4]);
                         st.add("X", ">>");
                         final char vi = v[0].charAt(0);
                         final String that = "" + ki + vi + name + ".java";
@@ -171,7 +174,8 @@ public class VialMojo extends AbstractMojo {
                 st.add("I", k[0]);
                 st.add("P", k[1]);
                 st.add("p", k[2]);
-                st.add("hc", k[3]);
+                st.add("hck", k[3]);
+                st.add("hcv", k[4]);
                 st.add("X", ">>");
                 final String that = "" + ki + s + name + ".java";
                 generate(st,  new File(out, that), errors);
@@ -183,7 +187,8 @@ public class VialMojo extends AbstractMojo {
                 st.add("I", k[0]);
                 st.add("P", k[1]);
                 st.add("p", k[2]);
-                st.add("hc", k[3]);
+                st.add("hck", k[3]);
+                st.add("hcv", k[4]);
                 st.add("X", ">>");
                 final String that = "" + f + ki + name + ".java";
                 generate(st,  new File(out, that), errors);

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPHashMap(I, P, p, hc, X) ::= <<
+PPHashMap(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.OIterator;
@@ -126,7 +126,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -177,7 +177,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -199,7 +199,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -230,7 +230,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -267,7 +267,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -303,7 +303,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -338,7 +338,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -369,7 +369,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -437,7 +437,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -465,7 +465,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -498,7 +498,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -527,7 +527,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -554,7 +554,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
                 data[index] = NO_KEY;
                 return;
             }
-            final int hash = spread.spread($hc$);
+            final int hash = spread.spread($hck$);
             int slot = (hash & im) << 1;
             if (index <= next
                     ? index >= slot || slot > next
@@ -603,7 +603,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -635,7 +635,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -663,7 +663,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         }
         final $p$[] data = this._data;
         final int nm = this._nextMask;
-        final int hash = _spread.spread($hc$);
+        final int hash = _spread.spread($hck$);
         int index = (hash & this._initialMask) << 1;
         for (;;) {
             final $p$ k = data[index];
@@ -797,7 +797,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
                 continue;
             }
             final $p$ value = data[i+1];
-            final int hash = spread.spread($hc$);
+            final int hash = spread.spread($hck$);
             int index = (hash & im) << 1;
             for (;;) {
                 final $p$ k = newData[index];
@@ -923,7 +923,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
                     mapData[index] = NO_KEY;
                     return;
                 }
-                final int hash = spread.spread($hc$);
+                final int hash = spread.spread($hck$);
                 int slot = (hash & im) << 1;
                 if (index <= next
                         ? index >= slot || slot > next
@@ -1021,7 +1021,7 @@ public class $I$$I$HashMap implements $I$$I$Map, Serializable {
         public int hashCode() {
             final $p$ key = key();
             final $p$ value = value();
-            return $P$.hashCode(key) ^ $P$.hashCode(value);
+            return $hck$ ^ $hcv$;
         }
 
         @Override

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PSetSuite(I, P, p, hc, X) ::= <<
+PSetSuite(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.set;
 
 import com.google.common.collect.testing.SetTestSuiteBuilder;

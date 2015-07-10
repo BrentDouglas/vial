@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PCursor(I, P, p, hc, X) ::= <<
+PCursor(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.api;
 
 /**

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-OPHashMapTest(I, P, p, hc, X) ::= <<
+OPHashMapTest(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-POMapSuite(I, P, p, hc, X) ::= <<
+POMapSuite(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import com.google.common.collect.testing.MapTestSuiteBuilder;

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PCollection(I, P, p, hc, X) ::= <<
+PCollection(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.api;
 
 import java.util.Collection;

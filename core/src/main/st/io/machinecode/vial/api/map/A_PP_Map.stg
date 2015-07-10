@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPMap(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
+PPMap(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import java.util.Map;
@@ -19,13 +19,19 @@ public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
 
     $pv$ xget(final $pk$ key);
 
+    $Pv$ getOrDefault(final Object key, final $Pv$ defaultValue);
+
     $pv$ xgetOrDefault(final $pk$ key, final $pv$ defaultValue);
 
     $Ik$$Iv$Map with(final $pk$ key, final $pv$ value);
 
     $pv$ xput(final $pk$ key, final $pv$ value);
 
+    $Pv$ putIfAbsent(final $Pk$ key, final $Pv$ value);
+
     $pv$ xputIfAbsent(final $pk$ key, final $pv$ value);
+
+    boolean remove(final Object key, final Object value);
 
     $pv$ xremove(final $pk$ key);
 
@@ -33,7 +39,11 @@ public interface $Ik$$Iv$Map extends Map<$Pk$,$Pv$>, Iterable<$Ik$$Iv$Cursor> {
 
     boolean xremoveValue(final $pv$ value);
 
+    boolean replace(final $Pk$ key, final $Pv$ oldValue, final $Pv$ newValue);
+
     boolean xreplace(final $pk$ key, final $pv$ oldValue, final $pv$ newValue);
+
+    $Pv$ replace(final $Pk$ key, final $Pv$ value);
 
     $pv$ xreplace(final $pk$ key, final $pv$ value);
 

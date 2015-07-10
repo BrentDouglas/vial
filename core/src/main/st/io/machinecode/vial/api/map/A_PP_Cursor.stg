@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPCursor(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
+PPCursor(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
 package io.machinecode.vial.api.map;
 
 import io.machinecode.vial.api.OIterator;

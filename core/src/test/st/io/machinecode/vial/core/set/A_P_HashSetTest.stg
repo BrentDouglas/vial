@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PHashSetTest(I, P, p, hc, X) ::= <<
+PHashSetTest(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.set;
 
 import io.machinecode.vial.api.Spread;

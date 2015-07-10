@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PList(I, P, p, hc, X) ::= <<
+PList(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.api.list;
 
 import io.machinecode.vial.api.$I$Collection;

@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PSet(I, P, p, hc, X) ::= <<
+PSet(I, P, p, hck, hcv, X) ::= <<
 package io.machinecode.vial.api.set;
 
 import io.machinecode.vial.api.$I$Collection;

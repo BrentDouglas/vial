@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPMapGenerator(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
+PPMapGenerator(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import com.google.common.collect.testing.Helpers;

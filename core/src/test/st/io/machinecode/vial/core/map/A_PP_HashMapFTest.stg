@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPHashMapFTest(Ik, Pk, pk, Iv, Pv, pv, hc, X) ::= <<
+PPHashMapFTest(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
