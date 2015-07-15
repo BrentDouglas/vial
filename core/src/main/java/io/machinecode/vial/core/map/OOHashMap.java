@@ -337,7 +337,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
     }
 
     @Override
-    public boolean xremoveValue(final Object value) {
+    public boolean removeValue(final Object value) {
         if (_haveNoValue && (value == null ? _noValue == null : value.equals(_noValue))) {
             _haveNoValue = false;
             this._noValue = null;
@@ -1094,7 +1094,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
 
         @Override
         public boolean remove(final Object o) {
-            return map.xremoveValue(o);
+            return map.removeValue(o);
         }
     }
 

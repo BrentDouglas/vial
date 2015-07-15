@@ -19,7 +19,6 @@ import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -474,21 +473,21 @@ public class OOMapSuite extends VialSuite {
             assertTrue(map.containsKey(i));
             assertTrue(map.containsValue(i));
 
-            assertTrue(map.xremoveValue(i));
-            assertFalse(map.xremoveValue(i));
+            assertTrue(map.removeValue(i));
+            assertFalse(map.removeValue(i));
         }
         assertEquals(0, map.size());
         for (int i = 0; i < 10; ++i) {
             assertNull(map.put(i, 0));
         }
         for (int i = 0; i < 9; ++i) {
-            assertTrue(map.xremoveValue(0));
+            assertTrue(map.removeValue(0));
             assertTrue(map.containsValue(0));
         }
-        assertFalse(map.xremoveValue(null));
+        assertFalse(map.removeValue(null));
         assertEquals(1, map.size());
 
-        assertTrue(map.xremoveValue(0));
+        assertTrue(map.removeValue(0));
         assertFalse(map.containsValue(0));
         assertEquals(0, map.size());
     }
@@ -500,13 +499,13 @@ public class OOMapSuite extends VialSuite {
         assertTrue(map.containsValue(1));
         assertEquals(1, map.size());
 
-        assertFalse(map.xremoveValue(null));
+        assertFalse(map.removeValue(null));
         assertEquals(1, map.size());
 
-        assertFalse(map.xremoveValue(2));
+        assertFalse(map.removeValue(2));
         assertEquals(1, map.size());
 
-        assertTrue(map.xremoveValue(1));
+        assertTrue(map.removeValue(1));
         assertFalse(map.containsKey(null));
         assertFalse(map.containsValue(1));
         assertEquals(0, map.size());
@@ -519,10 +518,10 @@ public class OOMapSuite extends VialSuite {
         assertTrue(map.containsValue(null));
         assertEquals(1, map.size());
 
-        assertFalse(map.xremoveValue(2));
+        assertFalse(map.removeValue(2));
         assertEquals(1, map.size());
 
-        assertTrue(map.xremoveValue(null));
+        assertTrue(map.removeValue(null));
         assertFalse(map.containsKey(null));
         assertFalse(map.containsValue(null));
         assertEquals(0, map.size());

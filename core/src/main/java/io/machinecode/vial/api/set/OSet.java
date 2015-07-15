@@ -10,7 +10,15 @@ import java.util.Set;
  */
 public interface OSet<V> extends OCollection<V>, Set<V> {
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     OSet<V> with(final V value);
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     OSet<V> capacity(final int desired);
 }

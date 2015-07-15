@@ -10,9 +10,18 @@ import java.util.ListIterator;
  */
 public interface OListIterator<X> extends ListIterator<X>, OIterator<X> {
 
+    /**
+     * {@inheritDoc}
+     */
     OListIterator<X> before();
 
+    /**
+     * {@inheritDoc}
+     */
     OListIterator<X> after();
 
+    /**
+     * {@inheritDoc}
+     */
     OListIterator<X> index(final int index);
 }
