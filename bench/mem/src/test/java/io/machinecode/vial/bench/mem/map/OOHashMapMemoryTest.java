@@ -6,7 +6,6 @@ import com.gs.collections.impl.map.mutable.UnifiedMap;
 import gnu.trove.map.hash.THashMap;
 import io.machinecode.vial.bench.mem.Memory;
 import io.machinecode.vial.core.map.OOHashMap;
-import io.machinecode.vial.core.map.OOHashMapF;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.map.hash.HashObjObjMaps;
@@ -34,11 +33,6 @@ public class OOHashMapMemoryTest {
     @Test
     public void testVial() {
         _test("vial", new OOHashMap<Long,Long>(CAPACITY, FACTOR));
-    }
-
-    @Test
-    public void testVialF() {
-        _test("vialF", new OOHashMapF<Long,Long>(CAPACITY, FACTOR));
     }
 
     @Test

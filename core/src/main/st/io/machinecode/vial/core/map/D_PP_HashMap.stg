@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPHashMapF(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
+PPHashMap(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.OIterator;
@@ -22,7 +22,7 @@ import java.util.Set;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
+public class $Ik$$Iv$HashMap implements $Ik$$Iv$Map, Serializable {
     private static final long serialVersionUID = 0L;
 
     private static final int MAX_CAPACITY = 1 << 30;
@@ -44,21 +44,21 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
 
     private int _mask;
 
-    public $Ik$$Iv$HashMapF() {
+    public $Ik$$Iv$HashMap() {
         this(MIN_CAPACITY, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
-    public $Ik$$Iv$HashMapF(final int capacity) {
+    public $Ik$$Iv$HashMap(final int capacity) {
         this(capacity, DEFAULT_LOAD_FACTOR, Spreads.QUICK);
     }
 
-    public $Ik$$Iv$HashMapF(final float factor) {
+    public $Ik$$Iv$HashMap(final float factor) {
         this(MIN_CAPACITY, factor, Spreads.QUICK);
     }
 
-    public $Ik$$Iv$HashMapF(final Map<? extends $Pk$, ? extends $Pv$> m) {
-        if (m instanceof $Ik$$Iv$HashMapF) {
-            final $Ik$$Iv$HashMapF x = ($Ik$$Iv$HashMapF)m;
+    public $Ik$$Iv$HashMap(final Map<? extends $Pk$, ? extends $Pv$> m) {
+        if (m instanceof $Ik$$Iv$HashMap) {
+            final $Ik$$Iv$HashMap x = ($Ik$$Iv$HashMap)m;
             this._spread = x._spread;
             this._factor = x._factor;
             this._size = x._size;
@@ -84,11 +84,11 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
         }
     }
 
-    public $Ik$$Iv$HashMapF(final int capacity, final float factor) {
+    public $Ik$$Iv$HashMap(final int capacity, final float factor) {
         this(capacity, factor, Spreads.QUICK);
     }
 
-    public $Ik$$Iv$HashMapF(final int _capacity, final float factor, final Spread spread) {
+    public $Ik$$Iv$HashMap(final int _capacity, final float factor, final Spread spread) {
         assert factor > 0 && factor <= 1;
         assert spread != null;
         assert _capacity >= 0;
@@ -244,7 +244,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     @Override
-    public $Ik$$Iv$HashMapF with(final $pk$ key, final $pv$ value) {
+    public $Ik$$Iv$HashMap with(final $pk$ key, final $pv$ value) {
         xput(key, value);
         return this;
     }
@@ -762,7 +762,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     @Override
-    public $Ik$$Iv$HashMapF capacity(final int desired) {
+    public $Ik$$Iv$HashMap capacity(final int desired) {
         final int size = Math.max(this._size, MIN_CAPACITY);
         if (desired <= size) {
             return this;
@@ -826,14 +826,14 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
         private static final int INDEX_NO_VALUE = -2;
         private static final int INDEX_FINISHED = -3;
 
-        final $Ik$$Iv$HashMapF map;
+        final $Ik$$Iv$HashMap map;
         private $pk$[] keys;
         private int index = INDEX_BEFORE;
         $pk$ key = ILLEGAL;
         int keyIndex = -1;
         private boolean found = false;
 
-        private _It(final $Ik$$Iv$HashMapF map) {
+        private _It(final $Ik$$Iv$HashMap map) {
             this.map = map;
             this.keys = map._keys;
         }
@@ -992,7 +992,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
 
     private static class CursorIt extends _It<$Ik$$Iv$Cursor> implements $Ik$$Iv$Cursor {
 
-        private CursorIt(final $Ik$$Iv$HashMapF map) {
+        private CursorIt(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 
@@ -1045,7 +1045,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     private static class EntryIt extends _It<Entry<$Pk$,$Pv$$X$ {
-        private EntryIt(final $Ik$$Iv$HashMapF map) {
+        private EntryIt(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 
@@ -1056,7 +1056,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     private static class KeyIt extends _It<$Pk$> {
-        private KeyIt(final $Ik$$Iv$HashMapF map) {
+        private KeyIt(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 
@@ -1067,7 +1067,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     private static class ValueIt extends _It<$Pv$> {
-        private ValueIt(final $Ik$$Iv$HashMapF map) {
+        private ValueIt(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 
@@ -1078,9 +1078,9 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
     }
 
     private abstract static class _Col<X> implements Collection<X> {
-        final $Ik$$Iv$HashMapF map;
+        final $Ik$$Iv$HashMap map;
 
-        private _Col(final $Ik$$Iv$HashMapF map) {
+        private _Col(final $Ik$$Iv$HashMap map) {
             this.map = map;
         }
 
@@ -1221,7 +1221,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
 
     private static class KeySet extends _Col<$Pk$> implements Set<$Pk$> {
 
-        private KeySet(final $Ik$$Iv$HashMapF map) {
+        private KeySet(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 
@@ -1253,7 +1253,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
 
     private static class ValueCol extends _Col<$Pv$> {
 
-        private ValueCol(final $Ik$$Iv$HashMapF map) {
+        private ValueCol(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 
@@ -1280,7 +1280,7 @@ public class $Ik$$Iv$HashMapF implements $Ik$$Iv$Map, Serializable {
 
     private static class EntrySet extends _Col<Entry<$Pk$,$Pv$$X$ implements Set<Entry<$Pk$,$Pv$$X$ {
 
-        private EntrySet(final $Ik$$Iv$HashMapF map) {
+        private EntrySet(final $Ik$$Iv$HashMap map) {
             super(map);
         }
 

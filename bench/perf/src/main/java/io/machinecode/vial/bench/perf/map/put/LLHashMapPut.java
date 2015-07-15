@@ -7,7 +7,6 @@ import gnu.trove.map.TLongLongMap;
 import gnu.trove.map.hash.TLongLongHashMap;
 import io.machinecode.vial.api.map.LLMap;
 import io.machinecode.vial.core.map.LLHashMap;
-import io.machinecode.vial.core.map.LLHashMapF;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import net.openhft.koloboke.collect.hash.HashConfig;
@@ -50,7 +49,6 @@ public class LLHashMapPut {
 
     private Map<Long,Long> jdk;
     private LLMap vial;
-    private LLMap vialF;
     private TLongLongMap trove;
     private Long2LongMap fastutil;
     private com.carrotsearch.hppc.LongLongMap hppc;
@@ -62,7 +60,6 @@ public class LLHashMapPut {
         r = new Random();
         r.setSeed(0x654265);
         vial = new LLHashMap(capacity, factor);
-        vialF = new LLHashMapF(capacity, factor);
         jdk = new HashMap<>(capacity, factor);
         trove = new TLongLongHashMap(capacity, factor);
         fastutil = new Long2LongOpenHashMap(capacity, factor);
@@ -83,12 +80,6 @@ public class LLHashMapPut {
     public long vial() {
         final long key = r.nextLong();
         return vial.put(key, key);
-    }
-
-    @Benchmark
-    public long vialF() {
-        final long key = r.nextLong();
-        return vialF.put(key, key);
     }
 
     @Benchmark

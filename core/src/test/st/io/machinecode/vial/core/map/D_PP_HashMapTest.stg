@@ -1,6 +1,6 @@
 delimiters "$", "$"
 
-PPHashMapFTest(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
+PPHashMapTest(Ik, Pk, pk, Iv, Pv, pv, hck, hcv, X) ::= <<
 package io.machinecode.vial.core.map;
 
 import io.machinecode.vial.api.Spread;
@@ -15,45 +15,45 @@ import java.util.Map;
  * @author <a href="mailto:brent.n.douglas@gmail.com">Brent Douglas</a>
  * @since 1.0
  */
-public class $Ik$$Iv$HashMapFTest {
+public class $Ik$$Iv$HashMapTest {
 
     public static Test suite() {
-        final TestSuite suite = new TestSuite($Ik$$Iv$HashMapF.class.getName());
+        final TestSuite suite = new TestSuite($Ik$$Iv$HashMap.class.getName());
         for (final Spreads spread : Spreads.values()) {
-            $Ik$$Iv$MapSuite.createSuite(suite, $Ik$$Iv$HashMapF.class, spread.name(), new $Ik$$Iv$MapSuite.CreateMap() {
+            $Ik$$Iv$MapSuite.createSuite(suite, $Ik$$Iv$HashMap.class, spread.name(), new $Ik$$Iv$MapSuite.CreateMap() {
                 @Override
                 public $Ik$$Iv$Map make() {
-                    return new $Ik$$Iv$HashMapF(4, 0.75f, spread);
+                    return new $Ik$$Iv$HashMap(4, 0.75f, spread);
                 }
 
                 @Override
                 public $Ik$$Iv$Map create() {
-                    return new $Ik$$Iv$HashMapF();
+                    return new $Ik$$Iv$HashMap();
                 }
 
                 @Override
                 public $Ik$$Iv$Map create(final int cap) {
-                    return new $Ik$$Iv$HashMapF(cap);
+                    return new $Ik$$Iv$HashMap(cap);
                 }
 
                 @Override
                 public $Ik$$Iv$Map create(final float factor) {
-                    return new $Ik$$Iv$HashMapF(factor);
+                    return new $Ik$$Iv$HashMap(factor);
                 }
 
                 @Override
                 public $Ik$$Iv$Map create(final int cap, final float factor) {
-                    return new $Ik$$Iv$HashMapF(cap, factor);
+                    return new $Ik$$Iv$HashMap(cap, factor);
                 }
 
                 @Override
                 public $Ik$$Iv$Map create(final int cap, final float factor, final Spread spread) {
-                    return new $Ik$$Iv$HashMapF(cap, factor, spread);
+                    return new $Ik$$Iv$HashMap(cap, factor, spread);
                 }
 
                 @Override
                 public $Ik$$Iv$Map create(final Map<$Pk$, $Pv$> map) {
-                    return new $Ik$$Iv$HashMapF(map);
+                    return new $Ik$$Iv$HashMap(map);
                 }
             });
         }

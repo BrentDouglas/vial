@@ -5,7 +5,6 @@ import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 import com.gs.collections.impl.map.mutable.UnifiedMap;
 import gnu.trove.map.hash.THashMap;
 import io.machinecode.vial.core.map.OOHashMap;
-import io.machinecode.vial.core.map.OOHashMapF;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.map.hash.HashObjObjMaps;
@@ -46,7 +45,6 @@ public class OOHashMapPut {
     private Random r;
 
     private Map<Long,Long> vial;
-    private Map<Long,Long> vialF;
     private Map<Long,Long> jdk;
     private Map<Long,Long> trove;
     private Map<Long,Long> fastutil;
@@ -60,7 +58,6 @@ public class OOHashMapPut {
         r.setSeed(0x654265);
         jdk = new HashMap<>(capacity, factor);
         vial = new OOHashMap<>(capacity, factor);
-        vialF = new OOHashMapF<>(capacity, factor);
         trove = new THashMap<>(capacity, factor);
         fastutil = new Object2ObjectArrayMap<>(capacity);
         hppc = new ObjectObjectOpenHashMap<>(capacity, factor);
@@ -80,12 +77,6 @@ public class OOHashMapPut {
     public Long vial() {
         final Long key = r.nextLong();
         return vial.put(key, key);
-    }
-
-    @Benchmark
-    public Long vialF() {
-        final Long key = r.nextLong();
-        return vialF.put(key, key);
     }
 
     @Benchmark
