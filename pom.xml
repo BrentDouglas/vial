@@ -15,6 +15,30 @@
     <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <developers>
+        <developer>
+            <id>brentdouglas</id>
+            <name>Brent Douglas</name>
+            <email>brent.n.douglas@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://repository.jboss.org/licenses/apache-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <inceptionYear>2015</inceptionYear>
+
+    <scm>
+        <connection>scm:git:${git.machinecode.io}/vial.git</connection>
+        <developerConnection>scm:git:${git.machinecode.io}/vial.git</developerConnection>
+        <url>${github.machinecode.io}/vial</url>
+    </scm>
+
     <modules>
         <module>build</module>
         <module>core</module>
@@ -105,6 +129,9 @@
                     <artifactId>license-maven-plugin</artifactId>
                     <configuration>
                         <header>apache-2.0-header.txt</header>
+                        <properties>
+                            <owner>Brent Douglas</owner>
+                        </properties>
                     </configuration>
                 </plugin>
                 <plugin>
