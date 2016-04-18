@@ -470,6 +470,22 @@ public class $I$HashSet implements $I$Set, Serializable {
     }
 
     @Override
+    public $p$[] xtoArray() {
+        final $p$[] ret = new $p$[_size];
+        int ri = 0;
+        if (_haveNoValue) {
+            ret[ri++] = NO_KEY;
+        }
+        for (final $p$ key : _keys) {
+            if (key == NO_KEY) {
+                continue;
+            }
+            ret[ri++] = key;
+        }
+        return ret;
+    }
+
+    @Override
     public Object[] toArray() {
         final Object[] ret = new Object[_size];
         int ri = 0;

@@ -72,8 +72,6 @@ public interface $I$List extends $I$Collection, List<$P$> {
 
     boolean xremove(final int from, final int to, final $p$ o);
 
-    $p$[] xtoArray();
-
     $p$[] xtoArray(final $p$[] dest);
 
     $p$[] xtoArray(final int from, final int to);

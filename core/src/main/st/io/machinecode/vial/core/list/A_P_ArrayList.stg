@@ -45,7 +45,7 @@ public class $I$ArrayList extends $I$BaseList implements RandomAccess, Serializa
 
     @SuppressWarnings("unchecked")
     public $I$ArrayList(final int capacity) {
-        this._values = new $p$[capacity];
+        this._values = new $p$[Math.max(4, capacity)];
         this._size = 0;
     }
 

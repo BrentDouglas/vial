@@ -49,6 +49,8 @@ public interface $I$Collection extends Collection<$P$> {
 
     boolean xretainRange(final int from, final int to, final $p$... c);
 
+    $p$[] xtoArray();
+
     $I$Collection with(final $p$ value);
 
     $I$Collection capacity(final int desired);
