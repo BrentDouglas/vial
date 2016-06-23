@@ -16,14 +16,14 @@
  */
 package io.machinecode.vial.bench.perf.map.put;
 
+import com.carrotsearch.hppc.ObjectObjectHashMap;
 import com.carrotsearch.hppc.ObjectObjectMap;
-import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 import com.gs.collections.impl.map.mutable.UnifiedMap;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.map.hash.HashObjObjMaps;
 import gnu.trove.map.hash.THashMap;
 import io.machinecode.vial.core.map.OOHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.map.hash.HashObjObjMaps;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -76,7 +76,7 @@ public class OOHashMapPut {
         vial = new OOHashMap<>(capacity, factor);
         trove = new THashMap<>(capacity, factor);
         fastutil = new Object2ObjectArrayMap<>(capacity);
-        hppc = new ObjectObjectOpenHashMap<>(capacity, factor);
+        hppc = new ObjectObjectHashMap<>(capacity, factor);
         koloboke = HashObjObjMaps.getDefaultFactory()
                 .withHashConfig(HashConfig.fromLoads(Math.max(factor / 2, 0.1), factor, Math.min(factor * 2, 0.9)))
                 .newMutableMap(capacity);

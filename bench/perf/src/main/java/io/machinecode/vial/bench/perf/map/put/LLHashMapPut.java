@@ -16,17 +16,16 @@
  */
 package io.machinecode.vial.bench.perf.map.put;
 
-import com.carrotsearch.hppc.LongLongOpenHashMap;
 import com.gs.collections.api.map.primitive.MutableLongLongMap;
 import com.gs.collections.impl.map.mutable.primitive.LongLongHashMap;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.map.hash.HashLongLongMaps;
 import gnu.trove.map.TLongLongMap;
 import gnu.trove.map.hash.TLongLongHashMap;
 import io.machinecode.vial.api.map.LLMap;
 import io.machinecode.vial.core.map.LLHashMap;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.map.hash.HashLongLongMaps;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -68,7 +67,7 @@ public class LLHashMapPut {
     private TLongLongMap trove;
     private Long2LongMap fastutil;
     private com.carrotsearch.hppc.LongLongMap hppc;
-    private net.openhft.koloboke.collect.map.LongLongMap koloboke;
+    private com.koloboke.collect.map.LongLongMap koloboke;
     private MutableLongLongMap gs;
 
     @Setup(Level.Iteration)
@@ -79,7 +78,7 @@ public class LLHashMapPut {
         jdk = new HashMap<>(capacity, factor);
         trove = new TLongLongHashMap(capacity, factor);
         fastutil = new Long2LongOpenHashMap(capacity, factor);
-        hppc = new LongLongOpenHashMap(capacity, factor);
+        hppc = new com.carrotsearch.hppc.LongLongHashMap(capacity, factor);
         koloboke = HashLongLongMaps.getDefaultFactory()
                 .withHashConfig(HashConfig.fromLoads(Math.max(factor / 2, 0.1), factor, Math.min(factor * 2, 0.9)))
                 .newMutableMap();
@@ -93,9 +92,15 @@ public class LLHashMapPut {
     }
 
     @Benchmark
-    public long vial() {
+    public Long vial() {
         final long key = r.nextLong();
         return vial.put(key, key);
+    }
+
+    @Benchmark
+    public long xvial() {
+        final long key = r.nextLong();
+        return vial.xput(key, key);
     }
 
     @Benchmark
@@ -123,8 +128,9 @@ public class LLHashMapPut {
     }
 
     @Benchmark
-    public void gs() {
+    public long gs() {
         final long key = r.nextLong();
         gs.put(key, key);
+        return key;
     }
 }

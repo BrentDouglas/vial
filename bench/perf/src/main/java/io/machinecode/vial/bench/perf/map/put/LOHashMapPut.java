@@ -17,18 +17,17 @@
 package io.machinecode.vial.bench.perf.map.put;
 
 import com.carrotsearch.hppc.LongObjectMap;
-import com.carrotsearch.hppc.LongObjectOpenHashMap;
 import com.gs.collections.api.map.primitive.MutableLongObjectMap;
 import com.gs.collections.impl.map.mutable.primitive.LongObjectHashMap;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.map.hash.HashLongObjMap;
+import com.koloboke.collect.map.hash.HashLongObjMaps;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import io.machinecode.vial.api.map.LOMap;
 import io.machinecode.vial.core.map.LOHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.map.hash.HashLongObjMap;
-import net.openhft.koloboke.collect.map.hash.HashLongObjMaps;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -81,7 +80,7 @@ public class LOHashMapPut {
         vial = new LOHashMap<>(capacity, factor);
         trove = new TLongObjectHashMap<>(capacity, factor);
         fastutil = new Long2ObjectOpenHashMap<>(capacity);
-        hppc = new LongObjectOpenHashMap<>(capacity, factor);
+        hppc = new com.carrotsearch.hppc.LongObjectHashMap<>(capacity, factor);
         koloboke = HashLongObjMaps.getDefaultFactory()
                 .withHashConfig(HashConfig.fromLoads(Math.max(factor / 2, 0.1), factor, Math.min(factor * 2, 0.9)))
                 .newMutableMap(capacity);

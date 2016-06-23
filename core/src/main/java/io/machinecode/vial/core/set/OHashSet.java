@@ -377,13 +377,15 @@ public class OHashSet<V> implements OSet<V>, Serializable {
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(final T[] a) {
         final T[] ret;
-        if (a.length == _size) {
+        final int size = _size;
+        final int length = a.length;
+        if (length == size) {
             ret = a;
-        } else if (a.length > _size) {
+        } else if (length > size) {
             ret = a;
-            a[_size] = null;
+            a[size] = null;
         } else {
-            ret = (T[])Array.newInstance(a.getClass().getComponentType(), _size);
+            ret = (T[])Array.newInstance(a.getClass().getComponentType(), size);
         }
         int ri = 0;
         if (_haveNoValue) {

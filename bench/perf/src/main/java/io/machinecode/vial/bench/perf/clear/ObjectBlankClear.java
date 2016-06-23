@@ -44,7 +44,7 @@ public class ObjectBlankClear {
     @Param({"536870912"})
     int capacity;
 
-    @Param({"1024", "2048", "4096"})
+    @Param({"512", "1024", "2048", "4096"})
     int N;
 
     private Object[] blank;
@@ -58,6 +58,8 @@ public class ObjectBlankClear {
 
     @Benchmark
     public int blank() {
+        final Object[] array = this.array;
+        final Object[] blank = this.blank;
         for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
             System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
         }

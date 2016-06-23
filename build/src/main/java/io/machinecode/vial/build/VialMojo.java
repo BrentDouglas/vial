@@ -54,25 +54,40 @@ public class VialMojo extends AbstractMojo {
     @Parameter(required = true)
     File out;
 
-    private static final String[][] PROPERTIES = {
-            { "B", "Byte", "byte", "(int)key", "(int)value", " == " },
-            { "S", "Short", "short", "(int)key", "(int)value", " == " },
-            { "I", "Integer", "int", "key", "value", " == " },
-            { "L", "Long", "long", "(int)(key ^ (key >>> 32))", "(int)(value ^ (value >>> 32))", " == " },
-            { "C", "Character", "char", "(int)key", "(int)value", " == " }//,
-            //{ "O", "Object", "Object", "key.hashCode()", ").equals(" }
+    private static final class Row {
+        final char initial;
+        final String object;
+        final String primitive;
+        final String keyHashCode;
+        final String valueHashCode;
+
+        private Row(
+                final char initial,
+                final String object,
+                final String primitive,
+                final String keyHashCode,
+                final String valueHashCode
+        ) {
+            this.initial = initial;
+            this.object = object;
+            this.primitive = primitive;
+            this.keyHashCode = keyHashCode;
+            this.valueHashCode = valueHashCode;
+        }
+    }
+
+    private static final Row[] PROPERTIES = {
+            new Row('B', "Byte", "byte", "(int)key", "(int)value"),
+            new Row('S', "Short", "short", "(int)key", "(int)value"),
+            new Row('I', "Integer", "int", "key", "value"),
+            new Row('L', "Long", "long", "(int)(key ^ (key >>> 32))", "(int)(value ^ (value >>> 32))"),
+            new Row('C', "Character", "char", "(int)key", "(int)value")
     };
 
     private enum Match {
-        ALL('A'),
-        MATCHING('M'),
-        DIFFERENT('D');
-
-        private final char prefix;
-
-        private Match(final char prefix) {
-            this.prefix = prefix;
-        }
+        ALL,
+        MATCHING,
+        DIFFERENT;
 
         static Match of(final char prefix) {
             switch (prefix) {
@@ -144,18 +159,18 @@ public class VialMojo extends AbstractMojo {
     private static void col(final STGroup group, final File out, final File file, final ErrorBuffer errors, final String prefix, final String name) throws MojoExecutionException {
         final char f = prefix.charAt(0);
         final String tn = prefix + name;
-        for (final String[] k : PROPERTIES) {
-            final char ki = k[0].charAt(0);
+        for (final Row k : PROPERTIES) {
+            final char ki = k.initial;
             if (f == 'P') {
                 final ST st = group.getInstanceOf(tn);
                 if (st == null) {
                     throw new MojoExecutionException("Can't find template " + tn + " in " + file.getAbsolutePath());
                 }
-                st.add("I", k[0]);
-                st.add("P", k[1]);
-                st.add("p", k[2]);
-                st.add("hck", k[3]);
-                st.add("hcv", k[4]);
+                st.add("I", k.initial);
+                st.add("P", k.object);
+                st.add("p", k.primitive);
+                st.add("hck", k.keyHashCode);
+                st.add("hcv", k.valueHashCode);
                 st.add("X", ">>");
                 final String that = "" + ki + name + ".java";
                 generate(st,  new File(out, that), errors);
@@ -167,26 +182,26 @@ public class VialMojo extends AbstractMojo {
         final char f = prefix.charAt(0);
         final char s = prefix.charAt(1);
         final String tn = prefix + name;
-        for (final String[] k : PROPERTIES) {
-            final char ki = k[0].charAt(0);
+        for (final Row k : PROPERTIES) {
+            final char ki = k.initial;
             if (f == 'P' && s == 'P') {
                 switch (match) {
                     case ALL: {
-                        for (final String[] v : PROPERTIES) {
+                        for (final Row v : PROPERTIES) {
                             final ST st = group.getInstanceOf(tn);
                             if (st == null) {
                                 throw new MojoExecutionException("Can't find template " + tn + " in " + file.getAbsolutePath());
                             }
-                            st.add("Ik", k[0]);
-                            st.add("Pk", k[1]);
-                            st.add("pk", k[2]);
-                            st.add("hck", k[3]);
-                            st.add("Iv", v[0]);
-                            st.add("Pv", v[1]);
-                            st.add("pv", v[2]);
-                            st.add("hcv", v[4]);
+                            st.add("Ik", k.initial);
+                            st.add("Pk", k.object);
+                            st.add("pk", k.primitive);
+                            st.add("hck", k.keyHashCode);
+                            st.add("Iv", v.initial);
+                            st.add("Pv", v.object);
+                            st.add("pv", v.primitive);
+                            st.add("hcv", v.valueHashCode);
                             st.add("X", ">>");
-                            final char vi = v[0].charAt(0);
+                            final char vi = v.initial;
                             final String that = "" + ki + vi + name + ".java";
                             generate(st,  new File(out, that), errors);
                         }
@@ -197,35 +212,35 @@ public class VialMojo extends AbstractMojo {
                         if (st == null) {
                             throw new MojoExecutionException("Can't find template " + tn + " in " + file.getAbsolutePath());
                         }
-                        st.add("I", k[0]);
-                        st.add("P", k[1]);
-                        st.add("p", k[2]);
-                        st.add("hck", k[3]);
-                        st.add("hcv", k[4]);
+                        st.add("I", k.initial);
+                        st.add("P", k.object);
+                        st.add("p", k.primitive);
+                        st.add("hck", k.keyHashCode);
+                        st.add("hcv", k.valueHashCode);
                         st.add("X", ">>");
                         final String that = "" + ki + ki + name + ".java";
                         generate(st, new File(out, that), errors);
                         break;
                     }
                     case DIFFERENT: {
-                        for (final String[] v : PROPERTIES) {
-                            if (v[0].equals(k[0])) {
+                        for (final Row v : PROPERTIES) {
+                            if (v.initial == k.initial) {
                                 continue;
                             }
                             final ST st = group.getInstanceOf(tn);
                             if (st == null) {
                                 throw new MojoExecutionException("Can't find template " + tn + " in " + file.getAbsolutePath());
                             }
-                            st.add("Ik", k[0]);
-                            st.add("Pk", k[1]);
-                            st.add("pk", k[2]);
-                            st.add("hck", k[3]);
-                            st.add("Iv", v[0]);
-                            st.add("Pv", v[1]);
-                            st.add("pv", v[2]);
-                            st.add("hcv", v[4]);
+                            st.add("Ik", k.initial);
+                            st.add("Pk", k.object);
+                            st.add("pk", k.primitive);
+                            st.add("hck", k.keyHashCode);
+                            st.add("Iv", v.initial);
+                            st.add("Pv", v.object);
+                            st.add("pv", v.primitive);
+                            st.add("hcv", v.valueHashCode);
                             st.add("X", ">>");
-                            final char vi = v[0].charAt(0);
+                            final char vi = v.initial;
                             final String that = "" + ki + vi + name + ".java";
                             generate(st,  new File(out, that), errors);
                         }
@@ -237,11 +252,11 @@ public class VialMojo extends AbstractMojo {
                 if (st == null) {
                     throw new MojoExecutionException("Can't find template " + tn + " in " + file.getAbsolutePath());
                 }
-                st.add("I", k[0]);
-                st.add("P", k[1]);
-                st.add("p", k[2]);
-                st.add("hck", k[3]);
-                st.add("hcv", k[4]);
+                st.add("I", k.initial);
+                st.add("P", k.object);
+                st.add("p", k.primitive);
+                st.add("hck", k.keyHashCode);
+                st.add("hcv", k.valueHashCode);
                 st.add("X", ">>");
                 final String that = "" + ki + s + name + ".java";
                 generate(st,  new File(out, that), errors);
@@ -250,11 +265,11 @@ public class VialMojo extends AbstractMojo {
                 if (st == null) {
                     throw new MojoExecutionException("Can't find template " + tn + " in " + file.getAbsolutePath());
                 }
-                st.add("I", k[0]);
-                st.add("P", k[1]);
-                st.add("p", k[2]);
-                st.add("hck", k[3]);
-                st.add("hcv", k[4]);
+                st.add("I", k.initial);
+                st.add("P", k.object);
+                st.add("p", k.primitive);
+                st.add("hck", k.keyHashCode);
+                st.add("hcv", k.valueHashCode);
                 st.add("X", ">>");
                 final String that = "" + f + ki + name + ".java";
                 generate(st,  new File(out, that), errors);

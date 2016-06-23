@@ -1160,8 +1160,9 @@ public class $Ik$$Iv$HashMap implements $Ik$$Iv$Map, Serializable {
             if (map._haveNoValue) {
                 ret[ri++] = _get(NO_KEY);
             }
-            for (int i = 0; i < map._keys.length; i++) {
-                final $pk$ key = map._keys[i];
+            final $pk$[] mapKeys = map._keys;
+            for (int i = 0, len = mapKeys.length; i < len; i++) {
+                final $pk$ key = mapKeys[i];
                 if (key == NO_KEY) {
                     continue;
                 }
@@ -1174,20 +1175,23 @@ public class $Ik$$Iv$HashMap implements $Ik$$Iv$Map, Serializable {
         @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a) {
             final T[] ret;
-            if (a.length == map._size) {
+            final int size = map._size;
+            final int length = a.length;
+            if (length == size) {
                 ret = a;
-            } else if (a.length > map._size) {
+            } else if (length > size) {
                 ret = a;
-                a[map._size] = null;
+                a[size] = null;
             } else {
-                ret = (T[])Array.newInstance(a.getClass().getComponentType(), map._size);
+                ret = (T[])Array.newInstance(a.getClass().getComponentType(), size);
             }
             int ri = 0;
             if (map._haveNoValue) {
                 ret[ri++] = (T)_get(NO_KEY);
             }
-            for (int i = 0; i < map._keys.length; i++) {
-                final $pk$ key = map._keys[i];
+            final $pk$[] mapKeys = map._keys;
+            for (int i = 0, len = mapKeys.length; i < len; i++) {
+                final $pk$ key = mapKeys[i];
                 if (key == NO_KEY) {
                     continue;
                 }

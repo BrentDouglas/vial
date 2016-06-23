@@ -18,10 +18,10 @@ package io.machinecode.vial.bench.perf.set.add;
 
 import com.carrotsearch.hppc.ObjectSet;
 import com.gs.collections.impl.set.mutable.UnifiedSet;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.set.hash.HashObjSets;
 import gnu.trove.set.hash.THashSet;
 import io.machinecode.vial.core.set.OHashSet;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.set.hash.HashObjSets;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -74,7 +74,7 @@ public class OHashSetAdd {
         jdk = new HashSet<>(capacity, factor);
         trove = new THashSet<>(capacity, factor);
         fastutil = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet<>(capacity);
-        hppc = new com.carrotsearch.hppc.ObjectOpenHashSet<>(capacity, factor);
+        hppc = new com.carrotsearch.hppc.ObjectHashSet<>(capacity, factor);
         koloboke = HashObjSets.getDefaultFactory()
                 .withHashConfig(HashConfig.fromLoads(Math.max(factor / 2, 0.1), factor, Math.min(factor * 2, 0.9)))
                 .newMutableSet(capacity);

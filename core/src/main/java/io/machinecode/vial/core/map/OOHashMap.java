@@ -154,7 +154,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
             return true;
         }
         final Object[] data = this._data;
-        for (int i = 0; i < data.length; i+=2) {
+        for (int i = 0, len = data.length; i < len; i+=2) {
             final Object k = data[i];
             final Object v = data[i+1];
             if (k != null && (value == null ? v == null : value.equals(v))) {
@@ -361,7 +361,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
             return true;
         }
         final Object[] data = this._data;
-        for (int i = 0; i < data.length; i+=2) {
+        for (int i = 0, len = data.length; i < len; i+=2) {
             final Object k = data[i];
             final Object v = data[i+1];
             if (k != null && (value == null ? v == null : value.equals(v))) {
@@ -770,7 +770,7 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
                     }
                     mapData[index] = key;
                     mapData[index+1] = mapData[next+1];
-                    int i = this.index = data == mapData ? remove : 0;
+                    final int i = this.index = data == mapData ? remove : 0;
                     this.found = data[i] != null;
                     index = next;
                 }
@@ -993,13 +993,15 @@ public class OOHashMap<K,V> implements OOMap<K,V>, Serializable {
         @SuppressWarnings("unchecked")
         public <T> T[] toArray(final T[] a) {
             final T[] ret;
-            if (a.length == map._size) {
+            final int size = map._size;
+            final int length = a.length;
+            if (length == size) {
                 ret = a;
-            } else if (a.length > map._size) {
+            } else if (length > size) {
                 ret = a;
-                a[map._size] = null;
+                a[size] = null;
             } else {
-                ret = (T[])Array.newInstance(a.getClass().getComponentType(), map._size);
+                ret = (T[])Array.newInstance(a.getClass().getComponentType(), size);
             }
             int ri = 0;
             if (map._haveNoValue) {

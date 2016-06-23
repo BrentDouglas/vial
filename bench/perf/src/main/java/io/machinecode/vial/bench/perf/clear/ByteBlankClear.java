@@ -44,7 +44,7 @@ public class ByteBlankClear {
     @Param({"536870912"})
     int capacity;
 
-    @Param({"1024", "2048", "4096", "8192"})
+    @Param({"512", "1024", "2048", "4096", "8192"})
     int N;
 
     private byte[] blank;
@@ -58,6 +58,8 @@ public class ByteBlankClear {
 
     @Benchmark
     public int blank() {
+        final byte[] array = this.array;
+        final byte[] blank = this.blank;
         for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
             System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
         }

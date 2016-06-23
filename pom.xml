@@ -47,9 +47,11 @@
     <properties>
         <root.dir>${user.dir}</root.dir>
 
-        <version.com.google.caliper.caliper>1.0-beta-1</version.com.google.caliper.caliper>
+        <version.com.google.caliper.caliper>1.0-beta-3</version.com.google.caliper.caliper>
         <version.com.google.guava.guava-testlib>17.0</version.com.google.guava.guava-testlib>
-        <version.org.openjdk.jol.jol-core>0.3.2</version.org.openjdk.jol.jol-core>
+<!--        <version.com.google.guava.guava-testlib>31.1-jre</version.com.google.guava.guava-testlib>-->
+        <version.org.openjdk.jol.jol-core>0.17</version.org.openjdk.jol.jol-core>
+        <version.org.codehaus.mojo.findbugs-maven-plugin>3.0.5</version.org.codehaus.mojo.findbugs-maven-plugin>
 
         <version.junit.junit>4.12</version.junit.junit>
 
@@ -221,16 +223,16 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>prepare-unit-tests</id>
-                        <phase>process-test-classes</phase>
-                    </execution>
-                    <execution>
-                        <id>report-unit-tests</id>
-                        <phase>test</phase>
-                    </execution>
-                </executions>
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>prepare-unit-tests</id>-->
+<!--                        <phase>process-test-classes</phase>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>report-unit-tests</id>-->
+<!--                        <phase>test</phase>-->
+<!--                    </execution>-->
+<!--                </executions>-->
             </plugin>
         </plugins>
     </build>

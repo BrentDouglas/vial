@@ -45,7 +45,7 @@ public class ObjectCopyClear {
     @Param({"536870912"})
     int capacity;
 
-    @Param({"1024", "2048", "4096"})
+    @Param({"512", "1024", "2048", "4096"})
     int N;
 
     private Object[] array;
@@ -58,6 +58,7 @@ public class ObjectCopyClear {
     @Benchmark
     public int copy() {
         final int n = N;
+        final Object[] array = this.array;
         final int end = array.length;
         int i = Math.min(n, end);
         Arrays.fill(array, 0, i, null);
@@ -71,6 +72,7 @@ public class ObjectCopyClear {
     @Benchmark
     public int imp() {
         final int n = N;
+        final Object[] array = this.array;
         final int sl = array.length;
         int i = Math.min(8, sl);
         Arrays.fill(array, 0, i, null);

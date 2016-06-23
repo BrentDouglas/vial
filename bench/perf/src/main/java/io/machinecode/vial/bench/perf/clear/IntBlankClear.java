@@ -44,7 +44,7 @@ public class IntBlankClear {
     @Param({"536870912"})
     int capacity;
 
-    @Param({"1024", "2048", "4096"})
+    @Param({"512", "1024", "2048", "4096"})
     int N;
 
     private int[] blank;
@@ -58,6 +58,8 @@ public class IntBlankClear {
 
     @Benchmark
     public int blank() {
+        final int[] array = this.array;
+        final int[] blank = this.blank;
         for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
             System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
         }
