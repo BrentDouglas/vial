@@ -1,0 +1,20 @@
+load("//:deps.bzl", "build_deps")
+load("//tools/java:java_filegroup.bzl", "java_filegroup")
+load("//tools/java:st_java_library.bzl", "st_java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "srcs",
+    srcs = glob(["**/*.stg"]),
+)
+
+st_java_library(
+    name = "templates",
+    srcs = [":srcs"],
+)
+
+filegroup(
+    name = "vial",
+    srcs = [":templates"],
+)

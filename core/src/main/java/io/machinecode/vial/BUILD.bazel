@@ -1,0 +1,21 @@
+load("//:deps.bzl", "build_deps")
+load("//tools/java:java_filegroup.bzl", "java_filegroup")
+
+package(default_visibility = ["//visibility:public"])
+
+java_filegroup(
+    name = "srcs",
+    srcs = glob(["**/*.java"]),
+)
+
+java_library(
+    name = "vial",
+    srcs = [
+        ":srcs",
+        "//core/src/main/st/io/machinecode/vial",
+    ],
+    tags = [
+        "maven_coordinates=io.machinecode.vial:vial-core:{pom_version}",
+    ],
+    deps = build_deps,
+)

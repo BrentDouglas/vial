@@ -1,0 +1,11 @@
+directories:
+  .
+  -.idea
+  -.srv
+
+test_sources:
+  core/src/test/java
+
+targets:
+  //build/src/...
+  //core/src/...

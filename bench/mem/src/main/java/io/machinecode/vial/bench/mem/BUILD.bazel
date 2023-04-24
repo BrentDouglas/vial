@@ -1,0 +1,27 @@
+load("//:deps.bzl", "build_deps")
+load("//tools/java:java_filegroup.bzl", "java_filegroup")
+
+package(default_visibility = ["//visibility:public"])
+
+java_filegroup(
+    name = "srcs",
+    srcs = glob(["**/*.java"]),
+)
+
+java_binary(
+    name = "mem",
+    srcs = [
+        ":srcs",
+    ],
+    deploy_manifest_lines = [
+        "Premain-Class: io.machinecode.vial.bench.mem.Memory",
+        "Agent-Class: io.machinecode.vial.bench.mem.Memory",
+    ],
+    main_class = "io.machinecode.vial.bench.mem.Memory",
+    deps = build_deps + [
+        "//core/src/main/java/io/machinecode/vial",
+        "@perf_m2//:com_google_caliper_caliper",
+        "@perf_m2//:com_google_caliper_caliper_core",
+        "@perf_m2//:org_openjdk_jol_jol_core",
+    ],
+)

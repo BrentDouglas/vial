@@ -1,0 +1,32 @@
+load("//:deps.bzl", "build_deps")
+load("//tools/java:java_filegroup.bzl", "java_filegroup")
+
+package(default_visibility = ["//visibility:public"])
+
+[
+    java_test(
+        name = test[:-5],
+        srcs = [test],
+        jvm_flags = [
+            "-javaagent:$(location //bench/mem/src/main/java/io/machinecode/vial/bench/mem:mem_deploy.jar)",
+            #            "'-Dcom.google.testing.junit.runner.shouldInstallTestSecurityManager=false'",
+        ],
+        deps = build_deps + [
+            "//bench/mem/src/main/java/io/machinecode/vial/bench/mem",
+            "//bench/mem/src/main/java/io/machinecode/vial/bench/mem:mem_deploy.jar",
+            "//core/src/main/java/io/machinecode/vial",
+            "@perf_m2//:com_carrotsearch_hppc",
+            "@perf_m2//:com_goldmansachs_gs_collections",
+            "@perf_m2//:com_goldmansachs_gs_collections_api",
+            "@perf_m2//:com_google_caliper_caliper",
+            "@perf_m2//:com_koloboke_koloboke_api_jdk8",
+            "@perf_m2//:com_koloboke_koloboke_impl_common_jdk8",
+            "@perf_m2//:com_koloboke_koloboke_impl_jdk8",
+            "@perf_m2//:it_unimi_dsi_fastutil",
+            "@perf_m2//:junit_junit",
+            "@perf_m2//:net_sf_trove4j_trove4j",
+            "@perf_m2//:org_openjdk_jol_jol_core",
+        ],
+    )
+    for test in glob(["**/*Test.java"])
+]

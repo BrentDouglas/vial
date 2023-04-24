@@ -1,0 +1,43 @@
+load("//:deps.bzl", "test_deps")
+load("//tools/java:java_filegroup.bzl", "java_filegroup")
+
+package(default_visibility = ["//visibility:public"])
+
+java_filegroup(
+    name = "check-srcs",
+    srcs = glob(["**/*.java"]),
+)
+
+filegroup(
+    name = "srcs",
+    srcs = glob(
+        include = ["**/*.java"],
+        exclude = ["**/*Test.java"],
+    ),
+)
+
+java_library(
+    name = "vial",
+    srcs = [
+        ":srcs",
+        "//core/src/test/st/io/machinecode/vial/core",
+    ],
+    deps = test_deps + [
+        "//core/src/main/java/io/machinecode/vial",
+    ],
+)
+
+[
+    java_test(
+        name = test[:-5],
+        srcs = [test],
+        #        jvm_flags = [
+        #            "'-Dcom.google.testing.junit.runner.shouldInstallTestSecurityManager=false'",
+        #        ],
+        deps = test_deps + [
+            ":vial",
+            "//core/src/main/java/io/machinecode/vial",
+        ],
+    )
+    for test in glob(["**/*Test.java"])
+]

@@ -77,7 +77,7 @@ public class $I$SetSuite extends VialSuite {
                 .using(new $I$SetGenerator() {
                     @Override
                     public Set<$P$> create(final Object[] elements) {
-                        return TestUtil.populate(create.<$P$>make(), elements);
+                        return TestUtil.populate(create.make(), elements);
                     }
                 })
                 .named(clazz.getSimpleName() + "[" + name + "]")

@@ -1,0 +1,37 @@
+load("//:deps.bzl", "build_deps", "jmh_deps")
+load("//tools/java:java_filegroup.bzl", "java_filegroup")
+load("@io_machinecode_tools//tools:util.bzl", "class_full_name", "class_name")
+
+package(default_visibility = ["//visibility:public"])
+
+java_filegroup(
+    name = "srcs",
+    srcs = glob(["**/*.java"]),
+)
+
+[
+    java_binary(
+        name = class_name(bench),
+        srcs = [bench],
+        main_class = class_full_name(bench),
+        tags = [
+            "bench",
+            "manual",
+        ],
+        deps = jmh_deps + build_deps + [
+            "//core/src/main/java/io/machinecode/vial",
+            "@io_machinecode_tools//src/main/java/io/machinecode/tools/bench",
+            "@io_machinecode_tools//tools/java:jmh",
+            "@perf_m2//:com_carrotsearch_hppc",
+            "@perf_m2//:com_goldmansachs_gs_collections",
+            "@perf_m2//:com_goldmansachs_gs_collections_api",
+            "@perf_m2//:com_koloboke_koloboke_api_jdk8",
+            "@perf_m2//:com_koloboke_koloboke_impl_jdk8",
+            "@perf_m2//:it_unimi_dsi_fastutil",
+            "@perf_m2//:net_sf_trove4j_trove4j",
+            "@perf_m2//:org_openjdk_jmh_jmh_core",
+            "@perf_m2//:org_openjdk_jmh_jmh_generator_annprocess",
+        ],
+    )
+    for bench in glob(["**/*.java"])
+]
