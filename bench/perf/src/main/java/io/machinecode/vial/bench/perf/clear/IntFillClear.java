@@ -16,6 +16,9 @@
  */
 package io.machinecode.vial.bench.perf.clear;
 
+import io.machinecode.tools.bench.BaseBench;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -30,9 +33,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 @BenchmarkMode({Mode.SingleShotTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10)
@@ -42,19 +42,23 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class IntFillClear {
 
-    @Param({"536870912"})
-    int capacity;
+  public static void main(String... args) throws Exception {
+    BaseBench.run(IntFillClear.class);
+  }
 
-    private int[] array;
+  @Param({"536870912"})
+  int capacity;
 
-    @Setup(Level.Trial)
-    public void init() {
-        array = new int[capacity];
-    }
+  private int[] array;
 
-    @Benchmark
-    public int fill() {
-        Arrays.fill(array, -1);
-        return array.length;
-    }
+  @Setup(Level.Trial)
+  public void init() {
+    array = new int[capacity];
+  }
+
+  @Benchmark
+  public int fill() {
+    Arrays.fill(array, -1);
+    return array.length;
+  }
 }

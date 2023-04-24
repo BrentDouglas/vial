@@ -17,7 +17,6 @@
 package io.machinecode.vial.api.set;
 
 import io.machinecode.vial.api.OCollection;
-
 import java.util.Set;
 
 /**
@@ -26,15 +25,11 @@ import java.util.Set;
  */
 public interface OSet<V> extends OCollection<V>, Set<V> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    OSet<V> with(final V value);
+  /** {@inheritDoc} */
+  @Override
+  OSet<V> with(final V value);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    OSet<V> capacity(final int desired);
+  /** {@inheritDoc} */
+  @Override
+  OSet<V> capacity(final int desired);
 }

@@ -16,6 +16,9 @@
  */
 package io.machinecode.vial.bench.perf.clear;
 
+import io.machinecode.tools.bench.BaseBench;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -30,9 +33,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 @BenchmarkMode({Mode.SingleShotTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10)
@@ -42,51 +42,55 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class IntCopyClear {
 
-    @Param({"536870912"})
-    int capacity;
+  public static void main(String... args) throws Exception {
+    BaseBench.run(IntCopyClear.class);
+  }
 
-    @Param({"512", "1024", "2048", "4096"})
-    int N;
+  @Param({"536870912"})
+  int capacity;
 
-    private int[] array;
+  @Param({"512", "1024", "2048", "4096"})
+  int N;
 
-    @Setup(Level.Trial)
-    public void init() {
-        array = new int[capacity];
+  private int[] array;
+
+  @Setup(Level.Trial)
+  public void init() {
+    array = new int[capacity];
+  }
+
+  @Benchmark
+  public int copy() {
+    final int n = N;
+    final int[] array = this.array;
+    final int end = array.length;
+    int i = Math.min(n, end);
+    Arrays.fill(array, 0, i, -1);
+    while (i < end) {
+      System.arraycopy(array, i - n, array, i, n);
+      i += n;
     }
+    return array.length;
+  }
 
-    @Benchmark
-    public int copy() {
-        final int n = N;
-        final int[] array = this.array;
-        final int end = array.length;
-        int i = Math.min(n, end);
-        Arrays.fill(array, 0, i, -1);
-        while (i < end) {
-            System.arraycopy(array, i - n, array, i, n);
-            i += n;
-        }
-        return array.length;
+  @Benchmark
+  public int imp() {
+    final int n = N;
+    final int[] array = this.array;
+    final int sl = array.length;
+    int i = Math.min(8, sl);
+    Arrays.fill(array, 0, i, -1);
+    int x = Math.min(n, sl);
+    int r = i;
+    while (i < x) {
+      System.arraycopy(array, i - r, array, i, r);
+      i += r;
+      r += r;
     }
-
-    @Benchmark
-    public int imp() {
-        final int n = N;
-        final int[] array = this.array;
-        final int sl = array.length;
-        int i = Math.min(8, sl);
-        Arrays.fill(array, 0, i, -1);
-        int x = Math.min(n, sl);
-        int r = i;
-        while (i < x) {
-            System.arraycopy(array, i - r, array, i, r);
-            i += r;
-            r += r;
-        }
-        while (i < sl) {
-            System.arraycopy(array, i - n, array, i, n);
-            i += n;
-        }
-        return array.length;
+    while (i < sl) {
+      System.arraycopy(array, i - n, array, i, n);
+      i += n;
     }
+    return array.length;
+  }
 }

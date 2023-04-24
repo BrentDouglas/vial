@@ -16,6 +16,8 @@
  */
 package io.machinecode.vial.bench.perf.clear;
 
+import io.machinecode.tools.bench.BaseBench;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -30,8 +32,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.util.concurrent.TimeUnit;
-
 @BenchmarkMode({Mode.SingleShotTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10)
@@ -41,28 +41,32 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class LongBlankClear {
 
-    @Param({"268435456"})
-    int capacity;
+  public static void main(String... args) throws Exception {
+    BaseBench.run(LongBlankClear.class);
+  }
 
-    @Param({"512", "1024", "2048", "4096"})
-    int N;
+  @Param({"268435456"})
+  int capacity;
 
-    private long[] blank;
-    private long[] array;
+  @Param({"512", "1024", "2048", "4096"})
+  int N;
 
-    @Setup(Level.Trial)
-    public void init() {
-        array = new long[capacity];
-        blank = new long[N];
+  private long[] blank;
+  private long[] array;
+
+  @Setup(Level.Trial)
+  public void init() {
+    array = new long[capacity];
+    blank = new long[N];
+  }
+
+  @Benchmark
+  public int blank() {
+    final long[] array = this.array;
+    final long[] blank = this.blank;
+    for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
+      System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
     }
-
-    @Benchmark
-    public int blank() {
-        final long[] array = this.array;
-        final long[] blank = this.blank;
-        for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
-            System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
-        }
-        return array.length;
-    }
+    return array.length;
+  }
 }

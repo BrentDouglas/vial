@@ -22,14 +22,14 @@ package io.machinecode.vial.core;
  */
 public class BadHashCode {
 
-    final int h;
+  final int h;
 
-    public BadHashCode(final int h) {
-        this.h = h;
-    }
+  public BadHashCode(final int h) {
+    this.h = h;
+  }
 
-    @Override
-    public int hashCode() {
-        return h;
-    }
+  @Override
+  public int hashCode() {
+    return h;
+  }
 }

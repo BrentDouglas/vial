@@ -22,10 +22,15 @@ import com.koloboke.collect.hash.HashConfig;
 import com.koloboke.collect.map.hash.HashLongLongMaps;
 import gnu.trove.map.TLongLongMap;
 import gnu.trove.map.hash.TLongLongHashMap;
+import io.machinecode.tools.bench.BaseBench;
 import io.machinecode.vial.api.map.LLMap;
 import io.machinecode.vial.core.map.LLHashMap;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -40,11 +45,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 @BenchmarkMode({Mode.SingleShotTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10, batchSize = 1000000)
@@ -54,83 +54,89 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class LLHashMapPut {
 
-    @Param({"0.75"})
-    float factor;
+  public static void main(String... args) throws Exception {
+    BaseBench.run(LLHashMapPut.class);
+  }
 
-    @Param({"8", "1000000"})
-    int capacity;
+  @Param({"0.75"})
+  float factor;
 
-    private Random r;
+  @Param({"8", "1000000"})
+  int capacity;
 
-    private Map<Long,Long> jdk;
-    private LLMap vial;
-    private TLongLongMap trove;
-    private Long2LongMap fastutil;
-    private com.carrotsearch.hppc.LongLongMap hppc;
-    private com.koloboke.collect.map.LongLongMap koloboke;
-    private MutableLongLongMap gs;
+  private Random r;
 
-    @Setup(Level.Iteration)
-    public void init() {
-        r = new Random();
-        r.setSeed(0x654265);
-        vial = new LLHashMap(capacity, factor);
-        jdk = new HashMap<>(capacity, factor);
-        trove = new TLongLongHashMap(capacity, factor);
-        fastutil = new Long2LongOpenHashMap(capacity, factor);
-        hppc = new com.carrotsearch.hppc.LongLongHashMap(capacity, factor);
-        koloboke = HashLongLongMaps.getDefaultFactory()
-                .withHashConfig(HashConfig.fromLoads(Math.max(factor / 2, 0.1), factor, Math.min(factor * 2, 0.9)))
-                .newMutableMap();
-        gs = new LongLongHashMap(capacity);
-    }
+  private Map<Long, Long> jdk;
+  private LLMap vial;
+  private TLongLongMap trove;
+  private Long2LongMap fastutil;
+  private com.carrotsearch.hppc.LongLongMap hppc;
+  private com.koloboke.collect.map.LongLongMap koloboke;
+  private MutableLongLongMap gs;
 
-    @Benchmark
-    public Long jdk() {
-        final long key = r.nextLong();
-        return jdk.put(key, key);
-    }
+  @Setup(Level.Iteration)
+  public void init() {
+    r = new Random();
+    r.setSeed(0x654265);
+    vial = new LLHashMap(capacity, factor);
+    jdk = new HashMap<>(capacity, factor);
+    trove = new TLongLongHashMap(capacity, factor);
+    fastutil = new Long2LongOpenHashMap(capacity, factor);
+    hppc = new com.carrotsearch.hppc.LongLongHashMap(capacity, factor);
+    koloboke =
+        HashLongLongMaps.getDefaultFactory()
+            .withHashConfig(
+                HashConfig.fromLoads(Math.max(factor / 2, 0.1), factor, Math.min(factor * 2, 0.9)))
+            .newMutableMap();
+    gs = new LongLongHashMap(capacity);
+  }
 
-    @Benchmark
-    public Long vial() {
-        final long key = r.nextLong();
-        return vial.put(key, key);
-    }
+  @Benchmark
+  public Long jdk() {
+    final long key = r.nextLong();
+    return jdk.put(key, key);
+  }
 
-    @Benchmark
-    public long xvial() {
-        final long key = r.nextLong();
-        return vial.xput(key, key);
-    }
+  @Benchmark
+  public Long vial() {
+    final long key = r.nextLong();
+    return vial.put(key, key);
+  }
 
-    @Benchmark
-    public long trove() {
-        final long key = r.nextLong();
-        return trove.put(key, key);
-    }
+  @Benchmark
+  public long xvial() {
+    final long key = r.nextLong();
+    return vial.xput(key, key);
+  }
 
-    @Benchmark
-    public long fastutil() {
-        final long key = r.nextLong();
-        return fastutil.put(key, key);
-    }
+  @Benchmark
+  public long trove() {
+    final long key = r.nextLong();
+    return trove.put(key, key);
+  }
 
-    @Benchmark
-    public long hppc() {
-        final long key = r.nextLong();
-        return hppc.put(key, key);
-    }
+  @Benchmark
+  public long fastutil() {
+    final long key = r.nextLong();
+    return fastutil.put(key, key);
+  }
 
-    @Benchmark
-    public long koloboke() {
-        final long key = r.nextLong();
-        return koloboke.put(key, key);
-    }
+  @Benchmark
+  public long hppc() {
+    final long key = r.nextLong();
+    return hppc.put(key, key);
+  }
 
-    @Benchmark
-    public long gs() {
-        final long key = r.nextLong();
-        gs.put(key, key);
-        return key;
-    }
+  @Benchmark
+  public long koloboke() {
+    final long key = r.nextLong();
+    return koloboke.put(key, key);
+  }
+
+  @Benchmark
+  public long gs() {
+    final long key = r.nextLong();
+    gs.put(key, key);
+    return key;
+  }
 }

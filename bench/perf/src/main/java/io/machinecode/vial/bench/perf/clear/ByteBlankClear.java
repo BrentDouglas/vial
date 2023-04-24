@@ -16,6 +16,8 @@
  */
 package io.machinecode.vial.bench.perf.clear;
 
+import io.machinecode.tools.bench.BaseBench;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -30,8 +32,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Timeout;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.util.concurrent.TimeUnit;
-
 @BenchmarkMode({Mode.SingleShotTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10)
@@ -41,28 +41,32 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class ByteBlankClear {
 
-    @Param({"536870912"})
-    int capacity;
+  public static void main(String... args) throws Exception {
+    BaseBench.run(ByteBlankClear.class);
+  }
 
-    @Param({"512", "1024", "2048", "4096", "8192"})
-    int N;
+  @Param({"536870912"})
+  int capacity;
 
-    private byte[] blank;
-    private byte[] array;
+  @Param({"512", "1024", "2048", "4096", "8192"})
+  int N;
 
-    @Setup(Level.Trial)
-    public void init() {
-        array = new byte[capacity];
-        blank = new byte[N];
+  private byte[] blank;
+  private byte[] array;
+
+  @Setup(Level.Trial)
+  public void init() {
+    array = new byte[capacity];
+    blank = new byte[N];
+  }
+
+  @Benchmark
+  public int blank() {
+    final byte[] array = this.array;
+    final byte[] blank = this.blank;
+    for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
+      System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
     }
-
-    @Benchmark
-    public int blank() {
-        final byte[] array = this.array;
-        final byte[] blank = this.blank;
-        for (int i = 0, dl = array.length, sl = blank.length; i < dl; i += sl) {
-            System.arraycopy(blank, 0, array, i, Math.min(sl, dl - i));
-        }
-        return array.length;
-    }
+    return array.length;
+  }
 }
