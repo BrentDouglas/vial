@@ -99,7 +99,7 @@ assemble_maven(
 
 deploy_maven(
     name = "deploy",
-    release = "https://oss.sonatype.org/service/local/staging/deploy/maven2/",
+    release = "https://oss.sonatype.org/service/local/staging/deploy/maven2",
     snapshot = "https://oss.sonatype.org/content/repositories/snapshots",
     tags = ["manual"],
     target = ":assemble",
