@@ -290,7 +290,7 @@ public class $I$OMapSuite extends VialSuite {
         for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(($p$)i));
             assertTrue(map.containsValue(($p$)i));
-            assertEquals(new $P$(($p$)i), map.get(($p$)i));
+            assertEquals($P$.valueOf(($p$)i), map.get(($p$)i));
         }
     }
 
@@ -303,7 +303,7 @@ public class $I$OMapSuite extends VialSuite {
         for (int i = 0; i < 10; ++i) {
             assertTrue(map.containsKey(($p$)i));
             assertTrue(map.containsValue(($p$)i));
-            assertEquals(new $P$(($p$)i), map.get(($p$)i));
+            assertEquals($P$.valueOf(($p$)i), map.get(($p$)i));
         }
     }
 
@@ -319,7 +319,7 @@ public class $I$OMapSuite extends VialSuite {
             final BadHashCode bad = arr[i];
             assertTrue(map.containsKey(bad));
             assertTrue(map.containsValue(($p$)i));
-            assertEquals(new $P$(($p$)i), map.get(bad));
+            assertEquals($P$.valueOf(($p$)i), map.get(bad));
         }
     }
     */
@@ -362,7 +362,7 @@ public class $I$OMapSuite extends VialSuite {
             assertTrue(map.containsKey(($p$)i));
             assertTrue(map.containsValue(($p$)i));
 
-            assertEquals(new $P$(($p$)i), map.remove(($p$)i));
+            assertEquals($P$.valueOf(($p$)i), map.remove(($p$)i));
             assertNull(map.remove(($p$)i));
         }
         assertEquals(0, map.size());

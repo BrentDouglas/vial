@@ -246,12 +246,12 @@ public class OOMapSuite extends VialSuite {
     assertEquals(1, map.size());
     assertTrue(map.containsKey(null));
     assertTrue(map.containsValue(1));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
     assertNotNull(map.putIfAbsent(null, 2));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
-    assertEquals(new Integer(1), map.remove(null));
+    assertEquals(Integer.valueOf(1), map.remove(null));
     assertEquals(0, map.size());
     assertFalse(map.containsKey(null));
     assertFalse(map.containsValue(1));
@@ -259,7 +259,7 @@ public class OOMapSuite extends VialSuite {
     assertNull(map.remove(null));
 
     assertNull(map.putIfAbsent(null, 2));
-    assertEquals(new Integer(2), map.get(null));
+    assertEquals(Integer.valueOf(2), map.get(null));
   }
 
   public void testNullKeyAndValue() {
@@ -281,7 +281,7 @@ public class OOMapSuite extends VialSuite {
     assertNull(map.remove(null));
 
     assertNull(map.putIfAbsent(null, 2));
-    assertEquals(new Integer(2), map.get(null));
+    assertEquals(Integer.valueOf(2), map.get(null));
   }
 
   public void testNullValue() {
@@ -310,18 +310,18 @@ public class OOMapSuite extends VialSuite {
     assertEquals(1, map.size());
     assertTrue(map.containsKey(1));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
     assertNotNull(map.putIfAbsent(1, 2));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
-    assertEquals(new Integer(2), map.remove(1));
+    assertEquals(Integer.valueOf(2), map.remove(1));
     assertEquals(0, map.size());
     assertFalse(map.containsKey(1));
     assertFalse(map.containsValue(2));
 
     assertNull(map.putIfAbsent(1, 3));
-    assertEquals(new Integer(3), map.get(1));
+    assertEquals(Integer.valueOf(3), map.get(1));
   }
 
   public void testPutWithRehash() {
@@ -333,7 +333,7 @@ public class OOMapSuite extends VialSuite {
     for (int i = 0; i < 10; ++i) {
       assertTrue(map.containsKey(i));
       assertTrue(map.containsValue(i));
-      assertEquals(new Integer(i), map.get(i));
+      assertEquals(Integer.valueOf(i), map.get(i));
     }
   }
 
@@ -346,7 +346,7 @@ public class OOMapSuite extends VialSuite {
     for (int i = 0; i < 10; ++i) {
       assertTrue(map.containsKey(i));
       assertTrue(map.containsValue(i));
-      assertEquals(new Integer(i), map.get(i));
+      assertEquals(Integer.valueOf(i), map.get(i));
     }
   }
 
@@ -361,7 +361,7 @@ public class OOMapSuite extends VialSuite {
       final BadHashCode bad = arr[i];
       assertTrue(map.containsKey(bad));
       assertTrue(map.containsValue(i));
-      assertEquals(new Integer(i), map.get(bad));
+      assertEquals(Integer.valueOf(i), map.get(bad));
     }
   }
 
@@ -393,7 +393,7 @@ public class OOMapSuite extends VialSuite {
       assertTrue(map.containsKey(i));
       assertTrue(map.containsValue(i));
 
-      assertEquals(new Integer(i), map.remove(i));
+      assertEquals(Integer.valueOf(i), map.remove(i));
       assertNull(map.remove(i));
     }
     assertEquals(0, map.size());
@@ -409,7 +409,7 @@ public class OOMapSuite extends VialSuite {
     assertTrue(map.containsValue(1));
     assertEquals(1, map.size());
 
-    assertEquals(new Integer(1), map.remove(null));
+    assertEquals(Integer.valueOf(1), map.remove(null));
     assertFalse(map.containsKey(null));
     assertFalse(map.containsValue(1));
     assertEquals(0, map.size());
@@ -554,20 +554,20 @@ public class OOMapSuite extends VialSuite {
     assertEquals(1, map.size());
     assertTrue(map.containsKey(null));
     assertTrue(map.containsValue(1));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
-    assertEquals(new Integer(1), map.putIfAbsent(null, 3));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.putIfAbsent(null, 3));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
     assertFalse(map.replace(null, null, 3));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
-    assertEquals(new Integer(1), map.replace(null, 2));
+    assertEquals(Integer.valueOf(1), map.replace(null, 2));
     assertEquals(1, map.size());
     assertTrue(map.containsKey(null));
     assertTrue(map.containsValue(2));
     assertFalse(map.containsValue(1));
-    assertEquals(new Integer(2), map.get(null));
+    assertEquals(Integer.valueOf(2), map.get(null));
 
     assertTrue(map.replace(null, 2, null));
     assertEquals(1, map.size());
@@ -582,9 +582,9 @@ public class OOMapSuite extends VialSuite {
     assertFalse(map.containsValue(null));
     assertFalse(map.containsValue(2));
     assertTrue(map.containsValue(1));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
-    assertEquals(new Integer(1), map.remove(null));
+    assertEquals(Integer.valueOf(1), map.remove(null));
     assertEquals(0, map.size());
     assertFalse(map.containsKey(null));
     assertFalse(map.containsValue(1));
@@ -592,7 +592,7 @@ public class OOMapSuite extends VialSuite {
     assertFalse(map.containsValue(3));
 
     assertNull(map.putIfAbsent(null, 2));
-    assertEquals(new Integer(2), map.get(null));
+    assertEquals(Integer.valueOf(2), map.get(null));
     assertTrue(map.containsKey(null));
     assertFalse(map.containsValue(1));
     assertTrue(map.containsValue(2));
@@ -618,7 +618,7 @@ public class OOMapSuite extends VialSuite {
     assertTrue(map.containsKey(null));
     assertTrue(map.containsValue(1));
     assertFalse(map.containsValue(null));
-    assertEquals(new Integer(1), map.get(null));
+    assertEquals(Integer.valueOf(1), map.get(null));
 
     assertTrue(map.replace(null, 1, null));
     assertEquals(1, map.size());
@@ -633,16 +633,16 @@ public class OOMapSuite extends VialSuite {
     assertFalse(map.containsValue(null));
     assertFalse(map.containsValue(1));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(null));
+    assertEquals(Integer.valueOf(2), map.get(null));
 
-    assertEquals(new Integer(2), map.remove(null));
+    assertEquals(Integer.valueOf(2), map.remove(null));
     assertEquals(0, map.size());
     assertFalse(map.containsKey(null));
     assertFalse(map.containsValue(null));
     assertFalse(map.containsValue(1));
 
     assertNull(map.putIfAbsent(null, 2));
-    assertEquals(new Integer(2), map.get(null));
+    assertEquals(Integer.valueOf(2), map.get(null));
     assertTrue(map.containsKey(null));
     assertFalse(map.containsValue(null));
     assertFalse(map.containsValue(1));
@@ -668,7 +668,7 @@ public class OOMapSuite extends VialSuite {
     assertTrue(map.containsKey(1));
     assertTrue(map.containsValue(1));
     assertFalse(map.containsValue(null));
-    assertEquals(new Integer(1), map.get(1));
+    assertEquals(Integer.valueOf(1), map.get(1));
 
     assertTrue(map.replace(1, 1, null));
     assertEquals(1, map.size());
@@ -683,11 +683,11 @@ public class OOMapSuite extends VialSuite {
     assertFalse(map.containsValue(null));
     assertFalse(map.containsValue(1));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
     assertFalse(map.replace(1, null, null));
 
-    assertEquals(new Integer(2), map.remove(1));
+    assertEquals(Integer.valueOf(2), map.remove(1));
     assertEquals(0, map.size());
     assertFalse(map.containsKey(1));
     assertFalse(map.containsValue(null));
@@ -707,36 +707,36 @@ public class OOMapSuite extends VialSuite {
     assertEquals(1, map.size());
     assertTrue(map.containsKey(1));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
-    assertEquals(new Integer(2), map.putIfAbsent(1, 3));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.putIfAbsent(1, 3));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
     assertFalse(map.replace(1, 1, 3));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
-    assertEquals(new Integer(2), map.replace(1, 1));
+    assertEquals(Integer.valueOf(2), map.replace(1, 1));
     assertEquals(1, map.size());
     assertTrue(map.containsKey(1));
     assertTrue(map.containsValue(1));
     assertFalse(map.containsValue(2));
-    assertEquals(new Integer(1), map.get(1));
+    assertEquals(Integer.valueOf(1), map.get(1));
 
     assertTrue(map.replace(1, 1, 2));
     assertEquals(1, map.size());
     assertTrue(map.containsKey(1));
     assertFalse(map.containsValue(1));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(1));
+    assertEquals(Integer.valueOf(2), map.get(1));
 
-    assertEquals(new Integer(2), map.remove(1));
+    assertEquals(Integer.valueOf(2), map.remove(1));
     assertEquals(0, map.size());
     assertFalse(map.containsKey(1));
     assertFalse(map.containsValue(1));
     assertFalse(map.containsValue(2));
 
     assertNull(map.putIfAbsent(1, 3));
-    assertEquals(new Integer(3), map.get(1));
+    assertEquals(Integer.valueOf(3), map.get(1));
     assertEquals(1, map.size());
     assertTrue(map.containsKey(1));
     assertFalse(map.containsValue(1));
@@ -784,36 +784,36 @@ public class OOMapSuite extends VialSuite {
     assertEquals(2, map.size());
     assertTrue(map.containsKey(key));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(key));
+    assertEquals(Integer.valueOf(2), map.get(key));
 
-    assertEquals(new Integer(2), map.putIfAbsent(key, 3));
-    assertEquals(new Integer(2), map.get(key));
+    assertEquals(Integer.valueOf(2), map.putIfAbsent(key, 3));
+    assertEquals(Integer.valueOf(2), map.get(key));
 
     assertFalse(map.replace(key, 1, 3));
-    assertEquals(new Integer(2), map.get(key));
+    assertEquals(Integer.valueOf(2), map.get(key));
 
-    assertEquals(new Integer(2), map.replace(key, 1));
+    assertEquals(Integer.valueOf(2), map.replace(key, 1));
     assertEquals(2, map.size());
     assertTrue(map.containsKey(key));
     assertTrue(map.containsValue(1));
     assertFalse(map.containsValue(2));
-    assertEquals(new Integer(1), map.get(key));
+    assertEquals(Integer.valueOf(1), map.get(key));
 
     assertTrue(map.replace(key, 1, 2));
     assertEquals(2, map.size());
     assertTrue(map.containsKey(key));
     assertFalse(map.containsValue(1));
     assertTrue(map.containsValue(2));
-    assertEquals(new Integer(2), map.get(key));
+    assertEquals(Integer.valueOf(2), map.get(key));
 
-    assertEquals(new Integer(2), map.remove(key));
+    assertEquals(Integer.valueOf(2), map.remove(key));
     assertEquals(1, map.size());
     assertFalse(map.containsKey(key));
     assertFalse(map.containsValue(1));
     assertFalse(map.containsValue(2));
 
     assertNull(map.putIfAbsent(key, 3));
-    assertEquals(new Integer(3), map.get(key));
+    assertEquals(Integer.valueOf(3), map.get(key));
     assertEquals(2, map.size());
     assertTrue(map.containsKey(key));
     assertFalse(map.containsValue(1));
@@ -824,10 +824,10 @@ public class OOMapSuite extends VialSuite {
   public void testGetOrDefault() {
     final OOMap<Integer, Integer> map = create.make();
     assertNull(map.getOrDefault(null, null));
-    assertEquals(new Integer(1), map.getOrDefault(null, 1));
+    assertEquals(Integer.valueOf(1), map.getOrDefault(null, 1));
 
     assertNull(map.getOrDefault(1, null));
-    assertEquals(new Integer(2), map.getOrDefault(1, 2));
+    assertEquals(Integer.valueOf(2), map.getOrDefault(1, 2));
 
     assertNull(map.put(null, 1));
     assertNull(map.put(1, 2));
@@ -840,8 +840,8 @@ public class OOMapSuite extends VialSuite {
     assertTrue(map.containsValue(1));
     assertTrue(map.containsValue(2));
 
-    assertEquals(new Integer(1), map.getOrDefault(null, null));
-    assertEquals(new Integer(2), map.getOrDefault(1, null));
+    assertEquals(Integer.valueOf(1), map.getOrDefault(null, null));
+    assertEquals(Integer.valueOf(2), map.getOrDefault(1, null));
     assertNull(map.getOrDefault(2, 3));
   }
 
@@ -849,10 +849,10 @@ public class OOMapSuite extends VialSuite {
     final OOMap<BadHashCode, Integer> map = create.make();
 
     assertNull(map.getOrDefault(null, null));
-    assertEquals(new Integer(1), map.getOrDefault(null, 1));
+    assertEquals(Integer.valueOf(1), map.getOrDefault(null, 1));
 
     assertNull(map.getOrDefault(new BadHashCode(4), null));
-    assertEquals(new Integer(2), map.getOrDefault(new BadHashCode(4), 2));
+    assertEquals(Integer.valueOf(2), map.getOrDefault(new BadHashCode(4), 2));
 
     final BadHashCode[] arr = new BadHashCode[10];
 
@@ -867,8 +867,8 @@ public class OOMapSuite extends VialSuite {
     assertTrue(map.containsValue(1));
     assertTrue(map.containsValue(2));
 
-    assertEquals(new Integer(1), map.getOrDefault(null, null));
-    assertEquals(new Integer(2), map.getOrDefault(arr[1], null));
+    assertEquals(Integer.valueOf(1), map.getOrDefault(null, null));
+    assertEquals(Integer.valueOf(2), map.getOrDefault(arr[1], null));
     assertNull(map.getOrDefault(arr[2], 3));
   }
 

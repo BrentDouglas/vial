@@ -73,8 +73,6 @@ public class Main {
     }
     final File in = new File(input);
     final File out = new File(output);
-    assert in != null && in.isDirectory();
-    assert out != null;
 
     if (!out.isDirectory() && !out.mkdirs()) {
       throw new RuntimeException("Could not create directory " + out.getAbsolutePath());
@@ -158,6 +156,9 @@ public class Main {
       }
       if (!out.isDirectory() && !out.mkdirs()) {
         throw new RuntimeException("Could not create directory " + out.getAbsolutePath());
+      }
+      if (name.endsWith(".bazel")) {
+        continue;
       }
       if (name.length() < 7 || !name.endsWith(".stg")) {
         throw new RuntimeException("Invalid template " + file.getAbsolutePath());
